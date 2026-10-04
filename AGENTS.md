@@ -1,8 +1,40 @@
 # fast-ticket-frontend — Agent Guide
 
 The web frontend for **fast-ticket**, a FastAPI REST + WebSocket API over osTicket. This is its **own repository**,
-separate from the backend (`../fast-ticket`). Framework: **Next.js** (decided 2026-10-04). The backend is **FastAPI** (`../fast-ticket`). The rest of the stack
-is not decided yet — see "Open decisions".
+separate from the backend (`../fast-ticket`, FastAPI). Framework: **Next.js**; the remaining choices are under
+"Decisions made" and "Open decisions" below.
+
+## Goal
+
+**Demonstrate that osTicket's functionality is faithfully implemented by the FastAPI backend.** The UI therefore takes
+the shape of osTicket's own staff panel (`/scp`): the same screens, navigation, queues, ticket view with thread, and
+Admin Panel pages, so a viewer can compare the two side by side and see the same data and behaviour. Fidelity to
+osTicket's *workflow* matters more than pixel-perfection, and a screen is only done when it works against the real
+stack, not a mock.
+
+- Reference for layout and fields: the osTicket source at `../osticket/osTicket` — `scp/*.php` (the pages) and
+  `include/staff/*.inc.php` (their templates). The reference *stack* for comparison runs at http://localhost:8080/scp,
+  the API at http://localhost:8000 (see the backend's `/dev-stack` skill).
+- osTicket is GPL-2.0. **Recreate** its layout and behaviour; do not copy its CSS, images, logo or template code into
+  this repo.
+- Build in the backend's order of value: login → ticket queues and ticket view → reply/note/assign/close → tasks →
+  users/organizations → knowledge base/canned → Admin Panel. Show osTicket's behaviour, including its refusals (a
+  failed command's `error_message`) — that is what proves the backend.
+- What the API cannot do yet (`../fast-ticket/notes/KNOWN_LIMITS.md`: no upload, no export, no custom queues, …) is
+  shown as absent or disabled in the UI, never faked.
+
+## Decisions made
+
+- **Next.js** (2026-10-04), TypeScript, App Router.
+- **Same-origin through Next.js (option B):** the browser only talks to Next.js. `/api` is proxied to FastAPI
+  (rewrite), and route handlers act as a thin backend-for-frontend that logs in, keeps the access token in an
+  **httpOnly cookie** (never in `localStorage`/JS), and attaches it to proxied calls. The browser therefore needs no
+  CORS and never sees the token. Because the API has no refresh tokens, a 401 sends the agent to the login screen.
+- **WebSocket:** Next.js rewrites do not reliably proxy a WebSocket upgrade, and the browser cannot attach a header to
+  one. Plan: a route handler returns a short-lived token for the socket and the browser connects straight to
+  `/api/v1/ws` with the `["bearer", token]` subprotocol (CORS does not apply to WebSockets). Settle the details when
+  the live updates are built; until then the screens refetch.
+- **Types come from the schema:** generated from the backend's `/openapi.json`, never hand-written.
 
 ## Boundary with the backend
 
@@ -25,13 +57,10 @@ is not decided yet — see "Open decisions".
 
 ## Open decisions (ask the user, do not guess)
 
-- Next.js specifics: TypeScript (assumed yes), App Router vs Pages Router, package manager, UI library, and the
+- Package manager, UI/styling approach (osTicket's look suggests plain CSS or Tailwind over a component kit), and the
   data-fetching/state approach (e.g. TanStack Query).
-- Whether the browser calls the FastAPI backend directly (needs `CORS_ORIGINS` set to the app's origin) or through
-  Next.js (a rewrite/proxy of `/api` makes it same-origin; a route-handler BFF could also hold the token in an
-  httpOnly cookie, which the API itself cannot do — it has no cookies and no refresh tokens).
-- Where the access token is kept, which follows from the previous point.
-- Where the OpenAPI schema is taken from for builds (production turns `/openapi.json` off).
+- Where the OpenAPI schema is taken from for builds (production turns `/openapi.json` off): a running dev backend, or
+  a copy committed here / published with a backend release.
 
 ## Working agreements
 
