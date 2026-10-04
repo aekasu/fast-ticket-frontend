@@ -1,17 +1,14 @@
 import { LogoutButton } from "@/components/logout-button";
-import { PanelNav, type NavItem } from "@/components/panel-nav";
+import { PanelNav } from "@/components/panel-nav";
 import { Providers } from "@/components/providers";
+import { SECTIONS } from "@/lib/nav";
 import { requireMe } from "@/lib/server/session";
 
 // Same top-level menu as osTicket's staff panel. The server enforces permissions; the menu only hides what the
 // agent cannot use (GET /auth/me).
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   const me = await requireMe();
-  const items: NavItem[] = [{ href: "/", label: "Dashboard" }];
-  if (me.is_admin || me.global_permissions.includes("user.dir")) items.push({ href: "/users", label: "Users" });
-  items.push({ href: "/tasks", label: "Tasks" }, { href: "/tickets", label: "Tickets" });
-  items.push({ href: "/kb", label: "Knowledge Base" });
-  if (me.is_admin) items.push({ href: "/admin", label: "Admin Panel" });
+  const items = SECTIONS.filter((section) => section.visible(me)).map(({ href, label }) => ({ href, label }));
 
   return (
     <Providers>

@@ -3,12 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export interface NavItem {
-  href: string;
-  label: string;
-}
-
-export function PanelNav({ items }: { items: NavItem[] }) {
+export function PanelNav({ items }: { items: { href: string; label: string }[] }) {
   const pathname = usePathname();
   return (
     <nav className="flex flex-wrap gap-1" aria-label="Main">

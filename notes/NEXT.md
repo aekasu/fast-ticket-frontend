@@ -12,10 +12,12 @@ Checked: wrong password -> 401 `invalid_credentials`; login sets `ft_token` Http
 proxied `/auth/me` works with the cookie and gives 401 without; the token does not appear in the page HTML; logout
 redirects to login.
 
-1. **Still unverified:** login as a **non-admin** agent (menu hides Admin Panel, and Users without `user.dir`). Only
-   the admin's password is known (backend `.env`); agent 10 (`probe3790`) exists but its password is not. Ask the user
-   before creating a throwaway agent in the dev DB, or use one the user provides. Also not yet checked: a 429
-   lockout message, and the `Secure` flag in a production build.
+1. **Non-admin verified (2026-10-04):** a throwaway agent `fe-agent` (non-admin, Support dept, role 3) was created in the
+   dev DB through `POST /staff`; its credentials are in the gitignored `.env.local`
+   (`FE_TEST_AGENT_USERNAME`/`FE_TEST_AGENT_PASSWORD`) for tests. For it the menu hides Users and Admin Panel and
+   `/admin`, `/users` are 404; the admin sees both. The 429 message works but the backend sends no `Retry-After`
+   (see `BACKEND_REQUESTS.md`). Not yet checked: the `Secure` cookie flag in a production build.
+   Note: five failed logins lock the address out for about a minute, which also blocks good logins from it.
 2. **Ticket queues** (`GET /tickets/queues`, list with search, sort, counts): osTicket's `scp/tickets.php` and
    `include/staff/tickets.inc.php`, compared side by side at http://localhost:8080/scp/tickets.php.
 3. Dashboard (`scp/index.php`) is a placeholder; osTicket's shows ticket activity reports. Decide what the API can

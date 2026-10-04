@@ -36,7 +36,7 @@ export function LoginForm() {
     const body = (await res?.json().catch(() => ({}))) as { error?: string; retry_after?: number };
     setBusy(false);
     if (!res) setError(MESSAGES.backend_unreachable);
-    else if (res.status === 429) setError(`Too many failed attempts. Try again in ${body.retry_after ?? "a few"} seconds.`);
+    else if (res.status === 429) setError(body.retry_after ? `Too many attempts. Try again in ${body.retry_after} seconds.` : "Too many attempts. Try again later.");
     else setError((body.error && MESSAGES[body.error]) ?? "Login failed");
   }
 
