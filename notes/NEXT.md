@@ -61,9 +61,19 @@ redirects to login.
    requester a ticket created (`deleteTicketAndUser`), so runs leave no users behind.
    Not built: user account management (register, lock, password reset, activation mail; the API has endpoints),
    organization account manager and primary contacts, collaborator defaults, custom user/org form fields, import.
-6. **Next: Knowledge Base (FAQ) and canned responses**, then the **Admin Panel** (staff, teams, departments, help topics,
-   SLA, forms, settings, …) and the **Dashboard** (placeholder; osTicket's shows ticket activity reports, decide what
-   the API can back). Read `../fast-ticket/notes/KNOWN_LIMITS.md` first: many admin lists are admin-only.
+6. **Knowledge Base: built and verified (2026-10-04)**: `/kb` (category sidebar with counts, categories or one
+   category's FAQs, Add New FAQ, Edit/Delete Category), `/kb/faqs/[id]` (+ edit, new), `/kb/categories` (+ new, edit),
+   `/kb/canned` (+ new, `[id]` edit with Delete). FAQ answers are HTML (sanitised on display). Gated by `faq.manage`
+   (global) and `canned.manage` (role in any department); the Canned tab is hidden without it. `e2e/kb.spec.ts`
+   compares categories, counts, FAQ lists and canned responses with osTicket's pages and runs category/FAQ/canned round
+   trips. Seed: `npm run seed:dev` now adds 3 categories and 6 FAQs. Not built: FAQ search, attachments, FAQ ->
+   help topic links, "Print", canned attachments, using a canned response in the reply box (the API has a picker list:
+   `GET /canned` filtered by department; wire it into `ticket-actions.tsx`).
+7. **Next: the Admin Panel** (osTicket's `scp/admin.php`: Settings, Manage: Help Topics, Ticket Filters, SLA, API keys,
+   Pages, Forms, Lists, Plugins; Emails; Staff: Agents, Teams, Roles, Departments) and the **Dashboard** (placeholder;
+   osTicket's shows ticket activity reports, decide what the API can back). Read
+   `../fast-ticket/notes/KNOWN_LIMITS.md` and the schema for what `/staff`, `/teams`, `/departments`, `/topics`,
+   `/slas`, `/forms`, `/roles` offer; many are admin-only and some admin pages have no API at all (show them absent).
 
 Run the app with `npm run dev` (it unsets the agent env vars so Next does not rewrite `AGENTS.md`). Log in with the
 backend's seeded admin: source `../fast-ticket/.env` inside a command, never print it.

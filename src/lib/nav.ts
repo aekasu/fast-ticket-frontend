@@ -34,3 +34,7 @@ export function hasGlobal(me: Me, permission: string): boolean {
 }
 
 export const canBrowseDirectory = (me: Me) => hasGlobal(me, "user.dir");
+
+/** Canned responses are managed through a role permission (`canned.manage`) in any of the agent's departments. */
+export const canManageCanned = (me: Me) => me.is_admin || Object.values(me.roles).some((permissions) => permissions.includes("canned.manage"));
+export const canManageFaqs = (me: Me) => hasGlobal(me, "faq.manage");

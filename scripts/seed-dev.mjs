@@ -93,3 +93,27 @@ for (const [i, title] of taskTitles.entries()) {
   if (n >= 7) await send("POST", `/api/v1/tasks/${id}/close`, `fe-seed-task-${n}-close`, {});
   console.log(`task ${n} ok (${id})`);
 }
+
+// Knowledge base: 3 categories (one private) and 6 FAQs, one of them unpublished.
+const categories = [
+  ["[seed] Accounts and access", "How to get into your accounts.", true],
+  ["[seed] Hardware", "Printers, monitors and laptops.", true],
+  ["[seed] Internal procedures", "For agents only.", false],
+];
+const categoryIds = [];
+for (const [i, [name, description, is_public]] of categories.entries()) {
+  const r = await send("POST", "/api/v1/kb/categories", `fe-seed-category-${i + 1}`, { name, description, is_public });
+  categoryIds.push(Object.values(r).find((v) => Number.isInteger(v) && v > 0));
+}
+const faqs = [
+  [0, "How do I reset my password?", "Use the <b>Forgot my password</b> link on the login page.", true],
+  [0, "Why is my account locked?", "Five failed logins lock an account for five minutes.", true],
+  [1, "The printer on floor 2 is offline", "Check the cable, then restart the print spooler.", true],
+  [1, "How do I order a second monitor?", "Open a ticket under the Request help topic.", true],
+  [2, "How to close a ticket", "Post a response, then use <i>Close</i> in the ticket toolbar.", true],
+  [2, "Draft: escalation policy", "Not final yet.", false],
+];
+for (const [i, [c, question, answer, is_published]] of faqs.entries()) {
+  await send("POST", "/api/v1/kb/faqs", `fe-seed-faq-${i + 1}`, { category_id: categoryIds[c], question: `[seed] ${question}`, answer, is_published });
+}
+console.log(`kb ok: ${categoryIds.length} categories, ${faqs.length} faqs`);

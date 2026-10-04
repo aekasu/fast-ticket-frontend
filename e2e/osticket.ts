@@ -19,7 +19,7 @@ export async function osticketAdmin(): Promise<APIRequestContext> {
   return ctx;
 }
 
-const text = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+const text = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&mdash;/g, "—").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
 
 /** The ticket numbers on one page of osTicket's list for a queue id, in the order osTicket shows them. */
 export async function osticketQueuePage(ctx: APIRequestContext, queueId: number, page = 1): Promise<string[]> {
@@ -110,4 +110,21 @@ export async function osticketDirectoryNames(ctx: APIRequestContext, page: "user
 /** The text of osTicket's page for a user or organization (`users.php?id=`, `orgs.php?id=`). */
 export async function osticketPageText(ctx: APIRequestContext, path: string): Promise<string> {
   return text(await (await ctx.get(path)).text());
+}
+
+/** The cell texts of every row in the first table of an osTicket page (the first cell is usually a checkbox). */
+export async function osticketRows(ctx: APIRequestContext, path: string): Promise<string[][]> {
+  const html = await (await ctx.get(path)).text();
+  const table = /<table[^>]*>[\s\S]*?<\/table>/.exec(html)?.[0] ?? "";
+  // Some osTicket tables have no <tbody>; rows with data cells are the data rows either way.
+  return (table.match(/<tr[\s\S]*?<\/tr>/g) ?? []).map((r) => (r.match(/<td[\s\S]*?<\/td>/g) ?? []).map(text)).filter((cells) => cells.length > 0);
+}
+
+/** osTicket's knowledge base page: the category links with their FAQ counts, and the FAQ links on it. */
+export async function osticketKb(ctx: APIRequestContext, cid?: number) {
+  const html = await (await ctx.get(`kb.php${cid ? `?cid=${cid}` : ""}`)).text();
+  const categories = [...html.matchAll(/<a[^>]*href="kb\.php\?cid=(\d+)"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => text(m[2]));
+  const faqs = [...html.matchAll(/<a[^>]*href="faq\.php\?id=(\d+)[^"]*"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => text(m[2]).replace(/\s+-\s+(Published|Internal)$/, "")).filter(Boolean);
+  const body = text(/<div id="content"[\s\S]*?(?=<div id="footer"|<\/body>)/.exec(html)?.[0] ?? html);
+  return { categories: [...new Set(categories)], faqs: [...new Set(faqs)], body };
 }

@@ -92,3 +92,13 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
   and keeps the rows whose `user_id` matches. The Organization filter on the user list works.
 - **For reference (osTicket, not a gap):** its `users.php?org_id=` ignores the filter and an organization's members
   are shown on `orgs.php?id=`; phone numbers are stored as digits (`555-0100` comes back as `5550100`).
+
+## Knowledge base lists have no search or counts
+
+- **Needs (osTicket's kb.php and categories.php):** a FAQ search, each category's FAQ count, and the FAQ's
+  attachments; on the canned-response picker, the same variables expansion osTicket offers.
+- **Gives (observed 2026-10-04):** `GET /kb/faqs` filters only by `category_id`; no search, no per-category count,
+  no `total`; FAQ and canned attachments are not exposed (`KNOWN_LIMITS.md`).
+- **Meanwhile:** the KB screens read the whole (small) lists, up to 200 each, and count and filter on the client;
+  there is no search box (a note says so). If a helpdesk has more than 200 FAQs the counts would be wrong.
+- **For reference:** osTicket calls an unpublished FAQ "Internal"; the UI uses its word.
