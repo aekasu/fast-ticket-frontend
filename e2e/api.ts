@@ -22,12 +22,24 @@ export async function command(
   return { status: done.status, error_message: done.error_message, result: done.result_payload ? JSON.parse(done.result_payload) : {} };
 }
 
-/** Create a ticket; returns its id and a function that deletes it again. */
+/**
+ * Delete a ticket and then its requester. Deleting a ticket leaves the requester in osTicket's user directory, so a
+ * test that creates a ticket would otherwise leave a user behind. A refusal (the user still has other tickets) is
+ * ignored: the user is only removed when nothing else uses it.
+ */
+export async function deleteTicketAndUser(request: APIRequestContext, ticketId: number) {
+  const ticket = await request.get(`/api/v1/tickets/${ticketId}`);
+  const userId = ticket.ok() ? ((await ticket.json()) as { user_id: number | null }).user_id : null;
+  await command(request, "DELETE", `/api/v1/tickets/${ticketId}`);
+  if (userId != null) await command(request, "DELETE", `/api/v1/users/${userId}`).catch(() => undefined);
+}
+
+/** Create a ticket; returns its id and a function that deletes it (and its requester) again. */
 export async function createTicket(request: APIRequestContext, body: { subject: string; message: string; name?: string; email?: string }) {
   const done = await command(request, "POST", "/api/v1/tickets/", { name: "E2E Tester", email: "e2e@example.com", ...body });
   expect(done.status, done.error_message ?? "").toBe("done");
   const id = done.result.ticket_id as number;
-  return { id, remove: () => command(request, "DELETE", `/api/v1/tickets/${id}`) };
+  return { id, remove: () => deleteTicketAndUser(request, id) };
 }
 
 /** Create a task; returns its id and a function that deletes it again. */

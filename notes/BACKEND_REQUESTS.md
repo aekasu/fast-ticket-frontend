@@ -79,3 +79,16 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 - **Meanwhile:** the Ticket column looks each number up through `GET /tickets/{id}` (one request per distinct ticket,
   cached); the tab counts are three filtered list calls (`total` with `page_size=1`); there is no Overdue tab and
   no Collaborators row. The Open and Completed counts and every queue's contents match osTicket's on the dev data.
+
+## The user and organization lists are thinner than osTicket's directory
+
+- **Needs (osTicket's User Directory and Organizations pages):** a text search (`query`), sorting, a `total`, each
+  user's ticket count and registration status (Guest / Registered / Locked, from the account), and each
+  organization's member count; on a user's page, their tickets (a `user_id` filter on `GET /tickets/`).
+- **Gives (observed 2026-10-04):** `GET /users` takes only `org_id`, `page`, `page_size`; `GET /orgs` only paging.
+  Neither returns a `total`. The user list item's `status` is the integer 0 for everyone (not the account state).
+- **Meanwhile:** the lists have no search or sort and page by "a full page may have a next"; the Status and ticket-count
+  columns are left out (a note under the table says so); a user's Tickets table searches tickets by the user's email
+  and keeps the rows whose `user_id` matches. The Organization filter on the user list works.
+- **For reference (osTicket, not a gap):** its `users.php?org_id=` ignores the filter and an organization's members
+  are shown on `orgs.php?id=`; phone numbers are stored as digits (`555-0100` comes back as `5550100`).

@@ -19,7 +19,7 @@ export async function osticketAdmin(): Promise<APIRequestContext> {
   return ctx;
 }
 
-const text = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+const text = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
 
 /** The ticket numbers on one page of osTicket's list for a queue id, in the order osTicket shows them. */
 export async function osticketQueuePage(ctx: APIRequestContext, queueId: number, page = 1): Promise<string[]> {
@@ -90,4 +90,24 @@ export async function osticketTask(ctx: APIRequestContext, id: number) {
     if (label && !(label in info)) info[label] = text(m[2]);
   }
   return { info, html };
+}
+
+/** The names listed on osTicket's user directory (or organizations) page, across its pages. A user's trailing
+ * ticket count, "Ada Lovelace (8)", is dropped. */
+export async function osticketDirectoryNames(ctx: APIRequestContext, page: "users.php" | "orgs.php", query = ""): Promise<string[]> {
+  const names: string[] = [];
+  for (let p = 1; p <= 20; p++) {
+    const html = await (await ctx.get(`${page}?${query}${query ? "&" : ""}p=${p}`)).text();
+    const body = /<tbody>([\s\S]*?)<\/tbody>/.exec(html)?.[1] ?? "";
+    const rows = (body.match(/<tr[\s\S]*?<\/tr>/g) ?? []).map((r) => text((r.match(/<td[\s\S]*?<\/td>/g) ?? [])[1] ?? "").replace(/\s*\(\d+\)$/, "")).filter(Boolean);
+    const fresh = rows.filter((n) => !names.includes(n));
+    if (fresh.length === 0) break;
+    names.push(...rows);
+  }
+  return names;
+}
+
+/** The text of osTicket's page for a user or organization (`users.php?id=`, `orgs.php?id=`). */
+export async function osticketPageText(ctx: APIRequestContext, path: string): Promise<string> {
+  return text(await (await ctx.get(path)).text());
 }

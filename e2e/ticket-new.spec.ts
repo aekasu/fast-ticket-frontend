@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { command } from "./api";
+import { deleteTicketAndUser } from "./api";
 import { AUTH } from "./global-setup";
 import { osticketAdmin, osticketTicket } from "./osticket";
 
@@ -37,7 +37,7 @@ test.describe("New Ticket as the admin", () => {
       expect(ref.html).toContain("Created by the e2e suite.");
       await expect(page.locator("th", { hasText: "Priority:" }).locator("xpath=following-sibling::td[1]")).toHaveText("High");
     } finally {
-      if (id) await command(request, "DELETE", `/api/v1/tickets/${id}`);
+      if (id) await deleteTicketAndUser(request, id);
       await os.dispose();
     }
   });

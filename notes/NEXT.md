@@ -52,9 +52,18 @@ redirects to login.
    `e2e/tasks.spec.ts` compares queues, counts and every action with osTicket's own Tasks page. Shared pieces now live
    in `action-ui.tsx` (runner, notice bar), `thread.tsx`, `queries/actions.ts`. Gaps (BACKEND_REQUESTS.md): no Overdue
    tab, no Collaborators row, "My Tasks" ignores team assignments, no task Delete button yet.
-5. **Next: Users and Organizations** (`scp/users.php`, `orgs.php`; API `/users`, `/organizations`; needs `user.dir`),
-   then Knowledge Base and canned responses, then the Admin Panel and the Dashboard (placeholder; osTicket's shows
-   ticket activity reports, decide what the API can back).
+5. **Users and Organizations: built and verified (2026-10-04)**: `/users` (directory with organization filter, Add
+   User), `/users/[id]` (info, their tickets, Edit, Delete), `/users/new`, `/users/[id]/edit`, and `/orgs`,
+   `/orgs/[id]` (info and members, Edit, Delete), `/orgs/new`, `/orgs/[id]/edit`; gated by `user.dir` / `user.create` /
+   `user.edit` / `user.delete` / `org.*` from `/auth/me` (global permissions, `hasGlobal()` in `lib/nav.ts`). Deletes sit
+   behind a confirmation (`delete-button.tsx`). `e2e/directory.spec.ts` compares both lists with osTicket's pages and
+   runs create / update / delete round trips confirmed on osTicket's pages. Test helpers now also delete the
+   requester a ticket created (`deleteTicketAndUser`), so runs leave no users behind.
+   Not built: user account management (register, lock, password reset, activation mail; the API has endpoints),
+   organization account manager and primary contacts, collaborator defaults, custom user/org form fields, import.
+6. **Next: Knowledge Base (FAQ) and canned responses**, then the **Admin Panel** (staff, teams, departments, help topics,
+   SLA, forms, settings, …) and the **Dashboard** (placeholder; osTicket's shows ticket activity reports, decide what
+   the API can back). Read `../fast-ticket/notes/KNOWN_LIMITS.md` first: many admin lists are admin-only.
 
 Run the app with `npm run dev` (it unsets the agent env vars so Next does not rewrite `AGENTS.md`). Log in with the
 backend's seeded admin: source `../fast-ticket/.env` inside a command, never print it.

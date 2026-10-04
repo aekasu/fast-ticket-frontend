@@ -8,7 +8,7 @@ import { requireMe } from "@/lib/server/session";
 // agent cannot use (GET /auth/me).
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   const me = await requireMe();
-  const items = SECTIONS.filter((section) => section.visible(me)).map(({ href, label }) => ({ href, label }));
+  const items = SECTIONS.filter((section) => section.visible(me)).map(({ href, label, also }) => ({ href, label, also }));
 
   return (
     <Providers>

@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function PanelNav({ items }: { items: { href: string; label: string }[] }) {
+export function PanelNav({ items }: { items: { href: string; label: string; also?: string[] }[] }) {
   const pathname = usePathname();
   return (
     <nav className="flex flex-wrap gap-1" aria-label="Main">
       {items.map((item) => {
-        const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+        const active = item.href === "/" ? pathname === "/" : [item.href, ...(item.also ?? [])].some((prefix) => pathname.startsWith(prefix));
         return (
           <Link
             key={item.href}

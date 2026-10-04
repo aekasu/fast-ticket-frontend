@@ -6,23 +6,8 @@ import { formatDateTime } from "@/lib/format";
 import { useTask } from "@/lib/queries/tasks";
 import { useTicket } from "@/lib/queries/tickets";
 import { TaskReplyBox, TaskToolbar } from "./task-actions";
+import { Info } from "./info-table";
 import { Thread } from "./thread";
-
-function Info({ rows }: { rows: [string, React.ReactNode][] }) {
-  return (
-    <table className="w-full border border-slate-300 bg-white text-sm">
-      <tbody>
-        {rows.map(([label, value]) => (
-          <tr key={label} className="border-t border-slate-200 first:border-t-0">
-            <th className="w-40 bg-slate-100 px-3 py-1.5 text-left font-semibold text-slate-700">{label}:</th>
-            <td className="px-3 py-1.5">{value}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-}
-
 function LinkedTicket({ id }: { id: number }) {
   const { data } = useTicket(id);
   return (

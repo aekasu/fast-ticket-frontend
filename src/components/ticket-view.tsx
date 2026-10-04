@@ -5,23 +5,8 @@ import { ApiError } from "@/lib/api/errors";
 import { formatDateTime } from "@/lib/format";
 import { useTicket, useTicketOwner } from "@/lib/queries/tickets";
 import { TicketReplyBox, TicketToolbar } from "./ticket-actions";
+import { Info } from "./info-table";
 import { Thread } from "./thread";
-
-function Info({ rows }: { rows: [string, React.ReactNode][] }) {
-  return (
-    <table className="w-full border border-slate-300 bg-white text-sm">
-      <tbody>
-        {rows.map(([label, value]) => (
-          <tr key={label} className="border-t border-slate-200 first:border-t-0">
-            <th className="w-40 bg-slate-100 px-3 py-1.5 text-left font-semibold text-slate-700">{label}:</th>
-            <td className="px-3 py-1.5">{value}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-}
-
 export function TicketView({ id }: { id: number }) {
   const { data: ticket, error, isLoading } = useTicket(id);
   const { data: owner } = useTicketOwner(ticket?.user_id);

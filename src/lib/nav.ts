@@ -5,12 +5,14 @@ export interface Section {
   label: string;
   /** Hides the entry (and its page) from agents who cannot use it. The server enforces the real rule. */
   visible: (me: Me) => boolean;
+  /** Other path prefixes that belong under this menu entry (osTicket keeps Organizations under Users). */
+  also?: string[];
 }
 
 // osTicket's top-level menu, in its order.
 export const SECTIONS: Section[] = [
   { href: "/", label: "Dashboard", visible: () => true },
-  { href: "/users", label: "Users", visible: (me) => me.is_admin || me.global_permissions.includes("user.dir") },
+  { href: "/users", label: "Users", visible: (me) => me.is_admin || me.global_permissions.includes("user.dir"), also: ["/orgs"] },
   { href: "/tasks", label: "Tasks", visible: () => true },
   { href: "/tickets", label: "Tickets", visible: () => true },
   { href: "/kb", label: "Knowledge Base", visible: () => true },
@@ -25,3 +27,10 @@ export function canCreateTickets(me: Me): boolean {
 export function canCreateTasks(me: Me): boolean {
   return me.is_admin || Object.values(me.roles).some((permissions) => permissions.includes("task.create"));
 }
+
+/** Global (not per-department) permissions, as `/auth/me` lists them. Administrators have all. */
+export function hasGlobal(me: Me, permission: string): boolean {
+  return me.is_admin || me.global_permissions.includes(permission);
+}
+
+export const canBrowseDirectory = (me: Me) => hasGlobal(me, "user.dir");
