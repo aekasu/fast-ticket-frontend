@@ -158,3 +158,14 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 - **Meanwhile:** the frontend fills in the variables it can resolve (`src/lib/canned.ts`, unit-tested; verified equal
   to osTicket's own expansion for the dev responses), leaves the others as written and says which. An endpoint such as
   `GET /tickets/{id}/canned/{cid}` would remove that duplication of osTicket's variable list.
+
+## Ticket relations and statuses osTicket offers that the API does not
+
+- **Needs (osTicket's ticket "More" menu and status control):** Link Tickets (and unlink), un-merge, Manage Referrals
+  (list and remove), the ticket status choice (Open / Resolved / Closed and custom statuses) on a reply or from the
+  menu, and Print.
+- **Gives (observed 2026-10-04):** `merge` (children are closed and hidden from the queues, as osTicket does), `refer`
+  (create only; osTicket records an internal note "Referral" and an event), `close` and `reopen` only. The
+  `ticket.link` permission exists but no route uses it.
+- **Meanwhile:** the toolbar has Merge Tickets and Refer; there is no Link, no referral list, and no status choice
+  beyond Close / Reopen. The referral panel says referrals cannot be listed or removed.

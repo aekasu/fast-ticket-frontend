@@ -1,5 +1,6 @@
 import { request } from "@playwright/test";
 import { mkdirSync } from "node:fs";
+import { sweepTestData } from "./sweep";
 
 export const AUTH = { admin: "playwright/.auth/admin.json", agent: "playwright/.auth/agent.json" };
 
@@ -17,4 +18,6 @@ export default async function globalSetup(config: { projects: { use: { baseURL?:
   mkdirSync("playwright/.auth", { recursive: true });
   await login(baseURL, process.env.OSTICKET_ADMIN_USERNAME, process.env.OSTICKET_ADMIN_PASSWORD, AUTH.admin);
   await login(baseURL, process.env.FE_TEST_AGENT_USERNAME, process.env.FE_TEST_AGENT_PASSWORD, AUTH.agent);
+  // Start clean: remove what an earlier run that died left behind.
+  await sweepTestData(baseURL, AUTH.admin);
 }

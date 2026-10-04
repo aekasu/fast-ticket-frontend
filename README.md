@@ -44,7 +44,7 @@ Production: `npm run build && npm start`. The session cookie is then `Secure`, s
 ## Tests
 
 Unit tests (`npm run test:unit`, Vitest) cover the pure pieces. End-to-end tests drive the real stack and compare each screen with osTicket's own page (they log in to `/scp` as the
-administrator). They create what they need and delete it again.
+administrator). They create what they need and delete it again; a sweep in global setup and teardown (`e2e/sweep.ts`) also removes anything a crashed run left, by its `E2E`/`[e2e]` names.
 
 ```bash
 npx playwright install chromium            # once

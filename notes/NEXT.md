@@ -90,16 +90,20 @@ redirects to login.
    *absent* call `settled(page)` first (`e2e/api.ts`).
 
 **Every screen in osTicket's staff menu now exists** (Dashboard, Users, Tasks, Tickets, Knowledge Base, Admin Panel),
-each compared with osTicket's own pages by `npm run test:e2e` (69 e2e tests, plus 16 unit tests from `npm run test:unit`). What is left is depth, in this order:
+each compared with osTicket's own pages by `npm run test:e2e` (75 e2e tests, plus 16 unit tests from `npm run test:unit`). What is left is depth, in this order:
 1. ~~README and production build check~~ done (2026-10-04): `README.md`; `npm run build` passes; in a production
    build the cookie is `Secure; HttpOnly; SameSite=Lax`; `next.config.ts` sets X-Frame-Options DENY, nosniff,
    Referrer-Policy and Permissions-Policy and drops X-Powered-By. Not done: a CSP (Next's inline scripts need a nonce
    setup) and serving behind real HTTPS.
 1. Ticket depth. Done 2026-10-04: **canned responses in the reply box** (picker, Append, variables filled in by
-   `src/lib/canned.ts` and verified equal to osTicket's own `ajax.php/tickets/{id}/canned-resp/{cid}.txt`), and dates
-   now use osTicket's style (`10/4/26 6:45 PM`, `formatDateTime`). Not done: a **signature** selector (the API accepts
-   any value and its effect cannot be seen; BACKEND_REQUESTS.md), Refer / Merge / Link / Change Owner, collaborators,
-   thread entry edit and resend, the full status dropdown, mass actions on the list, advanced search.
+   `src/lib/canned.ts`, verified equal to osTicket's own `ajax.php/tickets/{id}/canned-resp/{cid}.txt`);
+   dates in osTicket's style (`10/4/26 6:45 PM`, `formatDateTime`); **Change Owner, Manage Collaborators (add, alerts,
+   active, remove), Merge Tickets, Refer and Delete Ticket** (`components/ticket-people.tsx`), each confirmed on
+   osTicket's own ticket page (it records events such as "merged this ticket with Ticket #...", "referred this to Sales",
+   "added ... as collaborators"). Not done: a **signature** selector (the API accepts any value and its effect cannot be
+   seen), Link Tickets, un-merge, referral list/remove, the status choice beyond Close/Reopen, thread entry edit and
+   resend, collaborators from an email that is not yet a user, mass actions on the list, advanced search
+   (all in BACKEND_REQUESTS.md where the API is the limit).
 2. User accounts (register, lock, password reset, activation), organization account manager and primary contacts,
    admin array fields (team and department members, an agent's extended access and permissions, topic forms).
 3. Live updates over the WebSocket (design in AGENTS.md; read `../fast-ticket/notes/EVENTS.md` first), then Vitest
@@ -149,3 +153,11 @@ there, never from here.
   `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`. Local repo, no remote yet.
 - Never commit `.env` files or secrets; `.env.example` documents each variable.
 - Before ending a session: everything committed, this file current, and say whether the conversation can be cleared.
+
+## Test hygiene (2026-10-04)
+
+`e2e/sweep.ts` runs in global setup and teardown and deletes whatever the tests create, found by its name (`[e2e]`
+tickets and tasks, `E2E ...` users, organizations, categories, canned responses, departments, teams, topics, SLAs,
+`e2e-...` agents, ban rules and priorities), so a test that dies midway leaves nothing. Any new test that creates a
+record must give it one of those names. A test that changes a ticket's owner must delete the original requester itself
+(`deleteTicketAndUser` deletes only the current owner). Check by hand: open tickets 31, closed 0, users 20, open tasks 6.

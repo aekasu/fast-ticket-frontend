@@ -5,6 +5,7 @@ import { ApiError } from "@/lib/api/errors";
 import { formatDateTime } from "@/lib/format";
 import { useTicket, useTicketOwner } from "@/lib/queries/tickets";
 import { TicketReplyBox, TicketToolbar } from "./ticket-actions";
+import { TicketPeopleTools } from "./ticket-people";
 import { Info } from "./info-table";
 import { Thread } from "./thread";
 export function TicketView({ id }: { id: number }) {
@@ -46,6 +47,7 @@ export function TicketView({ id }: { id: number }) {
       </div>
 
       <TicketToolbar ticket={ticket} />
+      <TicketPeopleTools ticket={ticket} />
 
       <div className="mb-4 grid gap-4 lg:grid-cols-2">
         <div className="space-y-4">

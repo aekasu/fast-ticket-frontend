@@ -72,3 +72,19 @@ export function useAllOrgs() {
 export function createdId(result: Record<string, unknown>): number | undefined {
   return Object.values(result).find((v): v is number => typeof v === "number" && Number.isInteger(v) && v > 0);
 }
+
+/**
+ * Everyone in the user directory (up to 200), for picking an owner or a collaborator. Listing users needs the
+ * `user.dir` permission: for an agent without it this is `null`, and the screens say so.
+ */
+export function useUserOptions(enabled = true) {
+  return useQuery({
+    queryKey: [...directoryKeys.users, "options"],
+    enabled,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data } = await api.GET("/api/v1/users", { params: { query: { page: 1, page_size: 200 } } });
+      return data?.items ?? null;
+    },
+  });
+}
