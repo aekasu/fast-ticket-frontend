@@ -118,8 +118,11 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 - **Forms (corrected 2026-10-04):** an earlier version of this note said the API could not manage form fields; it can
   (`POST/PATCH/DELETE /forms/{id}/fields`, `POST /forms`, `DELETE /forms/{id}`), and the Admin Panel now uses them.
   Still missing: field types beyond those listed (lists, files), `min`/`max` options of date fields.
-- **Not exposed by the frontend yet (the API can):** team and department members, an agent's extended department
-  access, teams and permissions, a help topic's custom forms.
+- **Exposed by the frontend (2026-10-04):** team members, a department's extended-access agents, an agent's extended
+  department access, teams and permissions, and a help topic's custom forms (`components/admin-relations.tsx`).
+- **Still needed for those editors:** a list of roles (their ids are typed in, with the ones agents already use offered),
+  and the permission keys as data: the 12 keys in `PERMISSIONS` are the ones the administrator holds, the schema only says
+  "see app/core/permissions.py".
 
 ## No dashboard activity report and no self-service profile
 

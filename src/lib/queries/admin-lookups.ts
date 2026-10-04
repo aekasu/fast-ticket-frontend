@@ -38,3 +38,44 @@ export function useAdminLookups() {
   return { options, names, loading: departments.isLoading || priorities.isLoading || slas.isLoading || agents.isLoading || topics.isLoading };
 }
 export type AdminLookups = ReturnType<typeof useAdminLookups>;
+
+/** Every agent with the fields the relation editors need (admin-only: the full staff list). */
+export function useStaffList() {
+  return useQuery({
+    queryKey: ["admin", "staff", "all"],
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data } = await api.GET("/api/v1/staff", { params: { query: { page: 1, page_size: 200 } } });
+      return data?.items ?? [];
+    },
+  });
+}
+
+/** Teams, for an agent's team membership. */
+export function useTeamsList() {
+  return useQuery({
+    queryKey: ["admin", "teams", "all"],
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data } = await api.GET("/api/v1/teams", { params: { query: { page: 1, page_size: 200 } } });
+      return data?.items ?? [];
+    },
+  });
+}
+
+/** Custom forms, for a help topic. */
+export function useFormsList() {
+  return useQuery({
+    queryKey: ["admin", "forms", "all"],
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data } = await api.GET("/api/v1/forms", { params: { query: { page: 1, page_size: 200 } } });
+      return data?.items ?? [];
+    },
+  });
+}
+
+/** Roles cannot be listed through the API: the ids already in use by agents are the only ones known. */
+export function knownRoleIds(staff: { role_id?: number | null }[], extra: number[] = []): number[] {
+  return [...new Set([...staff.map((s) => s.role_id ?? 0), ...extra].filter((id) => id > 0))].sort((a, b) => a - b);
+}

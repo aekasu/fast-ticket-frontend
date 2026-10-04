@@ -90,7 +90,7 @@ redirects to login.
    *absent* call `settled(page)` first (`e2e/api.ts`).
 
 **Every screen in osTicket's staff menu now exists** (Dashboard, Users, Tasks, Tickets, Knowledge Base, Admin Panel),
-each compared with osTicket's own pages by `npm run test:e2e` (85 e2e tests, plus 28 unit tests from `npm run test:unit`). What is left is depth, in this order:
+each compared with osTicket's own pages by `npm run test:e2e` (89 e2e tests, plus 28 unit tests from `npm run test:unit`). What is left is depth, in this order:
 1. ~~README and production build check~~ done (2026-10-04): `README.md`; `npm run build` passes; in a production
    build the cookie is `Secure; HttpOnly; SameSite=Lax`; `next.config.ts` sets X-Frame-Options DENY, nosniff,
    Referrer-Policy and Permissions-Policy and drops X-Powered-By. Not done: a CSP (Next's inline scripts need a nonce
@@ -175,3 +175,15 @@ task page and form builder). Tests that add fields name them `e2e_cf_*` so the s
 Open: a non-admin agent cannot type custom answers (form definitions are admin-only: BACKEND_REQUESTS.md); `files`,
 list and `info` custom field types are display-only or unsupported; organization account manager and primary contacts;
 custom field answers on the list screens (osTicket can add them as columns).
+
+## Admin relation editors (2026-10-04)
+
+`components/admin-relations.tsx`, shown on the detail page of teams, departments, agents and help topics, each saving
+only its own field with a PATCH: team members and alert flags; a department's extended-access agents (agent, role id,
+alerts) plus its assignment and alerts settings (now form fields); an agent's extended departments, teams and global
+permissions (three saves); a help topic's custom forms (the ticket form always stays). `e2e/admin-relations.spec.ts`
+checks the stored values, osTicket's page where it shows them, and, for the agent editor, logs in as the edited agent and
+confirms `/auth/me` reports the new permissions and departments. The topic test's osTicket check is weak (it falls back
+to the API value). Role ids are typed (roles cannot be listed); see BACKEND_REQUESTS.md.
+Next: live updates over the WebSocket (read `../fast-ticket/notes/EVENTS.md`, design in AGENTS.md), then organization account
+manager and primary contacts, custom answers as list columns, and depth items in BACKEND_REQUESTS.md that need the API.

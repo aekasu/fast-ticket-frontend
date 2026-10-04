@@ -118,15 +118,7 @@ export const RESOURCES: Record<string, ResourceDef> = {
       { name: "assigned_only", label: "Limit access to tickets assigned to them", kind: "bool" },
       { name: "notes", label: "Internal Notes", kind: "textarea" },
     ],
-    sections: [
-      {
-        title: "Extended access",
-        headers: ["Department", "Role ID", "Alerts"],
-        rows: (d, lk) => ((d.department_access as Row[]) ?? []).map((a) => [lookup(lk.names.departments, a.dept_id), s(a.role_id), yes(a.alerts)]),
-      },
-      { title: "Teams", headers: ["Team ID"], rows: (d) => ((d.teams as unknown[]) ?? []).map((t) => [typeof t === "object" ? s((t as Row).team_id ?? (t as Row).id) : s(t)]) },
-      { title: "Permissions", headers: ["Permission"], rows: (d) => ((d.permissions as string[]) ?? []).map((p) => [p]) },
-    ],
+    // Extended access, teams and permissions are edited by StaffAccessEditor.
     canDelete: (d) => d.id !== 1,
   },
 
@@ -160,9 +152,7 @@ export const RESOURCES: Record<string, ResourceDef> = {
       { name: "no_alerts", label: "Do not send alerts to the team", kind: "bool" },
       { name: "notes", label: "Internal Notes", kind: "textarea" },
     ],
-    sections: [
-      { title: "Members", headers: ["Agent"], rows: (d, lk) => ((d.members as unknown[]) ?? []).map((m) => [typeof m === "object" ? lookup(lk.names.agents, (m as Row).staff_id ?? (m as Row).id) : lookup(lk.names.agents, m)]) },
-    ],
+    // Members are edited by TeamMembersEditor.
   },
 
   departments: {
@@ -198,13 +188,13 @@ export const RESOURCES: Record<string, ResourceDef> = {
       { name: "parent_id", label: "Parent Department", kind: "select", optionsFrom: "departments", none: null },
       { name: "manager_id", label: "Manager", kind: "select", optionsFrom: "agents", none: 0 },
       { name: "sla_id", label: "SLA Plan", kind: "select", optionsFrom: "slas", none: 0 },
+      { name: "assignment", label: "Ticket assignment", kind: "select", options: [{ value: "all", label: "Any agent" }, { value: "members", label: "Department members only" }, { value: "primary", label: "Primary members only" }] },
+      { name: "alerts_to", label: "Send alerts to", kind: "select", options: [{ value: "no_one", label: "No one" }, { value: "admin_only", label: "Administrators only" }, { value: "dept_only", label: "Department members" }, { value: "dept_and_extended", label: "Department and extended-access members" }] },
       { name: "ticket_auto_response", label: "Send an auto-response when a ticket is opened", kind: "bool", defaultChecked: true },
       { name: "message_auto_response", label: "Send an auto-response when a message is posted", kind: "bool", defaultChecked: true },
       { name: "signature", label: "Department Signature", kind: "textarea" },
     ],
-    sections: [
-      { title: "Agents", headers: ["Agent"], rows: (d, lk) => ((d.members as unknown[]) ?? []).map((m) => [typeof m === "object" ? lookup(lk.names.agents, (m as Row).staff_id ?? (m as Row).id) : lookup(lk.names.agents, m)]) },
-    ],
+    // Extended-access agents are edited by DepartmentMembersEditor.
     canDelete: (d) => d.id !== 1,
   },
 
