@@ -10,7 +10,9 @@
     "api:pull": "node scripts/api-pull.mjs",
     "api:types": "openapi-typescript openapi/openapi.json -o src/lib/api/schema.d.ts",
     "test:e2e": "playwright test",
-    "seed:dev": "node scripts/seed-dev.mjs"
+    "seed:dev": "node scripts/seed-dev.mjs",
+    "test": "vitest run",
+    "test:unit": "vitest run"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.1",
@@ -24,13 +26,14 @@
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^24.19.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
     "openapi-typescript": "^7.13.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^5.0.3"
   }
 }

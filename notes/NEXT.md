@@ -90,17 +90,21 @@ redirects to login.
    *absent* call `settled(page)` first (`e2e/api.ts`).
 
 **Every screen in osTicket's staff menu now exists** (Dashboard, Users, Tasks, Tickets, Knowledge Base, Admin Panel),
-each compared with osTicket's own pages by `npm run test:e2e` (65 tests; two clean full runs). What is left is depth, in this order:
+each compared with osTicket's own pages by `npm run test:e2e` (69 e2e tests, plus 16 unit tests from `npm run test:unit`). What is left is depth, in this order:
 1. ~~README and production build check~~ done (2026-10-04): `README.md`; `npm run build` passes; in a production
    build the cookie is `Secure; HttpOnly; SameSite=Lax`; `next.config.ts` sets X-Frame-Options DENY, nosniff,
    Referrer-Policy and Permissions-Policy and drops X-Powered-By. Not done: a CSP (Next's inline scripts need a nonce
    setup) and serving behind real HTTPS.
-1. Ticket depth: canned response and signature in the reply box, Refer / Merge / Link / Change Owner, collaborators,
+1. Ticket depth. Done 2026-10-04: **canned responses in the reply box** (picker, Append, variables filled in by
+   `src/lib/canned.ts` and verified equal to osTicket's own `ajax.php/tickets/{id}/canned-resp/{cid}.txt`), and dates
+   now use osTicket's style (`10/4/26 6:45 PM`, `formatDateTime`). Not done: a **signature** selector (the API accepts
+   any value and its effect cannot be seen; BACKEND_REQUESTS.md), Refer / Merge / Link / Change Owner, collaborators,
    thread entry edit and resend, the full status dropdown, mass actions on the list, advanced search.
 2. User accounts (register, lock, password reset, activation), organization account manager and primary contacts,
    admin array fields (team and department members, an agent's extended access and permissions, topic forms).
 3. Live updates over the WebSocket (design in AGENTS.md; read `../fast-ticket/notes/EVENTS.md` first), then Vitest
-   component tests for the pure pieces (`CommandFailed` parsing, `useActionKey`, `formatDateTime`, the admin configs).
+   more unit tests. Vitest is set up (`npm run test:unit`, `src/**/*.test.ts`): `canned`, `CommandFailed` parsing and
+   `format` are covered; the admin configs and `useActionKey` are not.
 
 Run the app with `npm run dev` (it unsets the agent env vars so Next does not rewrite `AGENTS.md`). Log in with the
 backend's seeded admin: source `../fast-ticket/.env` inside a command, never print it.

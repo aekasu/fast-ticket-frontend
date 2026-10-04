@@ -130,3 +130,31 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
   admin-only.
 - **Meanwhile:** the landing page shows the agent's own ticket and task counts and their assigned tickets (real data,
   labelled as such) and says the activity report is missing; My Profile is read-only with a note.
+
+## The list's `updated` is not osTicket's "Last Updated"
+
+- **Needs:** osTicket's list column "Last Updated" and its sort ("Priority + Most Recently Updated") use the ticket's
+  `lastupdate`, which moves on a message or a response.
+- **Gives (observed 2026-10-04):** `updated` is the ticket row's own `updated`, which also moves on an internal note,
+  an edit or an assignment. For 30 of 31 dev tickets the two agree; ticket 387564, which received a note after its
+  last message, shows 10/3/26 6:18 PM in the API and 9/29/26 7:12 PM in osTicket's list.
+- **Ask:** expose `last_activity` (osTicket's `lastupdate`) on the list item and detail, and sort by it.
+- **Meanwhile:** the column shows `updated`; a ticket with later notes or edits reads later than osTicket's.
+
+## Reply signature: accepted, undocumented, effect not observable
+
+- **Needs:** osTicket's reply form offers a signature (None, My Signature, Department Signature).
+- **Gives (observed 2026-10-04):** `POST /tickets/{id}/reply` takes a free `signature` string; `none`, `dept`, `mine`
+  and even `bogus` are all accepted and none changes the stored thread (osTicket appends the signature to the outgoing
+  email only). The accepted values are not in the schema.
+- **Ask:** document the accepted values (an enum in the schema) and reject others.
+- **Meanwhile:** the reply box has no signature selector, since its effect cannot be verified.
+
+## Canned responses are returned as raw templates
+
+- **Needs:** osTicket fills `%{ticket.name.first}`-style variables from the ticket when an agent picks a response
+  (`ajax.php/tickets/{id}/canned-resp/{cid}.txt`).
+- **Gives:** `GET /canned/{id}` returns the stored template.
+- **Meanwhile:** the frontend fills in the variables it can resolve (`src/lib/canned.ts`, unit-tested; verified equal
+  to osTicket's own expansion for the dev responses), leaves the others as written and says which. An endpoint such as
+  `GET /tickets/{id}/canned/{cid}` would remove that duplication of osTicket's variable list.

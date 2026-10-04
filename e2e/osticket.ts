@@ -142,3 +142,8 @@ export async function osticketProfileValues(ctx: APIRequestContext): Promise<Rec
   for (const m of html.matchAll(/<input[^>]*name="([^"]+)"[^>]*value="([^"]*)"/g)) values[m[1]] = m[2];
   return values;
 }
+
+/** What osTicket itself inserts when an agent picks a canned response on a ticket (variables filled in), as text. */
+export async function osticketCannedText(ctx: APIRequestContext, ticketId: number, cannedId: number): Promise<string> {
+  return (await (await ctx.get(`ajax.php/tickets/${ticketId}/canned-resp/${cannedId}.txt`)).text());
+}

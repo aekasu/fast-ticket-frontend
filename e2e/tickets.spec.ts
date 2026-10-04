@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
-import { settled } from "./api";
+import { command, createTicket, settled } from "./api";
 import { AUTH } from "./global-setup";
-import { OSTICKET_QUEUE_ID, osticketAdmin, osticketQueueNumbers, osticketQueuePage } from "./osticket";
+import { OSTICKET_QUEUE_ID, osticketAdmin, osticketQueueNumbers, osticketQueuePage, osticketRows } from "./osticket";
 
 type Queue = { key: keyof typeof OSTICKET_QUEUE_ID; title: string; parent: string | null; count: number };
 
@@ -35,6 +35,33 @@ test.describe("ticket queues as the admin, compared with osTicket", () => {
     await expect(page.locator("tbody tr").first()).toBeVisible();
     const shown = await page.locator("tbody tr td:first-child a").allTextContents();
     expect(shown).toEqual(await osticketQueuePage(os, OSTICKET_QUEUE_ID.open));
+  });
+
+  test("Last Updated reads exactly as on osTicket's list, for a ticket with a reply", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const subject = `[e2e] last updated ${Date.now()}`;
+    const ticket = await createTicket(request, { subject, message: "First message." });
+    try {
+      expect((await command(request, "POST", `/api/v1/tickets/${ticket.id}/reply`, { message: "A reply." })).status).toBe("done");
+      const number = ((await (await request.get(`/api/v1/tickets/${ticket.id}`)).json()) as { number: string }).number;
+
+      await page.goto(`/tickets?queue=open&q=${encodeURIComponent(subject)}`);
+      const row = page.locator("tbody tr", { hasText: number });
+      await expect(row).toBeVisible();
+      const ours = (await row.locator("td").nth(1).innerText()).trim();
+
+      let theirs: string | undefined;
+      for (let p = 1; p <= 3 && !theirs; p++) {
+        theirs = (await osticketRows(os, `tickets.php?queue=1&p=${p}`)).find((cells) => cells[1] === number)?.[2];
+      }
+      // Same text, same format (a date-time as osTicket writes it). This assumes the browser's timezone is the one
+      // osTicket is configured with (UTC on the dev stack).
+      expect(ours).toBe(theirs);
+      expect(ours).toMatch(/^\d{1,2}\/\d{1,2}\/\d{2} \d{1,2}:\d{2} (AM|PM)$/);
+    } finally {
+      await ticket.remove();
+      await os.dispose();
+    }
   });
 
   test("the tabs and sub-queues have osTicket's names and counts", async ({ page }) => {

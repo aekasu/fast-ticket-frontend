@@ -3,10 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { components } from "@/lib/api/schema";
+import { api } from "@/lib/api/client";
+import { expandCanned, htmlToText } from "@/lib/canned";
+import { useCannedList } from "@/lib/queries/kb";
 import { can, useMe } from "@/lib/queries/me";
 import { useDepartments } from "@/lib/queries/reference";
 import { NoticeBar, button, field, primary, useRunner } from "./action-ui";
-import { ticketKeys, useAssignees } from "@/lib/queries/tickets";
+import { ticketKeys, useAssignees, useTicketOwner } from "@/lib/queries/tickets";
 
 type Ticket = components["schemas"]["TicketDetail"];
 
@@ -191,8 +194,39 @@ export function TicketReplyBox({ ticket }: { ticket: Ticket }) {
   const [tab, setTab] = useState<"reply" | "note">("reply");
   const [message, setMessage] = useState("");
   const [title, setTitle] = useState("");
+  const [cannedNote, setCannedNote] = useState<string | null>(null);
+  const [append, setAppend] = useState(false);
+  const canned = useCannedList();
+  // The owner's email needs the user directory; without it the variable stays as written.
+  const owner = useTicketOwner(ticket.user_id);
 
   const canReply = can(me, ticket.dept_id, "ticket.reply");
+  // The picker offers enabled responses that are global or belong to this ticket's department.
+  const pickable = (canned.data ?? []).filter((c) => c.is_enabled && (!c.dept_id || c.dept_id === ticket.dept_id));
+
+  async function insertCanned(id: number) {
+    setCannedNote(null);
+    if (!id || !me) return;
+    const { data, error } = await api.GET("/api/v1/canned/{canned_id}", { params: { path: { canned_id: id } } });
+    if (!data) return setCannedNote(error ? "Could not load the canned response." : null);
+    const { text, unresolved } = expandCanned(htmlToText(data.response ?? ""), {
+      ticket: {
+        id: ticket.ticket_id,
+        number: ticket.number,
+        subject: ticket.subject,
+        created: ticket.created,
+        status: ticket.status.name,
+        priority: ticket.priority_name,
+        topic: ticket.topic_name,
+        department: ticket.dept_name,
+        ownerName: ticket.user_name,
+        ownerEmail: owner.data?.email ?? null,
+      },
+      agent: { name: me.name, email: me.email },
+    });
+    setMessage((current) => (append && current.trim() ? `${current.trimEnd()}\n\n${text}` : text));
+    if (unresolved.length) setCannedNote(`Not filled in (the API cannot resolve them yet): ${unresolved.map((v) => `%{${v}}`).join(", ")}`);
+  }
   // Notes follow the agent's access to the ticket; the server decides, so the tab is always offered.
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -239,6 +273,31 @@ export function TicketReplyBox({ ticket }: { ticket: Ticket }) {
       </div>
       <form onSubmit={submit} className="space-y-3 border border-t-0 border-slate-300 bg-white p-4">
         <NoticeBar notice={notice} />
+        {tab === "reply" && canReply && pickable.length > 0 && (
+          <div className="flex flex-wrap items-center gap-3">
+            <select
+              aria-label="Canned response"
+              value=""
+              onChange={(e) => insertCanned(Number(e.target.value))}
+              className={`${field} max-w-xs`}
+            >
+              <option value="">— Select a canned response —</option>
+              {pickable.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.title}
+                </option>
+              ))}
+            </select>
+            <label className="flex items-center gap-1 text-sm text-slate-700">
+              <input type="checkbox" checked={append} onChange={(e) => setAppend(e.target.checked)} /> Append
+            </label>
+          </div>
+        )}
+        {cannedNote && (
+          <p role="status" className="text-xs text-amber-800">
+            {cannedNote}
+          </p>
+        )}
         {(tab === "note" || !canReply) && (
           <input aria-label="Note title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title (optional)" maxLength={255} className={field} />
         )}
