@@ -53,3 +53,15 @@ export const OSTICKET_QUEUE_ID = {
   assigned_teams: 7,
   closed: 8,
 } as const;
+
+/** The label -> value pairs of osTicket's ticket info tables, and the thread tab's count. */
+export async function osticketTicket(ctx: APIRequestContext, id: number) {
+  const html = await (await ctx.get(`tickets.php?id=${id}`)).text();
+  const info: Record<string, string> = {};
+  for (const m of html.matchAll(/<th[^>]*>([\s\S]*?)<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/g)) {
+    const label = text(m[1]).replace(/:$/, "");
+    if (label && !(label in info)) info[label] = text(m[2]);
+  }
+  const threadCount = Number(/Ticket Thread \((\d+)\)/.exec(html)?.[1] ?? NaN);
+  return { info, threadCount };
+}

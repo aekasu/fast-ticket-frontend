@@ -39,3 +39,11 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
   (`sort=default`, or the three "Priority + …" sorts osTicket offers: updated / created / due date).
 - **Meanwhile:** the list defaults to `sort=priority&descending=false`; `e2e/tickets.spec.ts` has a `test.fixme`
   for the exact order.
+
+## Thread entries do not say whether the body is HTML or text
+
+- **Needs:** a `format` (`html` / `text`) on each thread entry, as osTicket stores it, so a client renders it
+  correctly without guessing.
+- **Gives (observed 2026-10-04):** `body` as a string only; the installer's welcome message is HTML, an agent's note
+  is plain text. The frontend tells them apart by shape (`src/components/safe-html.tsx`) and always sanitises HTML
+  with DOMPurify, since bodies come from customers and email.

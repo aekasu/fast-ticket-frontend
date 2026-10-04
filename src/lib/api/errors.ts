@@ -7,3 +7,13 @@ export function errorMessage(error: unknown, fallback = "Request failed"): strin
   }
   return fallback;
 }
+
+/** An API error that keeps the HTTP status, so a screen can tell "gone or not yours" (404) from a failure. */
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+  }
+}
