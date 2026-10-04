@@ -29,8 +29,11 @@ export function TicketList() {
   const queue: QueueKey = queueParam && QUEUES.includes(queueParam) ? queueParam : "open";
   const q = params.get("q") ?? "";
   const sortParam = params.get("sort") as TicketSort | null;
-  const sort: TicketSort = sortParam && SORTS.includes(sortParam) ? sortParam : "updated";
-  const descending = params.get("dir") !== "asc";
+  // osTicket's default queue order starts with the most urgent priority. In the API that is `priority` ascending
+  // (its key is the urgency number, 1 = Emergency); every other column starts newest/highest first.
+  const sort: TicketSort = sortParam && SORTS.includes(sortParam) ? sortParam : "priority";
+  const dirParam = params.get("dir");
+  const descending = dirParam ? dirParam === "desc" : sort !== "priority";
   const page = Math.max(1, Number(params.get("page")) || 1);
 
   const { data, error, isFetching } = useTicketList({
@@ -108,7 +111,8 @@ export function TicketList() {
                       onClick={() =>
                         go({
                           sort: col.sort!,
-                          dir: sort === col.sort && descending ? "asc" : "desc",
+                          // Same column: flip. New column: start at its natural direction.
+                          dir: (sort === col.sort ? !descending : col.sort !== "priority") ? "desc" : "asc",
                           page: null,
                         })
                       }

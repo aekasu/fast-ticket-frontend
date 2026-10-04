@@ -21,9 +21,9 @@ export async function osticketAdmin(): Promise<APIRequestContext> {
 
 const text = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
 
-/** The ticket numbers on osTicket's list for a queue id, in the order osTicket shows them. */
-export async function osticketQueueNumbers(ctx: APIRequestContext, queueId: number): Promise<string[]> {
-  const html = await (await ctx.get(`tickets.php?queue=${queueId}`)).text();
+/** The ticket numbers on one page of osTicket's list for a queue id, in the order osTicket shows them. */
+export async function osticketQueuePage(ctx: APIRequestContext, queueId: number, page = 1): Promise<string[]> {
+  const html = await (await ctx.get(`tickets.php?queue=${queueId}&p=${page}`)).text();
   const body = /<tbody>([\s\S]*?)<\/tbody>/.exec(html)?.[1] ?? "";
   const numbers: string[] = [];
   for (const row of body.match(/<tr[\s\S]*?<\/tr>/g) ?? []) {
@@ -33,6 +33,13 @@ export async function osticketQueueNumbers(ctx: APIRequestContext, queueId: numb
     if (/^\d+$/.test(number)) numbers.push(number);
   }
   return numbers;
+}
+
+/** Every ticket number in a queue, across osTicket's pages (25 a page). */
+export async function osticketQueueNumbers(ctx: APIRequestContext, queueId: number, count: number): Promise<string[]> {
+  const all: string[] = [];
+  for (let page = 1; page <= Math.max(1, Math.ceil(count / 25)); page++) all.push(...(await osticketQueuePage(ctx, queueId, page)));
+  return all;
 }
 
 /** osTicket's queue ids for the default queues, as the API names them. */

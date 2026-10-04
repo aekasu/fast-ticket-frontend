@@ -26,3 +26,16 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 - **Gives (observed 2026-10-04):** naive strings such as `"2026-10-03T18:18:02"`. `KNOWN_LIMITS.md` says due dates are
   UTC, so the frontend treats all of them as UTC (`src/lib/format.ts`) and shows them in the browser's timezone.
   osTicket shows its own configured timezone, so a time on screen can differ from osTicket's page by the offset.
+
+## The ticket list cannot reproduce osTicket's default queue order
+
+- **Needs:** osTicket's default queue sort, "Priority + Most Recently Updated" (queue sort `queue_sort.yaml`): most
+  urgent priority first, and within one priority the most recently updated first.
+- **Gives (observed 2026-10-04, 31 open tickets):** a single sort key. `sort=priority&descending=false` orders the
+  priorities correctly (Emergency first; the key is osTicket's urgency number, so `descending=true` puts Low first),
+  but breaks ties by oldest update first, the reverse of osTicket. The first 25 rows therefore differ from osTicket's
+  first page once a priority group straddles the page edge.
+- **Ask:** either break `priority` ties by `updated` descending, or accept a named default sort
+  (`sort=default`, or the three "Priority + …" sorts osTicket offers: updated / created / due date).
+- **Meanwhile:** the list defaults to `sort=priority&descending=false`; `e2e/tickets.spec.ts` has a `test.fixme`
+  for the exact order.
