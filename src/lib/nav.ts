@@ -21,3 +21,7 @@ export const SECTIONS: Section[] = [
 export function canCreateTickets(me: Me): boolean {
   return me.is_admin || Object.values(me.roles).some((permissions) => permissions.includes("ticket.create"));
 }
+
+export function canCreateTasks(me: Me): boolean {
+  return me.is_admin || Object.values(me.roles).some((permissions) => permissions.includes("task.create"));
+}

@@ -66,3 +66,16 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
   queue. After clearing a manual due date the API says `null` while osTicket shows the estimate.
 - **Ask:** `est_due_date` (or an `effective_due_date`) and `is_overdue` on the ticket list item and detail.
 - **Meanwhile:** the ticket page's "Due Date" shows `due_date` only, so it is blank where osTicket shows an estimate.
+
+## Task lists lack what osTicket's Tasks page shows
+
+- **Needs:** (1) the linked ticket's *number* on a task (osTicket's Ticket column shows `530890`, not the id);
+  (2) an overdue flag and count (osTicket's Overdue tab and red rows); (3) team assignments in "My Tasks" (osTicket
+  counts tasks assigned to the agent or their teams); (4) the task's collaborators (osTicket's "Collaborators" row);
+  (5) queue counts in one call, as `GET /tickets/queues` does for tickets.
+- **Gives (observed 2026-10-04):** `ticket_id` only; no overdue data; an `assignee_staff_id` filter only; no
+  collaborators on `TaskDetail`; no counts endpoint. Task status names closed tasks "Closed" where osTicket's UI says
+  "Completed" (the frontend shows "Completed" for the closed state).
+- **Meanwhile:** the Ticket column looks each number up through `GET /tickets/{id}` (one request per distinct ticket,
+  cached); the tab counts are three filtered list calls (`total` with `page_size=1`); there is no Overdue tab and
+  no Collaborators row. The Open and Completed counts and every queue's contents match osTicket's on the dev data.

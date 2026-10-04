@@ -46,11 +46,15 @@ redirects to login.
    thread entry edit/resend, Tasks tab, mass actions on the list, the status dropdown beyond close/reopen, signature
    choice on reply, attachment upload (API has none), print, ticket search "advanced".
    Vitest/Testing Library are decided but not set up (nothing has needed a unit test yet).
-4. Dashboard (`scp/index.php`) is a placeholder; osTicket's shows ticket activity reports. Decide what the API can
-   back.
-
-Lessons from this session: Playwright's `baseURL` plus a path with a leading `/` drops the base path (use a trailing
-slash and relative paths); FastAPI's collection routes end in `/` and the proxy must keep it (`skipTrailingSlashRedirect`).
+4. **Tasks: built and verified (2026-10-04)**: `/tasks` (tabs Open / My Tasks / Completed with osTicket's counts,
+   search, sort, paging, linked ticket number), `/tasks/[id]` (info, thread, Post Update / Post Internal Note,
+   Claim, Assign, Transfer, Edit, Close/Reopen), `/tasks/new` (also from a ticket's "Add Task", `?ticket_id=`).
+   `e2e/tasks.spec.ts` compares queues, counts and every action with osTicket's own Tasks page. Shared pieces now live
+   in `action-ui.tsx` (runner, notice bar), `thread.tsx`, `queries/actions.ts`. Gaps (BACKEND_REQUESTS.md): no Overdue
+   tab, no Collaborators row, "My Tasks" ignores team assignments, no task Delete button yet.
+5. **Next: Users and Organizations** (`scp/users.php`, `orgs.php`; API `/users`, `/organizations`; needs `user.dir`),
+   then Knowledge Base and canned responses, then the Admin Panel and the Dashboard (placeholder; osTicket's shows
+   ticket activity reports, decide what the API can back).
 
 Run the app with `npm run dev` (it unsets the agent env vars so Next does not rewrite `AGENTS.md`). Log in with the
 backend's seeded admin: source `../fast-ticket/.env` inside a command, never print it.

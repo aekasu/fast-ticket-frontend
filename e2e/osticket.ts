@@ -65,3 +65,29 @@ export async function osticketTicket(ctx: APIRequestContext, id: number) {
   const threadCount = Number(/Ticket Thread \((\d+)\)/.exec(html)?.[1] ?? NaN);
   return { info, threadCount, html };
 }
+
+/** osTicket's Tasks page for a queue (`open`, `assigned`, `closed`): the task numbers and the tab counts. */
+export async function osticketTaskQueue(ctx: APIRequestContext, status: "open" | "assigned" | "closed") {
+  const html = await (await ctx.get(`tasks.php?status=${status}`)).text();
+  const body = /<tbody>([\s\S]*?)<\/tbody>/.exec(html)?.[1] ?? "";
+  const numbers: string[] = [];
+  for (const row of body.match(/<tr[\s\S]*?<\/tr>/g) ?? []) {
+    const cells = row.match(/<td[\s\S]*?<\/td>/g) ?? [];
+    const number = cells[1] ? text(cells[1]) : "";
+    if (/^\d+$/.test(number)) numbers.push(number);
+  }
+  const tabs: Record<string, number> = {};
+  for (const m of html.matchAll(/<a[^>]*href="tasks\.php\?[^"]*"[^>]*>\s*([A-Za-z ]+?)\s*\((\d+)\)\s*<\/a>/g)) tabs[m[1]] = Number(m[2]);
+  return { numbers, tabs };
+}
+
+/** The label -> value pairs of osTicket's task info tables, plus the page HTML. */
+export async function osticketTask(ctx: APIRequestContext, id: number) {
+  const html = await (await ctx.get(`tasks.php?id=${id}`)).text();
+  const info: Record<string, string> = {};
+  for (const m of html.matchAll(/<th[^>]*>([\s\S]*?)<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/g)) {
+    const label = text(m[1]).replace(/:$/, "");
+    if (label && !(label in info)) info[label] = text(m[2]);
+  }
+  return { info, html };
+}

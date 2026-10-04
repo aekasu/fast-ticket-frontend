@@ -29,3 +29,11 @@ export async function createTicket(request: APIRequestContext, body: { subject: 
   const id = done.result.ticket_id as number;
   return { id, remove: () => command(request, "DELETE", `/api/v1/tickets/${id}`) };
 }
+
+/** Create a task; returns its id and a function that deletes it again. */
+export async function createTask(request: APIRequestContext, body: { title: string; description: string; ticket_id?: number }) {
+  const done = await command(request, "POST", "/api/v1/tasks/", body);
+  expect(done.status, done.error_message ?? "").toBe("done");
+  const id = done.result.task_id as number;
+  return { id, remove: () => command(request, "DELETE", `/api/v1/tasks/${id}`) };
+}

@@ -29,6 +29,7 @@ export function TicketToolbar({ ticket }: { ticket: Ticket }) {
   const canRelease = can(me, dept, "ticket.release");
   const canTransfer = can(me, dept, "ticket.transfer");
   const canEdit = can(me, dept, "ticket.edit");
+  const canAddTask = can(me, dept, "task.create");
   const canMark = can(me, dept, "ticket.markanswered");
   const { data: options } = useAssignees(ticket.ticket_id, panel === "assign");
 
@@ -85,6 +86,11 @@ export function TicketToolbar({ ticket }: { ticket: Ticket }) {
         {canEdit && (
           <Link href={`/tickets/${ticket.ticket_id}/edit`} className={button}>
             Edit
+          </Link>
+        )}
+        {canAddTask && (
+          <Link href={`/tasks/new?ticket_id=${ticket.ticket_id}`} className={button}>
+            Add Task
           </Link>
         )}
         {canTransfer && (
