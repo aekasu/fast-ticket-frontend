@@ -55,3 +55,14 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 - **Gives:** `POST /tickets/` takes name, email, phone, dept, topic, priority, subject, message and custom fields.
   The new-ticket screen offers only those and says so; assign-on-create is already in `KNOWN_LIMITS.md`.
 - **Meanwhile:** source/SLA/due date can be changed after creation only where `PATCH /tickets/{id}` allows it.
+
+## The effective (SLA-estimated) due date and the overdue flag are not exposed
+
+- **Needs:** osTicket's "Due Date" is the manual due date when set, otherwise the SLA's estimated due date
+  (`getEstDueDate()`, computed from the plan's grace period and the business-hours schedule); `isOverdue()` drives
+  the Overdue queue and the red row styling. A screen needs both to look like osTicket's.
+- **Gives (observed 2026-10-04):** `due_date` is only the manual override. Ticket 1 (Default SLA, 18 h grace,
+  created 09/29) shows 10/2/26 8:00 AM on osTicket's page and `due_date: null` in the API, yet it is in the Overdue
+  queue. After clearing a manual due date the API says `null` while osTicket shows the estimate.
+- **Ask:** `est_due_date` (or an `effective_due_date`) and `is_overdue` on the ticket list item and detail.
+- **Meanwhile:** the ticket page's "Due Date" shows `due_date` only, so it is blank where osTicket shows an estimate.

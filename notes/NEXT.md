@@ -36,9 +36,15 @@ redirects to login.
    the 202 pattern (`src/lib/queries/commands.ts`: polling, osTicket's `error_message` on refusal, one
    Idempotency-Key per action). Buttons follow the agent's role in the ticket's department (`can()` in `queries/me.ts`).
    `e2e/ticket-view.spec.ts` and `ticket-actions.spec.ts` confirm each action on osTicket's own page.
-   Not built yet (next in this area, in osTicket's order): Transfer, Refer, Merge/Link, Change Owner, Edit ticket,
-   Collaborators add/remove, thread entry edit/resend, Tasks tab, "New Ticket" form, mass actions on the list, the
-   status dropdown beyond close/reopen, signature choice on reply, attachment upload (API has none), print.
+   Also built and verified the same day: **New Ticket** (`/tickets/new`, `ticket-new.tsx`: only the fields the API
+   creates, with a notice for the rest), **Transfer** (toolbar panel) and **Edit Ticket** (`/tickets/[id]/edit`,
+   `ticket-edit.tsx`: PATCH of changed fields only, due date in the browser timezone, SLA field only when the agent
+   can list SLAs). `e2e/ticket-new.spec.ts` and `ticket-edit.spec.ts` confirm results on osTicket's own page.
+   Lesson: a `<select defaultValue>` mounted before its options exist silently picks the first option; gate forms on
+   their reference lists (the "saving without a change" test caught it).
+   Not built yet (next in this area, in osTicket's order): Refer, Merge/Link, Change Owner, Collaborators add/remove,
+   thread entry edit/resend, Tasks tab, mass actions on the list, the status dropdown beyond close/reopen, signature
+   choice on reply, attachment upload (API has none), print, ticket search "advanced".
    Vitest/Testing Library are decided but not set up (nothing has needed a unit test yet).
 4. Dashboard (`scp/index.php`) is a placeholder; osTicket's shows ticket activity reports. Decide what the API can
    back.

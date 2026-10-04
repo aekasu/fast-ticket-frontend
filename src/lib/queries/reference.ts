@@ -40,3 +40,16 @@ export function usePriorities() {
     },
   });
 }
+
+/** SLA plans are admin-only through the API: for anyone else the list is refused and the field is left out. */
+export function useSlas() {
+  return useQuery({
+    queryKey: ["reference", "slas"],
+    ...options,
+    retry: false,
+    queryFn: async () => {
+      const { data } = await api.GET("/api/v1/slas", { params: { query: { page_size: 200 } } });
+      return data?.items ?? null;
+    },
+  });
+}

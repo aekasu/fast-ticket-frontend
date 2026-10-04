@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import type { components } from "@/lib/api/schema";
 import { CommandFailed, useActionKey } from "@/lib/queries/commands";
 import { can, useMe } from "@/lib/queries/me";
+import { useDepartments } from "@/lib/queries/reference";
 import { useAssignees, useTicketAction } from "@/lib/queries/tickets";
 
 type Ticket = components["schemas"]["TicketDetail"];
@@ -48,7 +50,7 @@ function NoticeBar({ notice }: { notice: Notice | null }) {
   );
 }
 
-type Panel = "assign" | "close" | "reopen" | "release" | null;
+type Panel = "assign" | "transfer" | "close" | "reopen" | "release" | null;
 
 export function TicketToolbar({ ticket }: { ticket: Ticket }) {
   const { data: me } = useMe();
@@ -56,6 +58,8 @@ export function TicketToolbar({ ticket }: { ticket: Ticket }) {
   const [panel, setPanel] = useState<Panel>(null);
   const [note, setNote] = useState("");
   const [assignee, setAssignee] = useState("");
+  const [targetDept, setTargetDept] = useState("");
+  const departments = useDepartments();
 
   const dept = ticket.dept_id;
   const isOpen = ticket.status.state === "open";
@@ -63,6 +67,8 @@ export function TicketToolbar({ ticket }: { ticket: Ticket }) {
   const canAssign = can(me, dept, "ticket.assign");
   const canClose = can(me, dept, "ticket.close");
   const canRelease = can(me, dept, "ticket.release");
+  const canTransfer = can(me, dept, "ticket.transfer");
+  const canEdit = can(me, dept, "ticket.edit");
   const canMark = can(me, dept, "ticket.markanswered");
   const { data: options } = useAssignees(ticket.ticket_id, panel === "assign");
 
@@ -84,6 +90,10 @@ export function TicketToolbar({ ticket }: { ticket: Ticket }) {
         kind === "team"
           ? await run("assign-team", { team_id: Number(id), ...text }, `Ticket assigned to ${label}.`)
           : await run("assign", { staff_id: Number(id), ...text }, `Ticket assigned to ${label}.`);
+    } else if (panel === "transfer") {
+      if (!targetDept) return;
+      const name = departments.data?.find((d) => String(d.id) === targetDept)?.name ?? "";
+      ok = await run("transfer", { dept_id: Number(targetDept), ...text }, `Ticket transferred to ${name}.`);
     } else if (panel === "close") ok = await run("close", text, "Ticket closed.");
     else if (panel === "reopen") ok = await run("reopen", text, "Ticket reopened.");
     else if (panel === "release")
@@ -93,10 +103,11 @@ export function TicketToolbar({ ticket }: { ticket: Ticket }) {
       setPanel(null);
       setNote("");
       setAssignee("");
+      setTargetDept("");
     }
   }
 
-  const titles = { assign: "Assign", close: "Close Ticket", reopen: "Reopen Ticket", release: "Release Ticket" } as const;
+  const titles = { assign: "Assign", transfer: "Transfer", close: "Close Ticket", reopen: "Reopen Ticket", release: "Release Ticket" } as const;
 
   return (
     <div className="mb-4">
@@ -109,6 +120,16 @@ export function TicketToolbar({ ticket }: { ticket: Ticket }) {
         {isOpen && canAssign && (
           <button type="button" className={button} onClick={() => toggle("assign")} aria-expanded={panel === "assign"}>
             Assign
+          </button>
+        )}
+        {canEdit && (
+          <Link href={`/tickets/${ticket.ticket_id}/edit`} className={button}>
+            Edit
+          </Link>
+        )}
+        {canTransfer && (
+          <button type="button" className={button} onClick={() => toggle("transfer")} aria-expanded={panel === "transfer"}>
+            Transfer
           </button>
         )}
         {isOpen && assigned && canRelease && (
@@ -168,6 +189,18 @@ export function TicketToolbar({ ticket }: { ticket: Ticket }) {
                   ))}
                 </optgroup>
               )}
+            </select>
+          )}
+          {panel === "transfer" && (
+            <select aria-label="Department" required value={targetDept} onChange={(e) => setTargetDept(e.target.value)} className={field}>
+              <option value="">— Select a department —</option>
+              {departments.data
+                ?.filter((d) => d.id !== ticket.dept_id)
+                .map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name}
+                  </option>
+                ))}
             </select>
           )}
           <textarea aria-label="Comments" rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Comments (optional)" className={field} />
