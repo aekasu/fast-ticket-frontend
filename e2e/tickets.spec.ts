@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { settled } from "./api";
 import { AUTH } from "./global-setup";
 import { OSTICKET_QUEUE_ID, osticketAdmin, osticketQueueNumbers, osticketQueuePage } from "./osticket";
 
@@ -120,6 +121,7 @@ test.describe("a non-admin agent", () => {
     const open = queues.find((q) => q.key === "open")!;
     await page.goto("/tickets?queue=open");
     await expect(page.getByRole("list", { name: "Queues", exact: true })).toContainText(`(${open.count})`);
+    await settled(page);
     const rows = await page.locator("tbody tr td:first-child a").count();
     // One page shows at most 25 rows.
     expect(rows).toBe(Math.min(open.count, 25));

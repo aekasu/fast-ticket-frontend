@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { command } from "./api";
+import { command, settled } from "./api";
 import { AUTH } from "./global-setup";
 import { osticketAdmin, osticketKb, osticketPageText, osticketRows } from "./osticket";
 
@@ -184,6 +184,7 @@ test.describe("a non-admin agent", () => {
     await page.goto("/kb");
     await expect(page.getByRole("heading", { name: "Frequently Asked Questions" })).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Categories" })).toBeVisible();
+    await settled(page);
     expect((await page.getByRole("link", { name: "Add New FAQ" }).count()) > 0).toBe(faqManage);
     expect((await page.getByRole("link", { name: "Canned Responses" }).count()) > 0).toBe(cannedManage);
     await page.goto("/kb/faqs/new");

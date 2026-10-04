@@ -81,12 +81,24 @@ redirects to login.
    hold functions).
    Not built: team / department members, an agent's extended access, teams and permissions, a topic's custom forms
    (array fields; the API can), and everything in BACKEND_REQUESTS.md "Admin Panel pages with no API".
-8. **Next: the Dashboard** (`/`, currently a placeholder; osTicket's `scp/index.php` shows ticket activity reports and
-   the staff's own queues). Decide what the API can back: ticket counts by queue exist (`GET /tickets/queues`), task
-   counts are derivable, but osTicket's activity graph (opened / closed / reopened over a period) has no endpoint.
-   Then the remaining depth items: reply-box canned responses and signatures, ticket Refer / Merge / Link / Change
-   Owner / collaborators / thread entry edit, user accounts, mass actions on lists, live updates over the WebSocket,
-   Vitest component tests, README for running the project, a production build check with `Secure` cookies.
+8. **Dashboard group: built and verified (2026-10-04)**: `/` (real ticket-queue and task counts that link to their
+   queues, the agent's assigned tickets, and a plain note that osTicket's activity report has no endpoint),
+   `/directory` (Agent Directory: search, department filter, osTicket's columns), `/profile` (My Profile, read-only).
+   `e2e/dashboard.spec.ts` compares counts with the API and osTicket's task tabs, the directory with osTicket's, and
+   the profile with osTicket's profile form. Gaps in BACKEND_REQUESTS.md ("No dashboard activity report ...").
+   Test lesson: permission-dependent buttons appear only after `/auth/me` loads, so assertions that something is
+   *absent* call `settled(page)` first (`e2e/api.ts`).
+
+**Every screen in osTicket's staff menu now exists** (Dashboard, Users, Tasks, Tickets, Knowledge Base, Admin Panel),
+each compared with osTicket's own pages by `npm run test:e2e` (65 tests). What is left is depth, in this order:
+1. A **README** (how to run: dev stack, `.env`, `npm run dev`, tests, seeds) and a **production build check**
+   (`npm run build && npm start`, `Secure` cookie flag behind HTTPS).
+2. Ticket depth: canned response and signature in the reply box, Refer / Merge / Link / Change Owner, collaborators,
+   thread entry edit and resend, the full status dropdown, mass actions on the list, advanced search.
+3. User accounts (register, lock, password reset, activation), organization account manager and primary contacts,
+   admin array fields (team and department members, an agent's extended access and permissions, topic forms).
+4. Live updates over the WebSocket (design in AGENTS.md; read `../fast-ticket/notes/EVENTS.md` first), then Vitest
+   component tests for the pure pieces (`CommandFailed` parsing, `useActionKey`, `formatDateTime`, the admin configs).
 
 Run the app with `npm run dev` (it unsets the agent env vars so Next does not rewrite `AGENTS.md`). Log in with the
 backend's seeded admin: source `../fast-ticket/.env` inside a command, never print it.

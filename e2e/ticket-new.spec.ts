@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { deleteTicketAndUser } from "./api";
+import { deleteTicketAndUser, settled } from "./api";
 import { AUTH } from "./global-setup";
 import { osticketAdmin, osticketTicket } from "./osticket";
 
@@ -70,6 +70,7 @@ test.describe("a non-admin agent", () => {
     const allowed = Object.values(me.roles).some((p) => p.includes("ticket.create"));
     await page.goto("/tickets");
     await expect(page.getByRole("list", { name: "Queues", exact: true })).toBeVisible();
+    await settled(page);
     expect((await page.getByRole("link", { name: "New Ticket" }).count()) > 0).toBe(allowed);
     await page.goto("/tickets/new");
     if (allowed) await expect(page.getByRole("heading", { name: "Open a New Ticket" })).toBeVisible();

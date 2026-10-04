@@ -8,7 +8,7 @@ export function PanelNav({ items }: { items: { href: string; label: string; also
   return (
     <nav className="flex flex-wrap gap-1" aria-label="Main">
       {items.map((item) => {
-        const active = item.href === "/" ? pathname === "/" : [item.href, ...(item.also ?? [])].some((prefix) => pathname.startsWith(prefix));
+        const active = [item.href, ...(item.also ?? [])].some((prefix) => (prefix === "/" ? pathname === "/" : pathname.startsWith(prefix)));
         return (
           <Link
             key={item.href}

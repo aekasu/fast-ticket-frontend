@@ -49,3 +49,11 @@ export async function createTask(request: APIRequestContext, body: { title: stri
   const id = done.result.task_id as number;
   return { id, remove: () => command(request, "DELETE", `/api/v1/tasks/${id}`) };
 }
+
+/**
+ * Wait until the page has stopped fetching. Buttons that depend on the agent's permissions appear only once
+ * `/auth/me` has loaded, so a test that asserts one is absent must not look before then.
+ */
+export async function settled(page: import("@playwright/test").Page) {
+  await page.waitForLoadState("networkidle");
+}

@@ -11,7 +11,7 @@ export interface Section {
 
 // osTicket's top-level menu, in its order.
 export const SECTIONS: Section[] = [
-  { href: "/", label: "Dashboard", visible: () => true },
+  { href: "/", label: "Dashboard", visible: () => true, also: ["/directory", "/profile"] },
   { href: "/users", label: "Users", visible: (me) => me.is_admin || me.global_permissions.includes("user.dir"), also: ["/orgs"] },
   { href: "/tasks", label: "Tasks", visible: () => true },
   { href: "/tickets", label: "Tickets", visible: () => true },

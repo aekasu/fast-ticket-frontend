@@ -128,3 +128,17 @@ export async function osticketKb(ctx: APIRequestContext, cid?: number) {
   const body = text(/<div id="content"[\s\S]*?(?=<div id="footer"|<\/body>)/.exec(html)?.[0] ?? html);
   return { categories: [...new Set(categories)], faqs: [...new Set(faqs)], body };
 }
+
+/** osTicket's Agent Directory rows: [name, department, email, phone, ext, mobile]. */
+export async function osticketAgentDirectory(ctx: APIRequestContext, query = ""): Promise<string[][]> {
+  const rows = await osticketRows(ctx, `directory.php${query ? `?${query}` : ""}`);
+  return rows.filter((r) => r.length >= 3);
+}
+
+/** The input values on osTicket's own profile form (`profile.php`). */
+export async function osticketProfileValues(ctx: APIRequestContext): Promise<Record<string, string>> {
+  const html = await (await ctx.get("profile.php")).text();
+  const values: Record<string, string> = {};
+  for (const m of html.matchAll(/<input[^>]*name="([^"]+)"[^>]*value="([^"]*)"/g)) values[m[1]] = m[2];
+  return values;
+}

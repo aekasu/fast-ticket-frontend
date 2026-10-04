@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { command, createTask, createTicket } from "./api";
+import { command, createTask, createTicket, settled } from "./api";
 import { AUTH } from "./global-setup";
 import { osticketAdmin, osticketTask, osticketTaskQueue } from "./osticket";
 
@@ -173,9 +173,11 @@ test.describe("a non-admin agent", () => {
     test.skip(open.items.length === 0, "no open task: npm run seed:dev");
     await page.goto("/tasks");
     await expect(page.getByRole("list", { name: "Task queues" })).toBeVisible();
+    await settled(page);
     expect((await page.getByRole("link", { name: "New Task" }).count()) > 0).toBe(perms.includes("task.create"));
     await page.goto(`/tasks/${open.items[0].task_id}`);
     await expect(page.getByRole("heading", { name: /Task Thread/ })).toBeVisible();
+    await settled(page);
     const has = async (name: string) => (await page.getByRole("button", { name, exact: true }).count()) > 0;
     expect(await has("Edit")).toBe(perms.includes("task.edit"));
     expect(await has("Transfer")).toBe(perms.includes("task.transfer"));

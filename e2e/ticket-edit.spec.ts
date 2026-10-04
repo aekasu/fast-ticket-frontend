@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { createTicket } from "./api";
+import { createTicket, settled } from "./api";
 import { AUTH } from "./global-setup";
 import { osticketAdmin, osticketTicket } from "./osticket";
 
@@ -118,6 +118,7 @@ test.describe("a non-admin agent", () => {
     const open = (await (await request.get("/api/v1/tickets/?queue=open&page_size=1")).json()) as { items: { ticket_id: number }[] };
     await page.goto(`/tickets/${open.items[0].ticket_id}`);
     await expect(page.getByRole("heading", { name: /Ticket Thread/ })).toBeVisible();
+    await settled(page);
     expect((await page.getByRole("link", { name: "Edit", exact: true }).count()) > 0).toBe(perms.includes("ticket.edit"));
     expect((await page.getByRole("button", { name: "Transfer", exact: true }).count()) > 0).toBe(perms.includes("ticket.transfer"));
     if (!perms.includes("ticket.edit")) {
