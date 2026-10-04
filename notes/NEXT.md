@@ -19,10 +19,24 @@ redirects to login.
    the generic per-address limiter sends no `Retry-After` (see `BACKEND_REQUESTS.md`). Not yet checked: the `Secure` cookie flag in a production build.
    Note: the login route allows 10 attempts a minute per address (all accounts share it), and 5 failures lock
    one account/address pair for 300 s; tests must log in once and reuse the session (Playwright `storageState`).
-2. **Ticket queues** (`GET /tickets/queues`, list with search, sort, counts): osTicket's `scp/tickets.php` and
-   `include/staff/tickets.inc.php`, compared side by side at http://localhost:8080/scp/tickets.php.
-3. Dashboard (`scp/index.php`) is a placeholder; osTicket's shows ticket activity reports. Decide what the API can
-   back once queues exist.
+2. **Ticket queues: built and verified (2026-10-04)** at `/tickets` (`src/components/ticket-queues.tsx`,
+   `ticket-list.tsx`, hooks in `src/lib/queries/tickets.ts`): osTicket's tabs and sub-queues with counts, its six
+   default columns, search, sort and paging, all in the URL. `e2e/tickets.spec.ts` compares every queue with
+   osTicket's own page (`e2e/osticket.ts` logs in to `/scp`) and checks a non-admin agent. Run it with
+   `set -a; . ../fast-ticket/.env; set +a; npm run test:e2e` (it starts the dev server itself).
+   Gaps, deliberately not faked: no mass-action checkboxes and no "New Ticket" tab yet; no "Closed today / this
+   week" sub-queues (API has none, `KNOWN_LIMITS.md`); no per-column customisation; overdue rows are not tinted
+   (the list item has no overdue flag, only `due_date`).
+   **Weak spot:** the dev DB holds one ticket, so sorting order, paging and search ranking are not really exercised.
+   Seed tickets through the API (`POST /tickets/`, mind the 202 pattern and cleanup) before the next list screens.
+3. **Ticket view** (`/tickets/[id]`): thread with attachments, then reply / note / assign / close. osTicket:
+   `include/staff/ticket-view.inc.php`, compared at http://localhost:8080/scp/tickets.php?id=1. The list already
+   links to it (currently a 404).
+4. Dashboard (`scp/index.php`) is a placeholder; osTicket's shows ticket activity reports. Decide what the API can
+   back.
+
+Lessons from this session: Playwright's `baseURL` plus a path with a leading `/` drops the base path (use a trailing
+slash and relative paths); FastAPI's collection routes end in `/` and the proxy must keep it (`skipTrailingSlashRedirect`).
 
 Run the app with `npm run dev` (it unsets the agent env vars so Next does not rewrite `AGENTS.md`). Log in with the
 backend's seeded admin: source `../fast-ticket/.env` inside a command, never print it.

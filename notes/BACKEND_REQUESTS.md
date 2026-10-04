@@ -19,3 +19,10 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
   `detail` message. The per-address limiter (login route: 10 a minute) answers
   `{"error":"Rate limit exceeded: 10 per 1 minute"}` with no `Retry-After`, and uses `error` where other errors use
   `detail`. The login screen then says "Try again later" with no number.
+
+## Timestamps carry no timezone
+
+- **Needs:** an unambiguous instant (ISO 8601 with `Z` or an offset) for `created`, `updated`, `closed`, `due_date`.
+- **Gives (observed 2026-10-04):** naive strings such as `"2026-10-03T18:18:02"`. `KNOWN_LIMITS.md` says due dates are
+  UTC, so the frontend treats all of them as UTC (`src/lib/format.ts`) and shows them in the browser's timezone.
+  osTicket shows its own configured timezone, so a time on screen can differ from osTicket's page by the offset.

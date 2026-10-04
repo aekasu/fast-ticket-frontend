@@ -7,9 +7,10 @@ import { FASTAPI_URL, TOKEN_COOKIE, cookieBase } from "@/lib/server/config";
 const PASS_REQUEST_HEADERS = ["content-type", "accept", "idempotency-key"];
 const PASS_RESPONSE_HEADERS = ["content-type", "content-disposition", "content-length", "retry-after", "x-login-error"];
 
-async function proxy(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
-  const { path } = await params;
-  const url = `${FASTAPI_URL}/api/v1/${path.join("/")}${request.nextUrl.search}`;
+async function proxy(request: NextRequest) {
+  // Built from the raw pathname, not the route params: FastAPI's collection routes end in a slash
+  // (`/tickets/`) and answer a redirect without it, so the slash must survive the proxy.
+  const url = `${FASTAPI_URL}${request.nextUrl.pathname}${request.nextUrl.search}`;
 
   const headers = new Headers();
   for (const name of PASS_REQUEST_HEADERS) {
