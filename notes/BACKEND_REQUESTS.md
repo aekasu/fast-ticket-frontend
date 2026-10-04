@@ -102,3 +102,20 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 - **Meanwhile:** the KB screens read the whole (small) lists, up to 200 each, and count and filter on the client;
   there is no search box (a note says so). If a helpdesk has more than 200 FAQs the counts would be wrong.
 - **For reference:** osTicket calls an unpublished FAQ "Internal"; the UI uses its word.
+
+## Admin Panel pages with no API behind them, and thin admin lists
+
+- **No endpoint at all (osTicket page):** roles (`roles.php`), settings (`settings.php?t=` company, system, tickets,
+  tasks, agents, users, knowledgebase), ticket filters, schedules, API keys, pages, custom lists, plugins, emails,
+  email settings, email templates, email diagnostic, system logs, system information. The Admin Panel shows each as
+  a dimmed entry with a note, and the Dashboard group has nothing to show.
+- **Roles are needed even for what is built:** `POST /staff` requires a `role_id`, and department access takes role
+  ids, but roles cannot be listed. The agent form takes a number and says so.
+- **List items carry less than osTicket's columns** (the list screens say which): agents lack Last Login; departments
+  lack Status, Agents count, Email Address and Manager; teams lack Members count and Team Lead; help topics lack
+  Priority, Department and the parent path (osTicket shows "Report a Problem / Access Issue"); forms lack field counts.
+  Filling them in costs one request per row, so they are left out.
+- **Forms:** `POST /forms` needs a `type` and the API edits only a form's title, instructions and notes: custom forms
+  cannot be created or their fields edited from the Admin Panel, nor deleted.
+- **Not exposed by the frontend yet (the API can):** team and department members, an agent's extended department
+  access, teams and permissions, a help topic's custom forms.

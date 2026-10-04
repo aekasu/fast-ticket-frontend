@@ -69,11 +69,24 @@ redirects to login.
    trips. Seed: `npm run seed:dev` now adds 3 categories and 6 FAQs. Not built: FAQ search, attachments, FAQ ->
    help topic links, "Print", canned attachments, using a canned response in the reply box (the API has a picker list:
    `GET /canned` filtered by department; wire it into `ticket-actions.tsx`).
-7. **Next: the Admin Panel** (osTicket's `scp/admin.php`: Settings, Manage: Help Topics, Ticket Filters, SLA, API keys,
-   Pages, Forms, Lists, Plugins; Emails; Staff: Agents, Teams, Roles, Departments) and the **Dashboard** (placeholder;
-   osTicket's shows ticket activity reports, decide what the API can back). Read
-   `../fast-ticket/notes/KNOWN_LIMITS.md` and the schema for what `/staff`, `/teams`, `/departments`, `/topics`,
-   `/slas`, `/forms`, `/roles` offer; many are admin-only and some admin pages have no API at all (show them absent).
+7. **Admin Panel: built and verified (2026-10-04)**, configuration-driven: `lib/admin/menu.ts` (osTicket's five groups
+   and what the API backs), `lib/admin/resources.ts` (per resource: list columns, detail rows, form fields, read-only
+   sections), `components/admin-screens.tsx` (generic list / view / form / delete), routes `/admin`,
+   `/admin/[resource]`, `/new`, `/[id]`, `/[id]/edit`. Resources: agents (`staff`), teams, departments, help topics,
+   SLA, banlist, priorities (API-only), forms (view and text edit only). Dimmed entries (roles, settings, filters,
+   schedules, API keys, pages, lists, plugins, emails, templates, diagnostics, logs, information) show a "no endpoint"
+   note. Whole panel is admin-only (404 otherwise). `e2e/admin.spec.ts` compares each list with osTicket's admin page
+   and runs add / update / delete round trips for every resource, confirmed on osTicket's pages. To add a resource:
+   a config entry plus a menu item. Only the resource key crosses from server pages to client components (the configs
+   hold functions).
+   Not built: team / department members, an agent's extended access, teams and permissions, a topic's custom forms
+   (array fields; the API can), and everything in BACKEND_REQUESTS.md "Admin Panel pages with no API".
+8. **Next: the Dashboard** (`/`, currently a placeholder; osTicket's `scp/index.php` shows ticket activity reports and
+   the staff's own queues). Decide what the API can back: ticket counts by queue exist (`GET /tickets/queues`), task
+   counts are derivable, but osTicket's activity graph (opened / closed / reopened over a period) has no endpoint.
+   Then the remaining depth items: reply-box canned responses and signatures, ticket Refer / Merge / Link / Change
+   Owner / collaborators / thread entry edit, user accounts, mass actions on lists, live updates over the WebSocket,
+   Vitest component tests, README for running the project, a production build check with `Secure` cookies.
 
 Run the app with `npm run dev` (it unsets the agent env vars so Next does not rewrite `AGENTS.md`). Log in with the
 backend's seeded admin: source `../fast-ticket/.env` inside a command, never print it.

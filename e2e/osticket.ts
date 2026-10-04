@@ -117,7 +117,7 @@ export async function osticketRows(ctx: APIRequestContext, path: string): Promis
   const html = await (await ctx.get(path)).text();
   const table = /<table[^>]*>[\s\S]*?<\/table>/.exec(html)?.[0] ?? "";
   // Some osTicket tables have no <tbody>; rows with data cells are the data rows either way.
-  return (table.match(/<tr[\s\S]*?<\/tr>/g) ?? []).map((r) => (r.match(/<td[\s\S]*?<\/td>/g) ?? []).map(text)).filter((cells) => cells.length > 0);
+  return (table.match(/<tr[\s\S]*?<\/tr>/g) ?? []).map((r) => (r.match(/<td[\s\S]*?<\/td>/g) ?? []).map(text)).filter((cells) => cells.length > 0 && !/^(Select:|Sorting Mode)/.test(cells.join(" ").trim()));
 }
 
 /** osTicket's knowledge base page: the category links with their FAQ counts, and the FAQ links on it. */
