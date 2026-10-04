@@ -90,7 +90,7 @@ redirects to login.
    *absent* call `settled(page)` first (`e2e/api.ts`).
 
 **Every screen in osTicket's staff menu now exists** (Dashboard, Users, Tasks, Tickets, Knowledge Base, Admin Panel),
-each compared with osTicket's own pages by `npm run test:e2e` (78 e2e tests, plus 16 unit tests from `npm run test:unit`). What is left is depth, in this order:
+each compared with osTicket's own pages by `npm run test:e2e` (85 e2e tests, plus 28 unit tests from `npm run test:unit`). What is left is depth, in this order:
 1. ~~README and production build check~~ done (2026-10-04): `README.md`; `npm run build` passes; in a production
    build the cookie is `Secure; HttpOnly; SameSite=Lax`; `next.config.ts` sets X-Frame-Options DENY, nosniff,
    Referrer-Policy and Permissions-Policy and drops X-Powered-By. Not done: a CSP (Next's inline scripts need a nonce
@@ -161,3 +161,17 @@ tickets and tasks, `E2E ...` users, organizations, categories, canned responses,
 `e2e-...` agents, ban rules and priorities), so a test that dies midway leaves nothing. Any new test that creates a
 record must give it one of those names. A test that changes a ticket's owner must delete the original requester itself
 (`deleteTicketAndUser` deletes only the current owner). Check by hand: open tickets 31, closed 0, users 20, open tasks 6.
+
+## Custom fields and entity management (2026-10-04)
+
+Done: **custom form fields** on tickets, users, organizations and tasks: shown read-only for everyone
+(`CustomFieldsView`, answers from each entity's `custom_fields`, multiple choices shown as labels when the form
+definition is readable) and typed in the create and edit forms by administrators (`CustomFieldInputs`, definitions from
+`useFormDefinition`, admin-only). Helpers and decoding in `src/lib/custom-fields.ts` (unit-tested). **Admin Forms** now
+manages fields (add, edit, remove with or without the answers) and creates and deletes custom forms (type "G");
+`components/form-fields.tsx`. **Tasks**: Delete, and editing the description (prefilled from the thread's first entry).
+Verified in `e2e/custom-fields.spec.ts` and `admin.spec.ts` against osTicket's pages (its ticket page, user edit dialog,
+task page and form builder). Tests that add fields name them `e2e_cf_*` so the sweep removes them.
+Open: a non-admin agent cannot type custom answers (form definitions are admin-only: BACKEND_REQUESTS.md); `files`,
+list and `info` custom field types are display-only or unsupported; organization account manager and primary contacts;
+custom field answers on the list screens (osTicket can add them as columns).

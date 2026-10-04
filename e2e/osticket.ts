@@ -147,3 +147,9 @@ export async function osticketProfileValues(ctx: APIRequestContext): Promise<Rec
 export async function osticketCannedText(ctx: APIRequestContext, ticketId: number, cannedId: number): Promise<string> {
   return (await (await ctx.get(`ajax.php/tickets/${ticketId}/canned-resp/${cannedId}.txt`)).text());
 }
+
+/** The raw HTML of any osTicket staff URL (an ajax dialog, say), for checking a stored value in an input. */
+export async function osticketRaw(ctx: APIRequestContext, path: string): Promise<{ status: number; body: string }> {
+  const res = await ctx.get(path);
+  return { status: res.status(), body: await res.text() };
+}

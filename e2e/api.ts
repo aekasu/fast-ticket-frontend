@@ -57,3 +57,25 @@ export async function createTask(request: APIRequestContext, body: { title: stri
 export async function settled(page: import("@playwright/test").Page) {
   await page.waitForLoadState("networkidle");
 }
+
+export interface NewField {
+  label: string;
+  type: string;
+  name: string;
+  choices?: string;
+  multiselect?: boolean;
+  mode?: string;
+}
+
+/** Add a custom field to one of osTicket's forms (1 user, 2 ticket, 4 organization, 5 task); returns its id. */
+export async function addFormField(request: APIRequestContext, formId: number, f: NewField): Promise<number> {
+  const configuration = f.choices ? { choices: f.choices, ...(f.multiselect ? { multiselect: true } : {}) } : undefined;
+  const done = await command(request, "POST", `/api/v1/forms/${formId}/fields`, { label: f.label, type: f.type, name: f.name, mode: f.mode ?? "optional", configuration });
+  expect(done.status, done.error_message ?? "").toBe("done");
+  return done.result.field_id as number;
+}
+
+/** Remove a form field and the answers given to it. */
+export async function removeFormField(request: APIRequestContext, formId: number, fieldId: number) {
+  await command(request, "DELETE", `/api/v1/forms/${formId}/fields/${fieldId}?delete_data=true`).catch(() => undefined);
+}

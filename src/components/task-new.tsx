@@ -8,7 +8,10 @@ import { CommandFailed, runCommand, useActionKey } from "@/lib/queries/commands"
 import { useDepartments } from "@/lib/queries/reference";
 import { taskKeys } from "@/lib/queries/tasks";
 import { useTicket } from "@/lib/queries/tickets";
+import { collectCustomFields, customDefs } from "@/lib/custom-fields";
+import { useFormDefinition } from "@/lib/queries/forms";
 import { field } from "./action-ui";
+import { CustomFieldInputs } from "./custom-fields";
 
 function Row({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
@@ -31,6 +34,8 @@ export function TaskNew() {
   const departments = useDepartments();
   const ticketId = /^\d+$/.test(params.get("ticket_id") ?? "") ? Number(params.get("ticket_id")) : undefined;
   const ticket = useTicket(ticketId ?? 0);
+  const formDefs = useFormDefinition("A");
+  const custom = customDefs(formDefs.data ?? [], "A");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -46,7 +51,10 @@ export function TaskNew() {
       dept_id: text("dept_id") ? Number(text("dept_id")) : undefined,
       due_date: text("due_date") ? new Date(text("due_date")).toISOString() : undefined,
       ticket_id: ticketId,
+      custom_fields: undefined as Record<string, unknown> | undefined,
     };
+    const answers = collectCustomFields(form, custom);
+    if (Object.keys(answers).length > 0) body.custom_fields = answers;
     try {
       const result = await runCommand({ method: "POST", path: "/api/v1/tasks/", body, key: key.current() });
       key.renew();
@@ -84,6 +92,7 @@ export function TaskNew() {
         <Row label="Description" required>
           <textarea name="description" required rows={6} className={field} />
         </Row>
+        <CustomFieldInputs defs={custom} />
         <Row label="Department">
           <select name="dept_id" className={field} defaultValue="">
             <option value="">— Default —</option>

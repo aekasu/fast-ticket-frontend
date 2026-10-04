@@ -7,6 +7,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { CommandFailed, runCommand, useActionKey } from "@/lib/queries/commands";
 import { useDepartments, usePriorities, useTopics } from "@/lib/queries/reference";
 import { ticketKeys } from "@/lib/queries/tickets";
+import { collectCustomFields, customDefs } from "@/lib/custom-fields";
+import { useFormDefinition } from "@/lib/queries/forms";
+import { CustomFieldInputs } from "./custom-fields";
 
 const field = "w-full rounded border border-slate-300 bg-white px-3 py-1.5 text-sm";
 
@@ -39,6 +42,8 @@ export function TicketNew() {
   const departments = useDepartments();
   const topics = useTopics();
   const priorities = usePriorities();
+  const formDefs = useFormDefinition("T");
+  const custom = customDefs(formDefs.data ?? [], "T");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -58,7 +63,10 @@ export function TicketNew() {
       priority_id: number("priority_id"),
       subject: text("subject"),
       message: text("message"),
+      custom_fields: undefined as Record<string, unknown> | undefined,
     };
+    const answers = collectCustomFields(form, custom);
+    if (Object.keys(answers).length > 0) body.custom_fields = answers;
     try {
       const result = await runCommand({ method: "POST", path: "/api/v1/tickets/", body, key: key.current() });
       key.renew();
@@ -137,6 +145,7 @@ export function TicketNew() {
           <Row label="Issue Details" required>
             <textarea name="message" required rows={8} className={field} />
           </Row>
+          <CustomFieldInputs defs={custom} />
         </Section>
 
         <p className="text-xs text-slate-500">

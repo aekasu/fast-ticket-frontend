@@ -13,6 +13,7 @@ import { useSubmitCommand } from "@/lib/queries/submit";
 import { field } from "./action-ui";
 import { DeleteButton } from "./delete-button";
 import { FormButtons, FormError, FormRow, formBox } from "./form-kit";
+import { FormFieldsAdmin } from "./form-fields";
 import { Info } from "./info-table";
 import { Pager } from "./pager";
 
@@ -175,6 +176,7 @@ export function AdminView({ resourceKey, id }: { resourceKey: string; id: number
         <Info rows={rows.slice(0, half)} />
         <Info rows={rows.slice(half)} />
       </div>
+      {resource.key === "forms" && <FormFieldsAdmin formId={id} fields={(data.fields as never[]) ?? []} />}
       {resource.sections?.map((section) => {
         const sectionRows = section.rows(data, lk);
         return (
@@ -289,6 +291,7 @@ function AdminFormBody({ resource, data }: { resource: ResourceDef; data?: Row }
       }
     }
     if (data && Object.keys(body).length === 0) return setError("No changes to save.");
+    if (!data && resource.createDefaults) Object.assign(body, resource.createDefaults);
     const id = data?.id;
     await submit(data ? "PATCH" : "POST", data ? `${resource.path}/${id}` : resource.path, body, (r) => `/admin/${resource.key}/${data ? id : createdId(r)}`);
   }

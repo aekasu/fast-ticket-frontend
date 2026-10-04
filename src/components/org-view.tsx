@@ -6,6 +6,7 @@ import { formatDateTime } from "@/lib/format";
 import { hasGlobal } from "@/lib/nav";
 import { directoryKeys, useOrg, useUsers } from "@/lib/queries/directory";
 import { useMe } from "@/lib/queries/me";
+import { CustomFieldsView } from "./custom-fields";
 import { DeleteButton } from "./delete-button";
 import { Info } from "./info-table";
 
@@ -113,6 +114,8 @@ export function OrgView({ id }: { id: number }) {
           ]}
         />
       </div>
+
+      <CustomFieldsView answers={org.custom_fields} form="O" />
 
       <Members orgId={org.id} />
     </div>

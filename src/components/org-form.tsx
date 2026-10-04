@@ -10,7 +10,10 @@ import { hasGlobal } from "@/lib/nav";
 import { CommandFailed, runCommand, useActionKey } from "@/lib/queries/commands";
 import { createdId, directoryKeys, useOrg } from "@/lib/queries/directory";
 import { useMe } from "@/lib/queries/me";
+import { collectCustomFields, customDefs } from "@/lib/custom-fields";
+import { useFormDefinition } from "@/lib/queries/forms";
 import { field } from "./action-ui";
+import { CustomFieldInputs } from "./custom-fields";
 
 type Org = components["schemas"]["OrganizationDetail"];
 type Sharing = NonNullable<components["schemas"]["OrganizationCreate"]["sharing"]>;
@@ -37,8 +40,11 @@ function OrgFormBody({ org }: { org?: Org }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const key = useActionKey();
+  const formDefs = useFormDefinition("O");
+  const custom = customDefs(formDefs.data ?? [], "O");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  if (formDefs.isLoading) return <p className="text-sm text-slate-500">Loading…</p>;
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -59,6 +65,8 @@ function OrgFormBody({ org }: { org?: Org }) {
     if (org) {
       body = {};
       for (const k of Object.keys(next) as (keyof typeof next)[]) if (next[k] !== org[k]) body[k] = next[k];
+      const answers = collectCustomFields(form, custom, org.custom_fields);
+      if (Object.keys(answers).length > 0) body.custom_fields = answers;
       if (Object.keys(body).length === 0) {
         setError("No changes to save.");
         return;
@@ -66,6 +74,8 @@ function OrgFormBody({ org }: { org?: Org }) {
     } else {
       body = { ...next };
       for (const k of ["domain", "phone", "website", "address", "internal_notes"] as const) if (!next[k]) delete body[k];
+      const answers = collectCustomFields(form, custom);
+      if (Object.keys(answers).length > 0) body.custom_fields = answers;
     }
 
     setBusy(true);
@@ -119,6 +129,7 @@ function OrgFormBody({ org }: { org?: Org }) {
             ))}
           </select>
         </Row>
+        <CustomFieldInputs defs={custom} answers={org?.custom_fields} />
         <Row label="Internal Notes">
           <textarea name="internal_notes" rows={4} defaultValue={org?.internal_notes} className={field} />
         </Row>

@@ -10,7 +10,10 @@ import { hasGlobal } from "@/lib/nav";
 import { CommandFailed, runCommand, useActionKey } from "@/lib/queries/commands";
 import { createdId, directoryKeys, useAllOrgs, useUser } from "@/lib/queries/directory";
 import { useMe } from "@/lib/queries/me";
+import { collectCustomFields, customDefs } from "@/lib/custom-fields";
+import { useFormDefinition } from "@/lib/queries/forms";
 import { field } from "./action-ui";
+import { CustomFieldInputs } from "./custom-fields";
 
 type User = components["schemas"]["UserDetail"];
 
@@ -32,10 +35,12 @@ function UserFormBody({ user }: { user?: User }) {
   const queryClient = useQueryClient();
   const key = useActionKey();
   const orgs = useAllOrgs();
+  const formDefs = useFormDefinition("U");
+  const custom = customDefs(formDefs.data ?? [], "U");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  if (orgs.isLoading) return <p className="text-sm text-slate-500">Loading…</p>;
+  if (orgs.isLoading || formDefs.isLoading) return <p className="text-sm text-slate-500">Loading…</p>;
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -61,12 +66,16 @@ function UserFormBody({ user }: { user?: User }) {
       if (next.mobile !== user.mobile) body.mobile = next.mobile;
       if (next.internal_notes !== user.internal_notes) body.internal_notes = next.internal_notes;
       if (next.org_id !== (user.org_id ?? null)) body.org_id = next.org_id;
+      const answers = collectCustomFields(form, custom, user.custom_fields);
+      if (Object.keys(answers).length > 0) body.custom_fields = answers;
       if (Object.keys(body).length === 0) {
         setError("No changes to save.");
         return;
       }
     } else {
       body = { ...next, phone: next.phone || undefined, mobile: next.mobile || undefined, internal_notes: next.internal_notes || undefined, org_id: next.org_id ?? undefined };
+      const answers = collectCustomFields(form, custom);
+      if (Object.keys(answers).length > 0) body.custom_fields = answers;
     }
 
     setBusy(true);
@@ -117,6 +126,7 @@ function UserFormBody({ user }: { user?: User }) {
             ))}
           </select>
         </Row>
+        <CustomFieldInputs defs={custom} answers={user?.custom_fields} />
         <Row label="Internal Notes">
           <textarea name="internal_notes" rows={4} defaultValue={user?.internal_notes} className={field} />
         </Row>

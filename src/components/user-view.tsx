@@ -7,6 +7,7 @@ import { hasGlobal } from "@/lib/nav";
 import { directoryKeys, useUser } from "@/lib/queries/directory";
 import { useMe } from "@/lib/queries/me";
 import { useTicketList } from "@/lib/queries/tickets";
+import { CustomFieldsView } from "./custom-fields";
 import { DeleteButton } from "./delete-button";
 import { Info } from "./info-table";
 import { UserAccount, accountStatus } from "./user-account";
@@ -123,6 +124,8 @@ export function UserView({ id }: { id: number }) {
           ]}
         />
       </div>
+
+      <CustomFieldsView answers={user.custom_fields} form="U" />
 
       <UserAccount user={user} />
 

@@ -6,6 +6,7 @@ import { formatDateTime } from "@/lib/format";
 import { useTicket, useTicketOwner } from "@/lib/queries/tickets";
 import { TicketReplyBox, TicketToolbar } from "./ticket-actions";
 import { TicketPeopleTools } from "./ticket-people";
+import { CustomFieldsView } from "./custom-fields";
 import { Info } from "./info-table";
 import { Thread } from "./thread";
 export function TicketView({ id }: { id: number }) {
@@ -81,6 +82,8 @@ export function TicketView({ id }: { id: number }) {
           />
         </div>
       </div>
+
+      <CustomFieldsView answers={ticket.custom_fields} form="T" />
 
       {ticket.collaborators.length > 0 && (
         <p className="mb-4 text-sm">

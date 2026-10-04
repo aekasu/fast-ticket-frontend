@@ -5,7 +5,12 @@ import type { components } from "@/lib/api/schema";
 import { can, useMe } from "@/lib/queries/me";
 import { useDepartments } from "@/lib/queries/reference";
 import { taskKeys, useTaskAssignees } from "@/lib/queries/tasks";
+import { collectCustomFields, customDefs } from "@/lib/custom-fields";
+import { htmlToText } from "@/lib/canned";
+import { useFormDefinition } from "@/lib/queries/forms";
 import { NoticeBar, button, field, primary, useRunner } from "./action-ui";
+import { CustomFieldInputs } from "./custom-fields";
+import { DeleteButton } from "./delete-button";
 import { parseApiDate } from "@/lib/format";
 
 type Task = components["schemas"]["TaskDetail"];
@@ -22,6 +27,8 @@ export function TaskToolbar({ task }: { task: Task }) {
   const { data: me } = useMe();
   const { run, busy, notice, clear } = useRunner(`/api/v1/tasks/${task.task_id}`, taskKeys.all);
   const departments = useDepartments();
+  const formDefs = useFormDefinition("A");
+  const custom = customDefs(formDefs.data ?? [], "A");
   const [panel, setPanel] = useState<Panel>(null);
   const [note, setNote] = useState("");
   const [assignee, setAssignee] = useState("");
@@ -34,6 +41,9 @@ export function TaskToolbar({ task }: { task: Task }) {
   const canTransfer = can(me, dept, "task.transfer");
   const canEdit = can(me, dept, "task.edit");
   const canClose = can(me, dept, "task.close");
+  const canDelete = can(me, dept, "task.delete");
+  // A task's description is the first entry of its thread.
+  const description = htmlToText(task.thread.find((e) => e.type !== "E")?.body ?? "");
   const { data: options } = useTaskAssignees(task.task_id, panel === "assign");
 
   function toggle(next: Panel) {
@@ -64,6 +74,10 @@ export function TaskToolbar({ task }: { task: Task }) {
       if (text("title") !== task.title) body.title = text("title");
       const due = text("due_date");
       if (due !== toLocalInput(task.due_date)) body.due_date = due ? new Date(due).toISOString() : null;
+      const newDescription = String(form.get("description") ?? "").trim();
+      if (newDescription && newDescription !== description.trim()) body.description = newDescription;
+      const answers = collectCustomFields(form, custom, task.custom_fields);
+      if (Object.keys(answers).length > 0) body.custom_fields = answers;
       if (Object.keys(body).length === 0) {
         // Nothing to send: say so rather than queueing an empty edit.
         clear();
@@ -114,6 +128,7 @@ export function TaskToolbar({ task }: { task: Task }) {
             Reopen
           </button>
         )}
+        {canDelete && <DeleteButton noun="task" path={`/api/v1/tasks/${task.task_id}`} redirectTo="/tasks" invalidate={taskKeys.all} />}
       </div>
 
       <div className="mt-3">
@@ -161,6 +176,8 @@ export function TaskToolbar({ task }: { task: Task }) {
           {panel === "edit" && (
             <>
               <input aria-label="Title" name="title" required defaultValue={task.title} maxLength={255} className={field} />
+              <textarea aria-label="Description" name="description" rows={5} defaultValue={description} className={field} />
+              <CustomFieldInputs defs={custom} answers={task.custom_fields} />
               <label className="block text-sm">
                 <span className="mb-1 block font-semibold text-slate-700">Due Date</span>
                 <input aria-label="Due Date" name="due_date" type="datetime-local" defaultValue={toLocalInput(task.due_date)} className={field} />

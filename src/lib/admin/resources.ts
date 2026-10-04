@@ -46,6 +46,8 @@ export interface ResourceDef {
   info: [string, (d: Row, lk: Lk) => string][];
   fields: FieldDef[];
   sections?: Section[];
+  /** Sent with a new record's form values (a custom form is always type "G"). */
+  createDefaults?: Record<string, unknown>;
   canCreate?: boolean;
   canDelete?: (d: Row) => boolean;
   /** osTicket's list page, for tests. */
@@ -354,15 +356,9 @@ export const RESOURCES: Record<string, ResourceDef> = {
       { name: "instructions", label: "Instructions", kind: "textarea" },
       { name: "notes", label: "Internal Notes", kind: "textarea" },
     ],
-    sections: [
-      {
-        title: "Fields",
-        headers: ["Label", "Variable", "Type", "Required"],
-        rows: (d) => ((d.fields as Row[]) ?? []).map((f) => [s(f.label), s(f.name), s(f.type), yes(f.required)]),
-      },
-    ],
-    // Forms are created and their fields edited through osTicket's builder; the API edits only the form's text.
-    canCreate: false,
-    canDelete: () => false,
+    // The fields are managed by FormFieldsAdmin, shown under the form.
+    // A custom form is type "G". The core forms (ticket, user, organization, task, company) cannot be deleted here.
+    createDefaults: { type: "G" },
+    canDelete: (d) => d.type === "G" && d.is_deletable === true,
   },
 };

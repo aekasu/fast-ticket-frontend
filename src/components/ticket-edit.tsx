@@ -10,6 +10,9 @@ import { CommandFailed, runCommand, useActionKey } from "@/lib/queries/commands"
 import { can, useMe } from "@/lib/queries/me";
 import { usePriorities, useSlas, useTopics } from "@/lib/queries/reference";
 import { ticketKeys, useTicket } from "@/lib/queries/tickets";
+import { collectCustomFields, customDefs } from "@/lib/custom-fields";
+import { useFormDefinition } from "@/lib/queries/forms";
+import { CustomFieldInputs } from "./custom-fields";
 
 const field = "w-full rounded border border-slate-300 bg-white px-3 py-1.5 text-sm";
 const SOURCES = ["Phone", "Email", "Web", "API", "Other"];
@@ -41,12 +44,14 @@ export function TicketEdit({ id }: { id: number }) {
   const topics = useTopics();
   const priorities = usePriorities();
   const slas = useSlas();
+  const formDefs = useFormDefinition("T");
+  const custom = customDefs(formDefs.data ?? [], "T");
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   // The selects take their value from defaultValue when they mount, so their options must already be there:
   // otherwise the browser picks the first option and a plain Save would change the ticket.
-  if (isLoading || topics.isLoading || priorities.isLoading || slas.isLoading) return <p className="text-sm text-slate-500">Loading…</p>;
+  if (isLoading || topics.isLoading || priorities.isLoading || slas.isLoading || formDefs.isLoading) return <p className="text-sm text-slate-500">Loading…</p>;
   if (error instanceof ApiError && error.status === 404) return <p className="text-sm">Unknown or invalid ticket ID.</p>;
   if (error || !ticket) return <p role="alert" className="text-sm text-red-700">{error?.message ?? "Unable to load the ticket."}</p>;
   if (me && !can(me, ticket.dept_id, "ticket.edit")) return <p className="text-sm">Access denied. You do not have permission to edit this ticket.</p>;
@@ -65,6 +70,8 @@ export function TicketEdit({ id }: { id: number }) {
     if (text("source") && text("source") !== ticket.source) body.source = text("source");
     const due = text("due_date");
     if (due !== toLocalInput(ticket.due_date)) body.due_date = due ? new Date(due).toISOString() : null;
+    const answers = collectCustomFields(form, custom, ticket.custom_fields);
+    if (Object.keys(answers).length > 0) body.custom_fields = answers;
     if (text("note")) body.note = text("note");
 
     if (Object.keys(body).filter((k) => k !== "note").length === 0) {
@@ -144,6 +151,7 @@ export function TicketEdit({ id }: { id: number }) {
         <Row label="Due Date">
           <input name="due_date" type="datetime-local" defaultValue={toLocalInput(ticket.due_date)} className={field} />
         </Row>
+        <CustomFieldInputs defs={custom} answers={ticket.custom_fields} />
         <Row label="Internal Note">
           <textarea name="note" rows={3} placeholder="Reason for the update (optional)" className={field} />
         </Row>

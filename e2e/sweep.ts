@@ -60,6 +60,19 @@ export async function sweepTestData(baseURL: string, storageState: string) {
     for (const [path, key, prefix] of byName) {
       for (const item of await list(api, path)) if (startsWith(item[key], prefix)) await remove(api, `${path}/${item.id}`);
     }
+
+    // Custom fields the tests added to osTicket's forms (named e2e_cf_*), with the answers given to them.
+    for (const form of await list(api, "/api/v1/forms")) {
+      if (startsWith(form.title, "E2E")) {
+        await remove(api, `/api/v1/forms/${form.id}`);
+        continue;
+      }
+      const detail = await api.get(`/api/v1/forms/${form.id}`);
+      if (!detail.ok()) continue;
+      for (const f of ((await detail.json()) as { fields: Item[] }).fields) {
+        if (startsWith(f.name, "e2e_cf_")) await remove(api, `/api/v1/forms/${form.id}/fields/${f.id}?delete_data=true`);
+      }
+    }
   } finally {
     await api.dispose();
   }

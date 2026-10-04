@@ -115,8 +115,9 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
   lack Status, Agents count, Email Address and Manager; teams lack Members count and Team Lead; help topics lack
   Priority, Department and the parent path (osTicket shows "Report a Problem / Access Issue"); forms lack field counts.
   Filling them in costs one request per row, so they are left out.
-- **Forms:** `POST /forms` needs a `type` and the API edits only a form's title, instructions and notes: custom forms
-  cannot be created or their fields edited from the Admin Panel, nor deleted.
+- **Forms (corrected 2026-10-04):** an earlier version of this note said the API could not manage form fields; it can
+  (`POST/PATCH/DELETE /forms/{id}/fields`, `POST /forms`, `DELETE /forms/{id}`), and the Admin Panel now uses them.
+  Still missing: field types beyond those listed (lists, files), `min`/`max` options of date fields.
 - **Not exposed by the frontend yet (the API can):** team and department members, an agent's extended department
   access, teams and permissions, a help topic's custom forms.
 
@@ -169,3 +170,16 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
   `ticket.link` permission exists but no route uses it.
 - **Meanwhile:** the toolbar has Merge Tickets and Refer; there is no Link, no referral list, and no status choice
   beyond Close / Reopen. The referral panel says referrals cannot be listed or removed.
+
+## Custom fields: the form definition is admin-only, and answers come in two shapes
+
+- **Needs:** a non-admin agent who may edit a ticket, user, organization or task must be able to read the *definition*
+  (field names, types, choices, required mode) of the ticket, user, organization and task forms, to type answers.
+- **Gives (observed 2026-10-04):** `GET /forms` and `GET /forms/{id}` are admin-only (`KNOWN_LIMITS.md`). An agent
+  therefore sees a custom field's answers (every entity's `custom_fields` list) but gets no inputs for them.
+- **Answer formats the frontend decodes (`src/lib/custom-fields.ts`):** a single choice is JSON `{"a":"Alpha"}` (key to
+  label), a multiple choice is JSON `["x","z"]` (keys only), a bool is `"1"` or `"0"`, text and memo as typed.
+  Typed values (an object with the field's type and the key list) would remove the decoding.
+- **Also seen:** a field added to a form after a ticket existed is missing from that ticket's `custom_fields` until the
+  ticket first gets an answer for it; and osTicket's own view pages for a user and an organization do not print
+  custom answers (its edit dialog does), so those are checked against the API and the edit dialog.

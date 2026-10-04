@@ -6,6 +6,7 @@ import { formatDateTime } from "@/lib/format";
 import { useTask } from "@/lib/queries/tasks";
 import { useTicket } from "@/lib/queries/tickets";
 import { TaskReplyBox, TaskToolbar } from "./task-actions";
+import { CustomFieldsView } from "./custom-fields";
 import { Info } from "./info-table";
 import { Thread } from "./thread";
 function LinkedTicket({ id }: { id: number }) {
@@ -69,7 +70,9 @@ export function TaskView({ id }: { id: number }) {
         />
       </div>
 
-      <h2 className="border-b border-slate-300 pb-1 text-sm font-semibold text-slate-800">Task Thread ({posts.length})</h2>
+      <CustomFieldsView answers={task.custom_fields} form="A" />
+
+      <h2 className="mt-4 border-b border-slate-300 pb-1 text-sm font-semibold text-slate-800">Task Thread ({posts.length})</h2>
       <Thread entries={task.thread} attachmentHref={(attachmentId) => `/api/v1/tasks/${task.task_id}/attachments/${attachmentId}`} />
 
       <TaskReplyBox task={task} />

@@ -1,7 +1,7 @@
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 import { command } from "./api";
 import { AUTH } from "./global-setup";
-import { osticketAdmin, osticketRows } from "./osticket";
+import { osticketAdmin, osticketRaw, osticketRows } from "./osticket";
 
 const stamp = () => Date.now();
 const idFromUrl = (page: Page) => Number(page.url().split("/").filter((p) => /^\d+$/.test(p)).pop());
@@ -298,17 +298,105 @@ test.describe("Admin Panel as the admin", () => {
     }
   });
 
-  test("forms: listed, their fields shown, and only the text editable", async ({ page, request }) => {
+  test("forms: the core forms list their fields, with the locked ones protected", async ({ page, request }) => {
     const forms = ((await (await request.get("/api/v1/forms")).json()) as { items: { id: number; title: string }[] }).items;
     await page.goto("/admin/forms");
     await expect(page.locator("tbody tr")).toHaveCount(forms.length);
-    await expect(page.getByRole("link", { name: /Add New/ })).toHaveCount(0);
     const ticketForm = forms.find((f) => f.title === "Ticket Details")!;
     await page.goto(`/admin/forms/${ticketForm.id}`);
     await expect(page.getByRole("heading", { name: /^Fields \(\d+\)$/ })).toBeVisible();
+    const fields = page.getByRole("region", { name: "Form fields" });
+        // The core form's own fields cannot be removed, and the form itself cannot be deleted here.
+    await expect(fields.getByRole("button", { name: /^Remove / })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Delete", exact: true })).toHaveCount(0);
-    await page.goto("/admin/forms/new");
-    await expect(page.getByText("This page could not be found.")).toBeVisible();
+  });
+
+  test("a custom form: create it, add, edit and remove a field, delete it, as osTicket lists it", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const title = `E2E Form ${stamp()}`;
+    let id: number | undefined;
+    try {
+      await page.goto("/admin/forms");
+      await page.getByRole("link", { name: "Add New Form" }).click();
+      await page.getByLabel(/^Title/).fill(title);
+      await page.getByLabel("Instructions").fill("Made by the e2e suite.");
+      await page.getByRole("button", { name: "Add Form" }).click();
+      await expect(page).toHaveURL(/\/admin\/forms\/\d+$/);
+      id = idFromUrl(page);
+      expect((await osticketList(os, "forms.php")).join("\n")).toContain(title);
+      await expect(page.getByText("This form has no fields yet.")).toBeVisible();
+
+      // Add a selection list
+      await page.getByRole("button", { name: "Add Field" }).first().click();
+      await page.getByLabel("Label").fill("E2E Size");
+      await page.getByLabel("Variable").fill("e2e_cf_size");
+      await page.getByLabel("Type").selectOption({ label: "Selection List" });
+      await page.getByLabel("Choices").fill("s:Small\nl:Large");
+      await page.getByRole("button", { name: "Add Field" }).last().click();
+      await expect(page.getByText('Field "E2E Size" added.')).toBeVisible();
+      const row = page.locator("tbody tr", { hasText: "e2e_cf_size" });
+      await expect(row).toContainText("Selection List");
+      await expect(row).toContainText("Optional");
+      // osTicket's form builder keeps a field's label and variable in inputs.
+      const ref = (await osticketRaw(os, `forms.php?id=${id}`)).body;
+      expect(ref).toContain('value="E2E Size"');
+      expect(ref).toContain("e2e_cf_size");
+
+      // Edit: make it required and rename it
+      await page.getByRole("button", { name: "Edit E2E Size" }).click();
+      await page.getByLabel("Label").fill("E2E Shirt Size");
+      await page.getByLabel("Visibility").selectOption({ label: "Required" });
+      await page.getByRole("button", { name: "Save Field" }).click();
+      await expect(page.getByText('Field "E2E Shirt Size" updated.')).toBeVisible();
+      await expect(page.locator("tbody tr", { hasText: "e2e_cf_size" })).toContainText("Required");
+      expect((await osticketRaw(os, `forms.php?id=${id}`)).body).toContain('value="E2E Shirt Size"');
+
+      // Remove the field
+      await page.getByRole("button", { name: "Remove E2E Shirt Size" }).click();
+      await page.getByRole("button", { name: "Remove field" }).click();
+      await expect(page.getByText('Field "E2E Shirt Size" removed.')).toBeVisible();
+      await expect(page.getByText("This form has no fields yet.")).toBeVisible();
+
+      // Delete the form
+      await page.getByRole("button", { name: "Delete", exact: true }).click();
+      await page.getByRole("button", { name: "Delete form" }).click();
+      await expect(page).toHaveURL(/\/admin\/forms$/);
+      expect((await osticketList(os, "forms.php")).join("\n")).not.toContain(title);
+      id = undefined;
+    } finally {
+      await remove(request, "/api/v1/forms", id);
+      await os.dispose();
+    }
+  });
+
+  test("a field added in the Admin Panel appears on the New Ticket form, and goes when removed", async ({ page, request }) => {
+    const ticketForm = ((await (await request.get("/api/v1/forms")).json()) as { items: { id: number; type: string }[] }).items.find((f) => f.type === "T")!;
+    let fieldId: number | undefined;
+    try {
+      await page.goto(`/admin/forms/${ticketForm.id}`);
+      await page.getByRole("button", { name: "Add Field" }).first().click();
+      await page.getByLabel("Label").fill("E2E Admin Added");
+      await page.getByLabel("Variable").fill("e2e_cf_admin_added");
+      await page.getByRole("button", { name: "Add Field" }).last().click();
+      await expect(page.getByText('Field "E2E Admin Added" added.')).toBeVisible();
+
+      await page.goto("/tickets/new");
+      await expect(page.getByLabel("E2E Admin Added")).toBeVisible();
+
+      const detail = (await (await request.get(`/api/v1/forms/${ticketForm.id}`)).json()) as { fields: { id: number; name: string }[] };
+      fieldId = detail.fields.find((f) => f.name === "e2e_cf_admin_added")?.id;
+      await page.goto(`/admin/forms/${ticketForm.id}`);
+      await page.getByRole("button", { name: "Remove E2E Admin Added" }).click();
+      await page.getByRole("button", { name: "Remove field" }).click();
+      await expect(page.getByText('Field "E2E Admin Added" removed.')).toBeVisible();
+      fieldId = undefined;
+
+      await page.goto("/tickets/new");
+      await expect(page.getByLabel("Issue Details")).toBeVisible();
+      await expect(page.getByLabel("E2E Admin Added")).toHaveCount(0);
+    } finally {
+      if (fieldId) await command(request, "DELETE", `/api/v1/forms/${ticketForm.id}/fields/${fieldId}?delete_data=true`).catch(() => undefined);
+    }
   });
 });
 
