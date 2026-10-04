@@ -90,14 +90,16 @@ redirects to login.
    *absent* call `settled(page)` first (`e2e/api.ts`).
 
 **Every screen in osTicket's staff menu now exists** (Dashboard, Users, Tasks, Tickets, Knowledge Base, Admin Panel),
-each compared with osTicket's own pages by `npm run test:e2e` (65 tests). What is left is depth, in this order:
-1. A **README** (how to run: dev stack, `.env`, `npm run dev`, tests, seeds) and a **production build check**
-   (`npm run build && npm start`, `Secure` cookie flag behind HTTPS).
-2. Ticket depth: canned response and signature in the reply box, Refer / Merge / Link / Change Owner, collaborators,
+each compared with osTicket's own pages by `npm run test:e2e` (65 tests; two clean full runs). What is left is depth, in this order:
+1. ~~README and production build check~~ done (2026-10-04): `README.md`; `npm run build` passes; in a production
+   build the cookie is `Secure; HttpOnly; SameSite=Lax`; `next.config.ts` sets X-Frame-Options DENY, nosniff,
+   Referrer-Policy and Permissions-Policy and drops X-Powered-By. Not done: a CSP (Next's inline scripts need a nonce
+   setup) and serving behind real HTTPS.
+1. Ticket depth: canned response and signature in the reply box, Refer / Merge / Link / Change Owner, collaborators,
    thread entry edit and resend, the full status dropdown, mass actions on the list, advanced search.
-3. User accounts (register, lock, password reset, activation), organization account manager and primary contacts,
+2. User accounts (register, lock, password reset, activation), organization account manager and primary contacts,
    admin array fields (team and department members, an agent's extended access and permissions, topic forms).
-4. Live updates over the WebSocket (design in AGENTS.md; read `../fast-ticket/notes/EVENTS.md` first), then Vitest
+3. Live updates over the WebSocket (design in AGENTS.md; read `../fast-ticket/notes/EVENTS.md` first), then Vitest
    component tests for the pure pieces (`CommandFailed` parsing, `useActionKey`, `formatDateTime`, the admin configs).
 
 Run the app with `npm run dev` (it unsets the agent env vars so Next does not rewrite `AGENTS.md`). Log in with the
