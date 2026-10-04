@@ -37,6 +37,10 @@ stack, not a mock.
 - **Tailwind CSS** for styling (no component kit): osTicket's look is utilitarian, and recreating it is easier with
   utility classes than by fighting a kit's defaults.
 - **npm** as the package manager (already installed here; Node 24).
+- **TanStack Query** (2026-10-04) for server state: the 202 + `GET /commands/{id}?wait=` pattern maps onto its
+  mutations, and invalidation covers refetch-after-write and later refetch-on-event.
+- **Testing** (2026-10-04): Vitest + Testing Library for units and components; Playwright against the live stack for
+  the demo flows (compare a screen with osTicket's own page).
 - **Types come from the schema:** generated from the backend's `/openapi.json`, never hand-written. The schema is a
   **committed snapshot** at `openapi/openapi.json`, refreshed by an npm script (`npm run api:pull`) from a running dev
   backend, and the types are generated from the snapshot (`npm run api:types`, e.g. `openapi-typescript`). Builds
@@ -62,14 +66,12 @@ stack, not a mock.
 - The server enforces permissions; the UI only hides what the agent cannot do (`GET /api/v1/auth/me`). A 404 means
   "gone or not yours".
 
-## Open decisions (ask the user, do not guess)
-
-- Data-fetching/state approach — recommendation: TanStack Query (the 202 + `GET /commands/{id}?wait=` pattern and
-  refetch-on-event fit its mutations and invalidation well).
-- Component testing approach (Vitest + Testing Library, and Playwright against the live stack for the demo flows).
-
 ## Working agreements
 
 - Local git repository, no remote yet. Atomic commits, `<type>(<scope>): <summary>`.
 - Never commit secrets or `.env` files; commit a `.env.example` for any variable the app reads.
-- Keep this file current as decisions are made; delete the "Open decisions" entries as they are settled.
+- Keep this file current as decisions are made. Open questions for the user go under an "Open decisions" heading.
+- This is Next.js 16, newer than most training data: read the relevant guide in `node_modules/next/dist/docs/` before
+  using an API you are unsure of (route handlers, cookies, proxying, caching).
+- `next dev` rewrites `AGENTS.md` when it detects an AI agent. The `dev` script unsets the agent environment variables
+  so it never edits our guidance; do not run bare `next dev` from an agent session.
