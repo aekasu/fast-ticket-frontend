@@ -1,8 +1,7 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
 import type { paths } from "@/lib/api/schema";
 import { ApiError, errorMessage } from "@/lib/api/errors";
-import { runCommand } from "./commands";
 
 export type TicketListQuery = NonNullable<paths["/api/v1/tickets/"]["get"]["parameters"]["query"]>;
 export type QueueKey = NonNullable<TicketListQuery["queue"]>;
@@ -72,16 +71,5 @@ export function useAssignees(ticketId: number, enabled: boolean) {
       if (!data) throw new Error(errorMessage(error));
       return data;
     },
-  });
-}
-
-/** A ticket action (reply, note, assign, close, …): POST /tickets/{id}/{action}, then refetch what it changed. */
-export function useTicketAction(ticketId: number) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (variables: { action: string; body?: Record<string, unknown>; key: string }) =>
-      runCommand({ method: "POST", path: `/api/v1/tickets/${ticketId}/${variables.action}`, body: variables.body ?? {}, key: variables.key }),
-    // Whether it worked or osTicket refused, what is on screen may be stale.
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ticketKeys.all }),
   });
 }

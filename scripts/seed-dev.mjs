@@ -54,3 +54,42 @@ for (const [i, subject] of all.entries()) {
   const done = await (await fetch(`${base}/api/v1/commands/${command_id}?wait=30`, { headers })).json();
   console.log(`${String(i + 1).padStart(2)} ${done.status}${done.error_message ? `: ${done.error_message}` : ""}`);
 }
+
+// Tasks: 8 in all. Two are linked to the first seeded ticket, three are claimed by the admin, two are closed.
+async function send(method, path, key, body) {
+  const res = await fetch(`${base}${path}`, {
+    method,
+    headers: { ...headers, "Content-Type": "application/json", "Idempotency-Key": key },
+    body: JSON.stringify(body),
+  });
+  if (res.status !== 202) throw new Error(`${method} ${path}: ${res.status} ${await res.text()}`);
+  const { command_id } = await res.json();
+  const done = await (await fetch(`${base}/api/v1/commands/${command_id}?wait=30`, { headers })).json();
+  if (done.status !== "done") throw new Error(`${method} ${path}: ${done.status} ${done.error_message}`);
+  return done.result_payload ? JSON.parse(done.result_payload) : {};
+}
+
+const ticketList = await (await fetch(`${base}/api/v1/tickets/?q=${encodeURIComponent("[seed] Printer")}`, { headers })).json();
+const linkTo = ticketList.items?.[0]?.ticket_id;
+const taskTitles = [
+  "[seed] Replace the floor 2 printer toner",
+  "[seed] Audit shared drive permissions",
+  "[seed] Order a second monitor",
+  "[seed] Rotate the VPN certificates",
+  "[seed] Onboard the new starter",
+  "[seed] Review the contact form errors",
+  "[seed] Archive last quarter's tickets",
+  "[seed] Update the password reset guide",
+];
+for (const [i, title] of taskTitles.entries()) {
+  const n = i + 1;
+  const created = await send("POST", "/api/v1/tasks/", `fe-seed-task-${n}`, {
+    title,
+    description: `Seeded for frontend development.\n\n${title}.`,
+    ...(linkTo && n <= 2 ? { ticket_id: linkTo } : {}),
+  });
+  const id = created.task_id;
+  if (n >= 3 && n <= 5) await send("POST", `/api/v1/tasks/${id}/claim`, `fe-seed-task-${n}-claim`, {});
+  if (n >= 7) await send("POST", `/api/v1/tasks/${id}/close`, `fe-seed-task-${n}-close`, {});
+  console.log(`task ${n} ok (${id})`);
+}

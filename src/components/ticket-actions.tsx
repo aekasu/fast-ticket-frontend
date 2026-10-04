@@ -3,58 +3,18 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { components } from "@/lib/api/schema";
-import { CommandFailed, useActionKey } from "@/lib/queries/commands";
 import { can, useMe } from "@/lib/queries/me";
 import { useDepartments } from "@/lib/queries/reference";
-import { useAssignees, useTicketAction } from "@/lib/queries/tickets";
+import { NoticeBar, button, field, primary, useRunner } from "./action-ui";
+import { ticketKeys, useAssignees } from "@/lib/queries/tickets";
 
 type Ticket = components["schemas"]["TicketDetail"];
-type Notice = { kind: "ok" | "error"; text: string };
-
-const button = "rounded border border-slate-400 bg-white px-3 py-1.5 text-sm font-medium text-slate-800 hover:bg-slate-100 disabled:opacity-50";
-const primary = "rounded bg-sky-800 px-4 py-1.5 text-sm font-semibold text-white hover:bg-sky-900 disabled:opacity-60";
-const field = "w-full rounded border border-slate-300 bg-white px-3 py-1.5 text-sm";
-
-/** Runs one ticket action with its own idempotency key and reports osTicket's answer. */
-function useRunner(ticketId: number) {
-  const action = useTicketAction(ticketId);
-  const key = useActionKey();
-  const [notice, setNotice] = useState<Notice | null>(null);
-
-  async function run(name: string, body: Record<string, unknown>, success: string): Promise<boolean> {
-    setNotice(null);
-    try {
-      await action.mutateAsync({ action: name, body, key: key.current() });
-      key.renew();
-      setNotice({ kind: "ok", text: success });
-      return true;
-    } catch (error) {
-      // osTicket's own refusal ends the action; a transport error keeps the key so a retry is the same action.
-      if (error instanceof CommandFailed) key.renew();
-      setNotice({ kind: "error", text: error instanceof Error ? error.message : "Request failed" });
-      return false;
-    }
-  }
-  return { run, busy: action.isPending, notice, clear: () => setNotice(null) };
-}
-
-function NoticeBar({ notice }: { notice: Notice | null }) {
-  if (!notice) return null;
-  return (
-    <p
-      role={notice.kind === "error" ? "alert" : "status"}
-      className={`mb-3 border px-3 py-2 text-sm ${notice.kind === "error" ? "border-red-300 bg-red-50 text-red-800" : "border-emerald-300 bg-emerald-50 text-emerald-800"}`}
-    >
-      {notice.text}
-    </p>
-  );
-}
 
 type Panel = "assign" | "transfer" | "close" | "reopen" | "release" | null;
 
 export function TicketToolbar({ ticket }: { ticket: Ticket }) {
   const { data: me } = useMe();
-  const { run, busy, notice, clear } = useRunner(ticket.ticket_id);
+  const { run, busy, notice, clear } = useRunner(`/api/v1/tickets/${ticket.ticket_id}`, ticketKeys.all);
   const [panel, setPanel] = useState<Panel>(null);
   const [note, setNote] = useState("");
   const [assignee, setAssignee] = useState("");
@@ -221,7 +181,7 @@ export function TicketToolbar({ ticket }: { ticket: Ticket }) {
 /** osTicket's "Post Reply" and "Post Internal Note" tabs under the thread. */
 export function TicketReplyBox({ ticket }: { ticket: Ticket }) {
   const { data: me } = useMe();
-  const { run, busy, notice, clear } = useRunner(ticket.ticket_id);
+  const { run, busy, notice, clear } = useRunner(`/api/v1/tickets/${ticket.ticket_id}`, ticketKeys.all);
   const [tab, setTab] = useState<"reply" | "note">("reply");
   const [message, setMessage] = useState("");
   const [title, setTitle] = useState("");
