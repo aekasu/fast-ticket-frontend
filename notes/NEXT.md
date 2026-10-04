@@ -90,7 +90,7 @@ redirects to login.
    *absent* call `settled(page)` first (`e2e/api.ts`).
 
 **Every screen in osTicket's staff menu now exists** (Dashboard, Users, Tasks, Tickets, Knowledge Base, Admin Panel),
-each compared with osTicket's own pages by `npm run test:e2e` (75 e2e tests, plus 16 unit tests from `npm run test:unit`). What is left is depth, in this order:
+each compared with osTicket's own pages by `npm run test:e2e` (78 e2e tests, plus 16 unit tests from `npm run test:unit`). What is left is depth, in this order:
 1. ~~README and production build check~~ done (2026-10-04): `README.md`; `npm run build` passes; in a production
    build the cookie is `Secure; HttpOnly; SameSite=Lax`; `next.config.ts` sets X-Frame-Options DENY, nosniff,
    Referrer-Policy and Permissions-Policy and drops X-Powered-By. Not done: a CSP (Next's inline scripts need a nonce
@@ -104,7 +104,7 @@ each compared with osTicket's own pages by `npm run test:e2e` (75 e2e tests, plu
    seen), Link Tickets, un-merge, referral list/remove, the status choice beyond Close/Reopen, thread entry edit and
    resend, collaborators from an email that is not yet a user, mass actions on the list, advanced search
    (all in BACKEND_REQUESTS.md where the API is the limit).
-2. User accounts (register, lock, password reset, activation), organization account manager and primary contacts,
+2. ~~User accounts~~ done 2026-10-04 (`components/user-account.tsx` on the user page: Guest / Active (Registered) / Pending / Locked as osTicket words them, Register, Manage Account, Lock/Unlock, activation and reset emails; confirmed on osTicket's user page). Still open: organization account manager and primary contacts,
    admin array fields (team and department members, an agent's extended access and permissions, topic forms).
 3. Live updates over the WebSocket (design in AGENTS.md; read `../fast-ticket/notes/EVENTS.md` first), then Vitest
    more unit tests. Vitest is set up (`npm run test:unit`, `src/**/*.test.ts`): `canned`, `CommandFailed` parsing and

@@ -9,6 +9,7 @@ import { useMe } from "@/lib/queries/me";
 import { useTicketList } from "@/lib/queries/tickets";
 import { DeleteButton } from "./delete-button";
 import { Info } from "./info-table";
+import { UserAccount, accountStatus } from "./user-account";
 
 /** The tickets this user opened, as far as the agent can see. */
 function UserTickets({ userId, email }: { userId: number; email: string }) {
@@ -117,11 +118,13 @@ export function UserView({ id }: { id: number }) {
           rows={[
             ["Created", formatDateTime(user.created)],
             ["Updated", formatDateTime(user.updated)],
-            ["Account", account ? `${account.status}${account.username ? ` (${account.username})` : ""}` : "Guest (no account)"],
+            ["Status", accountStatus(account)],
             ["Internal Notes", user.internal_notes],
           ]}
         />
       </div>
+
+      <UserAccount user={user} />
 
       <UserTickets userId={user.id} email={user.email} />
     </div>
