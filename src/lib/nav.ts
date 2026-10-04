@@ -16,3 +16,8 @@ export const SECTIONS: Section[] = [
   { href: "/kb", label: "Knowledge Base", visible: () => true },
   { href: "/admin", label: "Admin Panel", visible: (me) => me.is_admin },
 ];
+
+/** osTicket offers "New Ticket" to agents whose role grants ticket.create in some department. */
+export function canCreateTickets(me: Me): boolean {
+  return me.is_admin || Object.values(me.roles).some((permissions) => permissions.includes("ticket.create"));
+}

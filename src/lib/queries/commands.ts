@@ -1,8 +1,32 @@
 import { useRef } from "react";
 import { errorMessage } from "@/lib/api/errors";
 
-/** osTicket's own refusal (a failed command's `error_message`), kept apart from transport errors. */
-export class CommandFailed extends Error {}
+/**
+ * osTicket's own refusal (a failed command's `error_message`), kept apart from transport errors. osTicket often
+ * ends its message with a JSON map of field errors (`Ticket was not created: {"user":"Incomplete client
+ * information"}`); that is unpacked into plain text, its wording kept.
+ */
+export class CommandFailed extends Error {
+  /** Per-field messages when osTicket sent them, keyed by its field name. */
+  readonly fields: Record<string, string>;
+  constructor(raw: string) {
+    const match = /^(.*?):?\s*(\{[\s\S]*\})\s*$/.exec(raw);
+    let fields: Record<string, string> = {};
+    let message = raw;
+    if (match) {
+      try {
+        const parsed = JSON.parse(match[2]) as Record<string, unknown>;
+        fields = Object.fromEntries(Object.entries(parsed).map(([k, v]) => [k, String(v)]));
+        const details = Object.values(fields).join("; ");
+        message = match[1] ? `${match[1]}: ${details}` : details;
+      } catch {
+        /* not JSON: keep the raw text */
+      }
+    }
+    super(message);
+    this.fields = fields;
+  }
+}
 
 interface CommandStatus {
   status: "pending" | "processing" | "done" | "failed";

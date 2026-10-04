@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { canCreateTickets } from "@/lib/nav";
+import { useMe } from "@/lib/queries/me";
 import { type QueueKey, useQueueCounts } from "@/lib/queries/tickets";
 
 // osTicket's tabs are the top-level queues; the children of the selected one are its sub-queues.
 export function TicketQueues({ current }: { current: QueueKey }) {
   const { data: queues, error } = useQueueCounts();
+  const { data: me } = useMe();
   if (error) return <p className="text-sm text-red-700">Queues unavailable: {error.message}</p>;
   if (!queues) return <div className="h-16" aria-busy="true" />;
 
@@ -16,7 +19,7 @@ export function TicketQueues({ current }: { current: QueueKey }) {
 
   return (
     <div className="mb-4">
-      <ul className="flex border-b border-slate-300" aria-label="Queues">
+      <ul className="flex flex-wrap border-b border-slate-300" aria-label="Queues">
         {top.map((q) => (
           <li key={q.key}>
             <Link
@@ -29,6 +32,13 @@ export function TicketQueues({ current }: { current: QueueKey }) {
             </Link>
           </li>
         ))}
+        {me && canCreateTickets(me) && (
+          <li>
+            <Link href="/tickets/new" className="-mb-px block border border-transparent px-4 py-2 text-sm font-medium text-sky-800 hover:bg-slate-200">
+              New Ticket
+            </Link>
+          </li>
+        )}
       </ul>
       {sub.length > 0 && (
         <ul className="flex flex-wrap gap-x-4 gap-y-1 border-b border-slate-200 bg-white px-3 py-2 text-sm" aria-label="Sub-queues">

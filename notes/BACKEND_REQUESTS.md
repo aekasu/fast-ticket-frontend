@@ -47,3 +47,11 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 - **Gives (observed 2026-10-04):** `body` as a string only; the installer's welcome message is HTML, an agent's note
   is plain text. The frontend tells them apart by shape (`src/components/safe-html.tsx`) and always sanitises HTML
   with DOMPurify, since bodies come from customers and email.
+
+## Ticket create takes fewer fields than osTicket's "Open a New Ticket"
+
+- **Needs (osTicket's staff form, `ticket-open.inc.php`):** ticket source, SLA plan, due date, assign-to, Cc
+  collaborators, and a first Response and Internal Note on the same submit (plus attachments).
+- **Gives:** `POST /tickets/` takes name, email, phone, dept, topic, priority, subject, message and custom fields.
+  The new-ticket screen offers only those and says so; assign-on-create is already in `KNOWN_LIMITS.md`.
+- **Meanwhile:** source/SLA/due date can be changed after creation only where `PATCH /tickets/{id}` allows it.
