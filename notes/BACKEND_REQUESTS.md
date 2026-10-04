@@ -11,9 +11,11 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 - **Meanwhile:** `src/lib/api/me.ts` holds a small hand-written `Me` type, marked as temporary. Replace it with the
   generated type once the schema exists.
 
-## Login 429 carries no `Retry-After` and a different body
+## The generic rate limiter's 429 has no `Retry-After`
 
-- **Needs:** the `Retry-After` header `CLIENTS.md` promises on a locked-out login, so the screen can say when to retry.
-- **Gives (observed 2026-10-04):** after 5 failures the BFF got 429; the backend's own 429 answers
-  `{"error":"Rate limit exceeded: 10 per 1 minute"}` with no `Retry-After` header. The login screen therefore says
-  "Try again later" with no number. (It shows the number if the header ever appears.)
+- **Needs:** a `Retry-After` header on every 429, as `CLIENTS.md` says ("A locked-out account/address pair gets `429`
+  with `Retry-After`"), so a client can say when to retry.
+- **Gives (observed 2026-10-04):** the per-account lockout (5 failures) is correct: 429, `Retry-After: 300`, and a
+  `detail` message. The per-address limiter (login route: 10 a minute) answers
+  `{"error":"Rate limit exceeded: 10 per 1 minute"}` with no `Retry-After`, and uses `error` where other errors use
+  `detail`. The login screen then says "Try again later" with no number.

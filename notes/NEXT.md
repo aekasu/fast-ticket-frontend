@@ -15,9 +15,10 @@ redirects to login.
 1. **Non-admin verified (2026-10-04):** a throwaway agent `fe-agent` (non-admin, Support dept, role 3) was created in the
    dev DB through `POST /staff`; its credentials are in the gitignored `.env.local`
    (`FE_TEST_AGENT_USERNAME`/`FE_TEST_AGENT_PASSWORD`) for tests. For it the menu hides Users and Admin Panel and
-   `/admin`, `/users` are 404; the admin sees both. The 429 message works but the backend sends no `Retry-After`
-   (see `BACKEND_REQUESTS.md`). Not yet checked: the `Secure` cookie flag in a production build.
-   Note: five failed logins lock the address out for about a minute, which also blocks good logins from it.
+   `/admin`, `/users` are 404; the admin sees both. The account lockout message works end to end (`Retry-After: 300` reaches the screen);
+   the generic per-address limiter sends no `Retry-After` (see `BACKEND_REQUESTS.md`). Not yet checked: the `Secure` cookie flag in a production build.
+   Note: the login route allows 10 attempts a minute per address (all accounts share it), and 5 failures lock
+   one account/address pair for 300 s; tests must log in once and reuse the session (Playwright `storageState`).
 2. **Ticket queues** (`GET /tickets/queues`, list with search, sort, counts): osTicket's `scp/tickets.php` and
    `include/staff/tickets.inc.php`, compared side by side at http://localhost:8080/scp/tickets.php.
 3. Dashboard (`scp/index.php`) is a placeholder; osTicket's shows ticket activity reports. Decide what the API can
