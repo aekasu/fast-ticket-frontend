@@ -34,7 +34,14 @@ stack, not a mock.
   one. Plan: a route handler returns a short-lived token for the socket and the browser connects straight to
   `/api/v1/ws` with the `["bearer", token]` subprotocol (CORS does not apply to WebSockets). Settle the details when
   the live updates are built; until then the screens refetch.
-- **Types come from the schema:** generated from the backend's `/openapi.json`, never hand-written.
+- **Tailwind CSS** for styling (no component kit): osTicket's look is utilitarian, and recreating it is easier with
+  utility classes than by fighting a kit's defaults.
+- **npm** as the package manager (already installed here; Node 24).
+- **Types come from the schema:** generated from the backend's `/openapi.json`, never hand-written. The schema is a
+  **committed snapshot** at `openapi/openapi.json`, refreshed by an npm script (`npm run api:pull`) from a running dev
+  backend, and the types are generated from the snapshot (`npm run api:types`, e.g. `openapi-typescript`). Builds
+  never need the backend; a backend contract change arrives as a reviewable diff of the snapshot. Pull it whenever
+  the backend's API changes, and say so in the commit.
 
 ## Boundary with the backend
 
@@ -57,10 +64,9 @@ stack, not a mock.
 
 ## Open decisions (ask the user, do not guess)
 
-- Package manager, UI/styling approach (osTicket's look suggests plain CSS or Tailwind over a component kit), and the
-  data-fetching/state approach (e.g. TanStack Query).
-- Where the OpenAPI schema is taken from for builds (production turns `/openapi.json` off): a running dev backend, or
-  a copy committed here / published with a backend release.
+- Data-fetching/state approach — recommendation: TanStack Query (the 202 + `GET /commands/{id}?wait=` pattern and
+  refetch-on-event fit its mutations and invalidation well).
+- Component testing approach (Vitest + Testing Library, and Playwright against the live stack for the demo flows).
 
 ## Working agreements
 
