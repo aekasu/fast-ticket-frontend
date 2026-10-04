@@ -27,11 +27,19 @@ redirects to login.
    Gaps, deliberately not faked: no mass-action checkboxes and no "New Ticket" tab yet; no "Closed today / this
    week" sub-queues (API has none, `KNOWN_LIMITS.md`); no per-column customisation; overdue rows are not tinted
    (the list item has no overdue flag, only `due_date`).
-   **Weak spot:** the dev DB holds one ticket, so sorting order, paging and search ranking are not really exercised.
-   Seed tickets through the API (`POST /tickets/`, mind the 202 pattern and cleanup) before the next list screens.
-3. **Ticket view** (`/tickets/[id]`): thread with attachments, then reply / note / assign / close. osTicket:
-   `include/staff/ticket-view.inc.php`, compared at http://localhost:8080/scp/tickets.php?id=1. The list already
-   links to it (currently a 404).
+   The dev DB is seeded with 30 `[seed]` tickets (`npm run seed:dev`, idempotent) so sort and paging are exercised.
+   e2e tests create their own tickets and delete them; a failed run can leave `[e2e]` tickets: delete them.
+3. **Ticket view and its actions: built and verified (2026-10-04)** at `/tickets/[id]`
+   (`src/components/ticket-view.tsx`, `ticket-actions.tsx`, `safe-html.tsx`): info tables, thread with attachments and
+   collaborators, sanitised bodies (DOMPurify), 404 worded like osTicket; toolbar (Claim, Assign to agent/team,
+   Release, Mark answered/unanswered, Close/Reopen with a comment) and Post Reply / Post Internal Note, all through
+   the 202 pattern (`src/lib/queries/commands.ts`: polling, osTicket's `error_message` on refusal, one
+   Idempotency-Key per action). Buttons follow the agent's role in the ticket's department (`can()` in `queries/me.ts`).
+   `e2e/ticket-view.spec.ts` and `ticket-actions.spec.ts` confirm each action on osTicket's own page.
+   Not built yet (next in this area, in osTicket's order): Transfer, Refer, Merge/Link, Change Owner, Edit ticket,
+   Collaborators add/remove, thread entry edit/resend, Tasks tab, "New Ticket" form, mass actions on the list, the
+   status dropdown beyond close/reopen, signature choice on reply, attachment upload (API has none), print.
+   Vitest/Testing Library are decided but not set up (nothing has needed a unit test yet).
 4. Dashboard (`scp/index.php`) is a placeholder; osTicket's shows ticket activity reports. Decide what the API can
    back.
 

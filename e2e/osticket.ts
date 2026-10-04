@@ -63,5 +63,5 @@ export async function osticketTicket(ctx: APIRequestContext, id: number) {
     if (label && !(label in info)) info[label] = text(m[2]);
   }
   const threadCount = Number(/Ticket Thread \((\d+)\)/.exec(html)?.[1] ?? NaN);
-  return { info, threadCount };
+  return { info, threadCount, html };
 }

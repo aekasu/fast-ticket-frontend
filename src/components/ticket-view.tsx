@@ -5,6 +5,7 @@ import { ApiError } from "@/lib/api/errors";
 import { formatDateTime } from "@/lib/format";
 import { useTicket, useTicketOwner } from "@/lib/queries/tickets";
 import { SafeHtml } from "./safe-html";
+import { TicketReplyBox, TicketToolbar } from "./ticket-actions";
 
 const ENTRY_STYLE: Record<string, { label: string; box: string }> = {
   M: { label: "Message", box: "border-sky-200 bg-sky-50" },
@@ -69,6 +70,8 @@ export function TicketView({ id }: { id: number }) {
           Ticket #{ticket.number} <span className="ml-2 text-base font-normal text-slate-600">{ticket.subject}</span>
         </h1>
       </div>
+
+      <TicketToolbar ticket={ticket} />
 
       <div className="mb-4 grid gap-4 lg:grid-cols-2">
         <div className="space-y-4">
@@ -152,6 +155,8 @@ export function TicketView({ id }: { id: number }) {
           );
         })}
       </ol>
+
+      <TicketReplyBox ticket={ticket} />
     </div>
   );
 }
