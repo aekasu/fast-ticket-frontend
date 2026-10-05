@@ -35,7 +35,19 @@ the hostname or IP, comma-separated, in `.env.local` and restart `npm run dev`:
 DEV_ALLOWED_ORIGINS=192.168.1.20,laptop.local
 ```
 
-Only those hostnames are added; every other one is still refused. This is for development. For `npm start` the session
+Only those hostnames are added; every other one is still refused.
+
+On Windows with WSL2 in mirrored networking, the Hyper-V firewall also blocks inbound connections to anything running in
+WSL until a rule allows the port. One rule per port, in an elevated PowerShell (this one allows 3100 from the LAN only):
+
+```powershell
+New-NetFirewallHyperVRule -Name "fast-ticket-frontend-3100" -DisplayName "WSL fast-ticket frontend" `
+  -Direction Inbound -VMCreatorId '{40E0AC32-46A5-438A-A0B2-2B479E8F2E90}' -Protocol TCP -LocalPorts 3100 `
+  -Action Allow -RemoteAddresses 192.168.10.0/24
+```
+
+Check the current state with `Get-NetFirewallHyperVVMSetting -Name '{40E0AC32-46A5-438A-A0B2-2B479E8F2E90}'`
+(`DefaultInboundAction: Block` is the default). Only the frontend's port is needed: the app proxies the API itself. This is for development. For `npm start` the session
 cookie is `Secure`, which a browser only accepts over HTTPS (or on localhost), so put it behind HTTPS.
 
 Production: `npm run build && npm start`. The session cookie is then `Secure`, so serve it over HTTPS.
