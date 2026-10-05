@@ -101,8 +101,8 @@ function CategoryFormBody({ category }: { category?: Category }) {
         <FormRow label="Name" required>
           <input name="name" required defaultValue={category?.name} maxLength={255} className={field} />
         </FormRow>
-        <FormRow label="Category Description">
-          <textarea name="description" rows={4} defaultValue={category?.description ?? ""} className={field} />
+        <FormRow label="Category Description" required>
+          <textarea name="description" required rows={4} defaultValue={category?.description ?? ""} className={field} />
         </FormRow>
         <FormRow label="Internal Notes">
           <textarea name="notes" rows={3} defaultValue={category?.notes ?? ""} className={field} />

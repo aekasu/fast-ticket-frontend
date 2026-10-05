@@ -8,6 +8,7 @@ import { TicketReplyBox, TicketToolbar } from "./ticket-actions";
 import { TicketPeopleTools } from "./ticket-people";
 import { CustomFieldsView } from "./custom-fields";
 import { Info } from "./info-table";
+import { TicketEntryActions } from "./entry-actions";
 import { Thread } from "./thread";
 export function TicketView({ id }: { id: number }) {
   const { data: ticket, error, isLoading } = useTicket(id);
@@ -93,7 +94,11 @@ export function TicketView({ id }: { id: number }) {
       )}
 
       <h2 className="border-b border-slate-300 pb-1 text-sm font-semibold text-slate-800">Ticket Thread ({posts.length})</h2>
-      <Thread entries={entries} attachmentHref={(id) => `/api/v1/tickets/${ticket.ticket_id}/attachments/${id}`} />
+      <Thread
+        entries={entries}
+        attachmentHref={(id) => `/api/v1/tickets/${ticket.ticket_id}/attachments/${id}`}
+        renderActions={(entry) => <TicketEntryActions ticket={ticket} entry={entry} />}
+      />
 
       <TicketReplyBox ticket={ticket} />
     </div>

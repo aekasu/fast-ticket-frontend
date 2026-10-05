@@ -18,7 +18,16 @@ function size(bytes: number) {
 }
 
 /** A ticket's or task's thread: messages, responses, internal notes and events, oldest first. */
-export function Thread({ entries, attachmentHref }: { entries: Entry[]; attachmentHref: (attachmentId: number) => string }) {
+export function Thread({
+  entries,
+  attachmentHref,
+  renderActions,
+}: {
+  entries: Entry[];
+  attachmentHref: (attachmentId: number) => string;
+  /** Extra controls for one entry (a ticket's Edit and Resend). Tasks have none: their entries cannot be edited. */
+  renderActions?: (entry: Entry) => React.ReactNode;
+}) {
   return (
     <ol className="mt-3 space-y-3">
         {entries.map((entry) => {
@@ -42,6 +51,7 @@ export function Thread({ entries, attachmentHref }: { entries: Entry[]; attachme
                   <div className="px-3 py-2 text-sm">
                     {entry.title && <p className="mb-1 font-semibold">{entry.title}</p>}
                     <SafeHtml html={entry.body} />
+                    {renderActions?.(entry)}
                     {entry.attachments.length > 0 && (
                       <ul className="mt-2 border-t border-inherit pt-2 text-xs">
                         {entry.attachments.map((a) => (

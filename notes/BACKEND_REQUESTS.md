@@ -194,3 +194,20 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
   detail endpoints do, and the API has no custom queues or per-queue columns (`KNOWN_LIMITS.md`). Showing a custom answer
   per row would cost one request per row, so it is not done.
 - **Ask:** `custom_fields` on the list items, optionally limited with `?fields=` to the variable names a screen wants.
+
+## Global search does not find a ticket by its requester
+
+- **Needs:** osTicket's search for "ada" returns every ticket whose requester is Ada (9 on the dev stack); the header
+  search box is how an agent finds a person's tickets.
+- **Gives (observed 2026-10-05):** `GET /search?q=ada` returns the user Ada Lovelace and no tickets; it matches ticket
+  numbers and subjects only (`GET /tickets/?q=ada` does match the requester, and finds the same tickets osTicket does).
+- **Meanwhile:** the search page asks both: users and organizations from `/search`, tickets from the ticket list's own
+  search (`components/search-results.tsx`). A single call that also matched requesters would remove the second request.
+
+## Notes on thread entries
+
+- Editing an entry gives it a new id and hides the old one (as the API documents), and a ticket's thread then shows one
+  entry where it showed one: the UI relies on the refetch after the command, not on the old id.
+- `PATCH` and `resend` apply to customer messages, replies and notes alike; osTicket's own rule (your post, a
+  manager, `thread.edit`) decides, and its refusal is shown as worded.
+- Category creation needs a description (osTicket refuses without one); the form now marks it required.

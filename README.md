@@ -4,9 +4,12 @@ A web frontend for **fast-ticket** (a FastAPI REST + WebSocket API over [osTicke
 osTicket's staff panel (`/scp`) screen by screen, so the two can be compared side by side and show that the backend
 implements osTicket's behaviour. Next.js 16 (App Router), TypeScript, Tailwind CSS 4, TanStack Query.
 
-What is covered: login, Dashboard (counts, Agent Directory, My Profile), Tickets (queues, view, reply, note, assign,
-claim, release, transfer, edit, close/reopen, new), Tasks, Users and Organizations, Knowledge Base (FAQs, categories,
-canned responses) and the Admin Panel (agents, teams, departments, help topics, SLA, banlist, priorities, forms).
+What is covered: login; a Dashboard (queue and task counts, Agent Directory, My Profile) and a header search; Tickets
+(queues, view, create, edit, reply and note with canned responses, claim, assign, release, transfer, close and reopen,
+answered, owner, collaborators, merge, refer, delete, edit and resend thread entries, custom fields); Tasks; Users
+(with login accounts) and Organizations (with account manager, primary contacts and collaboration); the Knowledge Base
+(FAQs, categories, canned responses); the Admin Panel (agents, teams, departments, help topics, SLA, banlist, priorities,
+forms and their fields, with editors for members, extended access, permissions and topic forms); and live updates.
 What the API cannot do is shown as absent, never faked: see `notes/BACKEND_REQUESTS.md`.
 
 ## Run it

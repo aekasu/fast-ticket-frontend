@@ -153,3 +153,15 @@ export async function osticketRaw(ctx: APIRequestContext, path: string): Promise
   const res = await ctx.get(path);
   return { status: res.status(), body: await res.text() };
 }
+
+/** The ticket numbers osTicket's own search returns for a query (`tickets.php?a=search`), across its pages. */
+export async function osticketSearchNumbers(ctx: APIRequestContext, query: string): Promise<string[]> {
+  const numbers: string[] = [];
+  for (let p = 1; p <= 10; p++) {
+    const rows = await osticketRows(ctx, `tickets.php?a=search&query=${encodeURIComponent(query)}&p=${p}`);
+    const fresh = rows.map((cells) => cells[1]).filter((n) => /^\d+$/.test(n ?? "") && !numbers.includes(n));
+    if (fresh.length === 0) break;
+    numbers.push(...fresh);
+  }
+  return numbers;
+}
