@@ -160,7 +160,7 @@ there, never from here.
 tickets and tasks, `E2E ...` users, organizations, categories, canned responses, departments, teams, topics, SLAs,
 `e2e-...` agents, ban rules and priorities), so a test that dies midway leaves nothing. Any new test that creates a
 record must give it one of those names. A test that changes a ticket's owner must delete the original requester itself
-(`deleteTicketAndUser` deletes only the current owner). Check by hand: open tickets 31, closed 0, users 20, open tasks 6.
+(`deleteTicketAndUser` deletes only the current owner). Check by hand: open tickets 32, closed 0, users 21, open tasks 6 (the 31st/21st are a ticket and user the project owner made by hand on 2026-10-05, "this is an issue summary" / Shubham Sharma: not test data, leave them).
 
 ## Custom fields and entity management (2026-10-04)
 
