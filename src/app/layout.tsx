@@ -8,7 +8,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className="h-full antialiased">
+    // Browser extensions (a dark-mode one, say) add attributes to <html> before React loads; this silences that one element.
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full">{children}</body>
     </html>
   );

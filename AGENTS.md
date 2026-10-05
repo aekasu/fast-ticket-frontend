@@ -30,17 +30,24 @@ stack, not a mock.
   (rewrite), and route handlers act as a thin backend-for-frontend that logs in, keeps the access token in an
   **httpOnly cookie** (never in `localStorage`/JS), and attaches it to proxied calls. The browser therefore needs no
   CORS and never sees the token. Because the API has no refresh tokens, a 401 sends the agent to the login screen.
-- **WebSocket:** Next.js rewrites do not reliably proxy a WebSocket upgrade, and the browser cannot attach a header to
-  one. Plan: a route handler returns a short-lived token for the socket and the browser connects straight to
-  `/api/v1/ws` with the `["bearer", token]` subprotocol (CORS does not apply to WebSockets). Settle the details when
-  the live updates are built; until then the screens refetch.
+- **Live updates (2026-10-05): Server-Sent Events relayed by Next.js, not a browser WebSocket.** The backend's socket
+  needs the access token as a subprotocol, and the token lives in an httpOnly cookie that page JavaScript cannot read.
+  Handing the page the real token (the API cannot mint a separate short-lived one) would undo that decision, and Next
+  route handlers cannot upgrade a WebSocket. So `GET /api/events` (`src/app/api/events/route.ts`) opens the WebSocket
+  server-side with the cookie's token and relays each event as SSE, keeping only `type`, `aggregate_type` and
+  `aggregate_id` (the payload is a hint, per `EVENTS.md`). The browser uses a same-origin `EventSource`
+  (`src/components/live-updates.tsx`): an event invalidates the queries that read its aggregate
+  (`src/lib/live/keys.ts`), batched; there is no replay, so every reconnect refetches everything on screen. The
+  relay closes its socket when the page goes away (the backend allows 10 per agent), and answers `unauthorized` when
+  the token is dead so the page goes back to the login screen.
 - **Tailwind CSS** for styling (no component kit): osTicket's look is utilitarian, and recreating it is easier with
   utility classes than by fighting a kit's defaults.
 - **npm** as the package manager (already installed here; Node 24).
 - **TanStack Query** (2026-10-04) for server state: the 202 + `GET /commands/{id}?wait=` pattern maps onto its
   mutations, and invalidation covers refetch-after-write and later refetch-on-event.
-- **Testing** (2026-10-04): Vitest + Testing Library for units and components; Playwright against the live stack for
-  the demo flows (compare a screen with osTicket's own page).
+- **Testing** (2026-10-04): Vitest for the pure pieces (Testing Library has not been needed); Playwright against the
+  live stack for the demo flows, comparing each screen with osTicket's own page. The Playwright suite sweeps what it
+  creates (`e2e/sweep.ts`).
 - **Types come from the schema:** generated from the backend's `/openapi.json`, never hand-written. The schema is a
   **committed snapshot** at `openapi/openapi.json`, refreshed by an npm script (`npm run api:pull`) from a running dev
   backend, and the types are generated from the snapshot (`npm run api:types`, e.g. `openapi-typescript`). Builds

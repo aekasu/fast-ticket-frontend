@@ -90,7 +90,7 @@ redirects to login.
    *absent* call `settled(page)` first (`e2e/api.ts`).
 
 **Every screen in osTicket's staff menu now exists** (Dashboard, Users, Tasks, Tickets, Knowledge Base, Admin Panel),
-each compared with osTicket's own pages by `npm run test:e2e` (89 e2e tests, plus 28 unit tests from `npm run test:unit`). What is left is depth, in this order:
+each compared with osTicket's own pages by `npm run test:e2e` (100 e2e tests, plus 34 unit tests from `npm run test:unit`). What is left is depth, in this order:
 1. ~~README and production build check~~ done (2026-10-04): `README.md`; `npm run build` passes; in a production
    build the cookie is `Secure; HttpOnly; SameSite=Lax`; `next.config.ts` sets X-Frame-Options DENY, nosniff,
    Referrer-Policy and Permissions-Policy and drops X-Powered-By. Not done: a CSP (Next's inline scripts need a nonce
@@ -187,3 +187,24 @@ confirms `/auth/me` reports the new permissions and departments. The topic test'
 to the API value). Role ids are typed (roles cannot be listed); see BACKEND_REQUESTS.md.
 Next: live updates over the WebSocket (read `../fast-ticket/notes/EVENTS.md`, design in AGENTS.md), then organization account
 manager and primary contacts, custom answers as list columns, and depth items in BACKEND_REQUESTS.md that need the API.
+
+## Live updates (2026-10-05)
+
+Built: `GET /api/events` relays the backend's WebSocket as Server-Sent Events (the token stays in the httpOnly cookie;
+the decision and why are in AGENTS.md), `components/live-updates.tsx` (EventSource, batched invalidation, refetch of
+everything on a reconnect, a header indicator `data-live="live|connecting|offline"`), `lib/live/keys.ts` (event
+aggregate to query keys; unit-tested; an aggregate it does not know refetches everything). `e2e/live.spec.ts` covers: the
+indicator, events carry no payload, the ticket list / queue counts / ticket thread / task list update without a reload,
+the same for a non-admin agent, a reconnect refetching what was missed (stream stubbed), a page closing releasing its
+backend socket (mutation-checked: breaking the cleanup makes it fail), and 401 without a session.
+Things to know:
+- A test that needs a *stale* page (a refusal after someone else changed the record) must cut the stream:
+  `await page.route("**/api/events", (route) => route.abort())`, or the page refreshes itself.
+- A leaked relay socket stays with the running dev server (the backend allows 10 per agent); restart the dev server if a
+  broken version of the route was ever run.
+- Every agent login sends administrators a `staff.updated` (EVENTS.md), so admin queries and `/auth/me` refetch then;
+  harmless, but it is noise.
+- Not done: per-row highlighting of what changed, a toast, or an "N new tickets" bar (osTicket just refreshes on a timer);
+  the auto-refresh preference of osTicket's profile has no equivalent (live replaces it).
+Next: organization account manager and primary contacts, custom answers as list columns, then whatever in
+BACKEND_REQUESTS.md the backend has since fixed (pull the schema: `npm run api:pull`).

@@ -77,6 +77,9 @@ test.describe("ticket actions as the admin, confirmed on osTicket's own page", (
   test("osTicket's refusal is shown as it words it", async ({ page, request }) => {
     const ticket = await createTicket(request, { subject: "[e2e] refusal", message: "Stale page." });
     try {
+      // With live updates the page would refresh itself when the ticket is closed elsewhere. Cut the stream so it
+      // really is stale, as a page would be if its connection had dropped.
+      await page.route("**/api/events", (route) => route.abort());
       await page.goto(`/tickets/${ticket.id}`);
       await expect(page.getByRole("button", { name: "Close", exact: true })).toBeVisible();
       // Someone else closes it; this page still offers "Close".

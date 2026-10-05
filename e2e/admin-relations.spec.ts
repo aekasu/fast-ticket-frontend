@@ -132,7 +132,7 @@ test("agent: extra departments, teams and permissions, and the agent really gets
     expect([...detail.permissions].sort()).toEqual(["faq.manage", "user.dir"]);
 
     // The backend applies it: log in as that agent and read what osTicket now lets them do.
-    const anon = await playwrightRequest.newContext({ baseURL: "http://localhost:8000" });
+    const anon = await playwrightRequest.newContext({ baseURL: "http://localhost:8000", storageState: { cookies: [], origins: [] } });
     try {
       const login = await anon.post("/api/v1/auth/login", { form: { username, password } });
       expect(login.status()).toBe(200);

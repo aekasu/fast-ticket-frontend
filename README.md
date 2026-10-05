@@ -35,6 +35,8 @@ Production: `npm run build && npm start`. The session cookie is then `Secure`, s
 - **Types come from the schema.** `openapi/openapi.json` is a committed snapshot of the backend's `/openapi.json`;
   `src/lib/api/schema.d.ts` is generated from it. After a backend API change: `npm run api:pull && npm run api:types`
   and commit the diff.
+- **Live updates.** `/api/events` holds the backend WebSocket server-side and streams its events to the page as
+  Server-Sent Events, so the token never reaches the browser; an event refetches the queries that read what changed.
 - **Writes are asynchronous.** The API answers `202`; `src/lib/queries/commands.ts` waits on
   `GET /commands/{id}?wait=` and shows osTicket's own refusal (`error_message`) when a command fails, with one
   `Idempotency-Key` per user action.

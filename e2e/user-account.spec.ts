@@ -80,6 +80,8 @@ test("osTicket's refusal of a second registration is shown", async ({ page, requ
   const stamp = Date.now();
   const id = await newUser(request, stamp);
   try {
+    // Cut the live stream, or the page would refresh itself when the user is registered elsewhere.
+    await page.route("**/api/events", (route) => route.abort());
     await page.goto(`/users/${id}`);
     await expect(page.getByRole("button", { name: "Register", exact: true })).toBeVisible();
     // Someone else registers the user; this page is now stale and still offers Register.

@@ -1,3 +1,4 @@
+import { LiveStatus } from "@/components/live-updates";
 import { LogoutButton } from "@/components/logout-button";
 import { PanelNav } from "@/components/panel-nav";
 import { Providers } from "@/components/providers";
@@ -16,6 +17,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         <div className="mx-auto flex max-w-screen-2xl items-center justify-between px-4 pt-3 text-sm">
           <span className="text-lg font-bold">Staff Control Panel</span>
           <p>
+            <LiveStatus />
             Welcome, <strong>{me.name}</strong> | <LogoutButton />
           </p>
         </div>
