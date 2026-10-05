@@ -25,6 +25,19 @@ Log in with an agent of the stack. For the seeded administrator, the credentials
 Use `npm run dev`, not a bare `next dev`: the script unsets the AI-agent environment variables so Next does not rewrite
 `AGENTS.md`.
 
+### Opening it from another device
+
+Your forwarding decides which address the other device types; the app only needs to know that hostname. `next dev` refuses
+to serve its scripts to any origin it was not told about (without this, the page loads but nothing on it works), so set
+the hostname or IP, comma-separated, in `.env.local` and restart `npm run dev`:
+
+```
+DEV_ALLOWED_ORIGINS=192.168.1.20,laptop.local
+```
+
+Only those hostnames are added; every other one is still refused. This is for development. For `npm start` the session
+cookie is `Secure`, which a browser only accepts over HTTPS (or on localhost), so put it behind HTTPS.
+
 Production: `npm run build && npm start`. The session cookie is then `Secure`, so serve it over HTTPS.
 
 ## How it works
