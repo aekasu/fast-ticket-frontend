@@ -8,7 +8,8 @@ import type { components } from "@/lib/api/schema";
 import { ApiError } from "@/lib/api/errors";
 import { hasGlobal } from "@/lib/nav";
 import { CommandFailed, runCommand, useActionKey } from "@/lib/queries/commands";
-import { createdId, directoryKeys, useOrg } from "@/lib/queries/directory";
+import { createdId, directoryKeys, useOrg, useUsers } from "@/lib/queries/directory";
+import { useAgentDirectory, useTeamsList } from "@/lib/queries/admin-lookups";
 import { useMe } from "@/lib/queries/me";
 import { collectCustomFields, customDefs } from "@/lib/custom-fields";
 import { useFormDefinition } from "@/lib/queries/forms";
@@ -18,10 +19,11 @@ import { CustomFieldInputs } from "./custom-fields";
 type Org = components["schemas"]["OrganizationDetail"];
 type Sharing = NonNullable<components["schemas"]["OrganizationCreate"]["sharing"]>;
 
-const SHARING: { value: Sharing; label: string }[] = [
-  { value: "disabled", label: "No sharing" },
-  { value: "primary_contacts", label: "Primary contacts see tickets of all members" },
-  { value: "all_members", label: "All members see each other's tickets" },
+// osTicket's wording for the same three choices.
+export const SHARING: { value: Sharing; label: string }[] = [
+  { value: "disabled", label: "Disable" },
+  { value: "primary_contacts", label: "Primary contacts see all tickets" },
+  { value: "all_members", label: "All members see all tickets" },
 ];
 
 function Row({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
@@ -33,6 +35,106 @@ function Row({ label, required, children }: { label: string; required?: boolean;
       </span>
       {children}
     </label>
+  );
+}
+
+/** The account fields of the form as an API payload; only what differs from `org` when editing. Empty if the inputs were not drawn. */
+function accountChanges(form: FormData, org?: Org): Record<string, unknown> {
+  if (!form.has("account-fields")) return {};
+  const out: Record<string, unknown> = {};
+  const [kind, id] = String(form.get("manager") ?? "").split(":");
+  const staff = kind === "staff" ? Number(id) : 0;
+  const team = kind === "team" ? Number(id) : 0;
+  if (!org || staff !== (org.manager_staff_id ?? 0) || team !== (org.manager_team_id ?? 0)) {
+    // On a new organization "no manager" is the default, so it need not be sent.
+    if (org || staff || team) {
+      out.manager_staff_id = staff;
+      out.manager_team_id = team;
+    }
+  }
+  const flag = (name: string) => form.get(name) === "on";
+  const flags: [string, boolean, boolean | undefined][] = [
+    ["assign_account_manager", flag("assign_account_manager"), org?.assign_account_manager],
+    ["collab_primary_contacts", flag("collab_primary_contacts"), org?.collab_primary_contacts],
+    ["collab_all_members", flag("collab_all_members"), org?.collab_all_members],
+  ];
+  for (const [name, now, before] of flags) if (org ? now !== Boolean(before) : now) out[name] = now;
+  if (org) {
+    const contacts = form.getAll("contacts").map(Number).sort((a, b) => a - b);
+    const before = [...(org.primary_contact_ids ?? [])].sort((a, b) => a - b);
+    if (contacts.length !== before.length || contacts.some((c, i) => c !== before[i])) out.primary_contact_ids = contacts;
+  }
+  return out;
+}
+
+/**
+ * The account manager, auto-assignment, primary contacts and automated collaboration of an organization. The inputs are
+ * only drawn once the agent and team lists are in (a select's default needs its options), and a hidden marker tells the
+ * submit handler they exist, so a quick save can never clear settings the form had not shown yet.
+ */
+function OrgAccountFields({ org }: { org?: Org }) {
+  const agents = useAgentDirectory();
+  const teams = useTeamsList();
+  const members = useUsers({ org_id: org?.id ?? 0, page: 1, page_size: 200 });
+  if (agents.isLoading || teams.isLoading || (org && members.isLoading)) return <p className="text-sm text-slate-500">Loading account settings…</p>;
+
+  const manager = org?.manager_staff_id ? `staff:${org.manager_staff_id}` : org?.manager_team_id ? `team:${org.manager_team_id}` : "";
+  const primary = new Set(org?.primary_contact_ids ?? []);
+  return (
+    <>
+      <input type="hidden" name="account-fields" value="1" />
+      <Row label="Account Manager">
+        <select name="manager" aria-label="Account Manager" defaultValue={manager} className={field}>
+          <option value="">— None —</option>
+          <optgroup label={`Agents (${agents.data?.length ?? 0})`}>
+            {(agents.data ?? []).map((a) => (
+              <option key={`s${a.id}`} value={`staff:${a.id}`}>
+                {a.name}
+              </option>
+            ))}
+          </optgroup>
+          {(teams.data?.length ?? 0) > 0 && (
+            <optgroup label={`Teams (${teams.data?.length ?? 0})`}>
+              {(teams.data ?? []).map((t) => (
+                <option key={`t${t.id}`} value={`team:${t.id}`}>
+                  {t.name}
+                </option>
+              ))}
+            </optgroup>
+          )}
+        </select>
+      </Row>
+      <Row label="Auto-Assignment">
+        <span className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="assign_account_manager" aria-label="Assign tickets to the Account Manager" defaultChecked={org?.assign_account_manager} />
+          Assign tickets from this organization to the Account Manager
+        </span>
+      </Row>
+      {org && (
+        <Row label="Primary Contacts">
+          <fieldset aria-label="Primary Contacts" className="space-y-1">
+            {(members.data?.items ?? []).map((u) => (
+              <label key={u.id} className="flex items-center gap-2 text-sm">
+                <input type="checkbox" name="contacts" value={u.id} defaultChecked={primary.has(u.id)} /> {u.name}
+              </label>
+            ))}
+            {members.data?.items.length === 0 && <p className="text-sm text-slate-500">This organization has no members yet.</p>}
+          </fieldset>
+        </Row>
+      )}
+      <Row label="Automated Collaboration">
+        <span className="space-y-1 text-sm">
+          <span className="flex items-center gap-2">
+            <input type="checkbox" name="collab_primary_contacts" aria-label="Add primary contacts to all tickets" defaultChecked={org?.collab_primary_contacts} />
+            Primary Contacts: add to all tickets from this organization
+          </span>
+          <span className="flex items-center gap-2">
+            <input type="checkbox" name="collab_all_members" aria-label="Add organization members to all tickets" defaultChecked={org?.collab_all_members} />
+            Organization Members: add to all tickets from this organization
+          </span>
+        </span>
+      </Row>
+    </>
   );
 }
 
@@ -65,6 +167,7 @@ function OrgFormBody({ org }: { org?: Org }) {
     if (org) {
       body = {};
       for (const k of Object.keys(next) as (keyof typeof next)[]) if (next[k] !== org[k]) body[k] = next[k];
+      Object.assign(body, accountChanges(form, org));
       const answers = collectCustomFields(form, custom, org.custom_fields);
       if (Object.keys(answers).length > 0) body.custom_fields = answers;
       if (Object.keys(body).length === 0) {
@@ -74,6 +177,7 @@ function OrgFormBody({ org }: { org?: Org }) {
     } else {
       body = { ...next };
       for (const k of ["domain", "phone", "website", "address", "internal_notes"] as const) if (!next[k]) delete body[k];
+      Object.assign(body, accountChanges(form));
       const answers = collectCustomFields(form, custom);
       if (Object.keys(answers).length > 0) body.custom_fields = answers;
     }
@@ -129,12 +233,12 @@ function OrgFormBody({ org }: { org?: Org }) {
             ))}
           </select>
         </Row>
+        <OrgAccountFields org={org} />
         <CustomFieldInputs defs={custom} answers={org?.custom_fields} />
         <Row label="Internal Notes">
           <textarea name="internal_notes" rows={4} defaultValue={org?.internal_notes} className={field} />
         </Row>
-        <p className="text-xs text-slate-500">Account manager, primary contacts and automatic collaborators are not offered here yet.</p>
-        <div className="flex gap-2">
+                <div className="flex gap-2">
           <button type="submit" disabled={busy} className="rounded bg-sky-800 px-5 py-2 text-sm font-semibold text-white hover:bg-sky-900 disabled:opacity-60">
             {busy ? "Saving…" : org ? "Save Changes" : "Add Organization"}
           </button>

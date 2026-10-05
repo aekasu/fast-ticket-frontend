@@ -90,7 +90,7 @@ redirects to login.
    *absent* call `settled(page)` first (`e2e/api.ts`).
 
 **Every screen in osTicket's staff menu now exists** (Dashboard, Users, Tasks, Tickets, Knowledge Base, Admin Panel),
-each compared with osTicket's own pages by `npm run test:e2e` (100 e2e tests, plus 34 unit tests from `npm run test:unit`). What is left is depth, in this order:
+each compared with osTicket's own pages by `npm run test:e2e` (101 e2e tests, plus 34 unit tests from `npm run test:unit`). What is left is depth, in this order:
 1. ~~README and production build check~~ done (2026-10-04): `README.md`; `npm run build` passes; in a production
    build the cookie is `Secure; HttpOnly; SameSite=Lax`; `next.config.ts` sets X-Frame-Options DENY, nosniff,
    Referrer-Policy and Permissions-Policy and drops X-Powered-By. Not done: a CSP (Next's inline scripts need a nonce
@@ -208,3 +208,15 @@ Things to know:
   the auto-refresh preference of osTicket's profile has no equivalent (live replaces it).
 Next: organization account manager and primary contacts, custom answers as list columns, then whatever in
 BACKEND_REQUESTS.md the backend has since fixed (pull the schema: `npm run api:pull`).
+
+## Organization account settings (2026-10-05)
+
+Done: an organization's **Account Manager** (an agent or a team, or none), **Auto-Assignment**, **Primary Contacts**
+(chosen from its members, edit only), **Ticket Sharing** (osTicket's wording) and **Automated Collaboration** are in the
+organization form and view (`org-form.tsx` `OrgAccountFields`, `org-view.tsx`). `e2e/org-account.spec.ts` checks the stored
+values, osTicket's organization page, and that osTicket *acts* on them: a ticket from a member lands with the account
+manager and the primary contact is added as a collaborator. A hidden `account-fields` marker keeps a save from clearing
+settings the form had not drawn yet. The API snapshot was re-pulled on 2026-10-05: unchanged, so no gap in
+BACKEND_REQUESTS.md has closed. Custom answers as list columns is not feasible without N+1 requests (BACKEND_REQUESTS.md).
+Everything in the original plan is now built; what remains is in BACKEND_REQUESTS.md (needs the API) and the smaller
+open items listed in the sections above (a topic test's weak osTicket check, a CSP, mass actions, advanced search).

@@ -5,16 +5,12 @@ import { ApiError } from "@/lib/api/errors";
 import { formatDateTime } from "@/lib/format";
 import { hasGlobal } from "@/lib/nav";
 import { directoryKeys, useOrg, useUsers } from "@/lib/queries/directory";
+import { useAgentDirectory, useTeamsList } from "@/lib/queries/admin-lookups";
 import { useMe } from "@/lib/queries/me";
 import { CustomFieldsView } from "./custom-fields";
 import { DeleteButton } from "./delete-button";
+import { SHARING } from "./org-form";
 import { Info } from "./info-table";
-
-const SHARING_LABEL: Record<string, string> = {
-  disabled: "No sharing",
-  primary_contacts: "Primary contacts see tickets of all members",
-  all_members: "All members see each other's tickets",
-};
 
 function Members({ orgId }: { orgId: number }) {
   const { data, isLoading } = useUsers({ org_id: orgId, page: 1, page_size: 100 });
@@ -59,6 +55,9 @@ function Members({ orgId }: { orgId: number }) {
 export function OrgView({ id }: { id: number }) {
   const { data: me } = useMe();
   const { data: org, error, isLoading } = useOrg(id);
+  const agents = useAgentDirectory();
+  const teams = useTeamsList();
+  const members = useUsers({ org_id: id, page: 1, page_size: 100 });
 
   if (isLoading) return <p className="text-sm text-slate-500">Loading…</p>;
   if (error instanceof ApiError && error.status === 404) {
@@ -74,6 +73,14 @@ export function OrgView({ id }: { id: number }) {
     );
   }
   if (error || !org) return <p role="alert" className="text-sm text-red-700">{error?.message ?? "Unable to load the organization."}</p>;
+
+  const manager = org.manager_staff_id
+    ? (agents.data?.find((a) => a.id === org.manager_staff_id)?.name ?? `Agent #${org.manager_staff_id}`)
+    : org.manager_team_id
+      ? `${teams.data?.find((t) => t.id === org.manager_team_id)?.name ?? `Team #${org.manager_team_id}`} (team)`
+      : "";
+  const contacts = (org.primary_contact_ids ?? []).map((cid) => members.data?.items.find((u) => u.id === cid)?.name ?? `User #${cid}`).join(", ");
+  const collab = [org.collab_primary_contacts && "Primary contacts", org.collab_all_members && "All members"].filter(Boolean).join(", ");
 
   return (
     <div>
@@ -109,7 +116,11 @@ export function OrgView({ id }: { id: number }) {
           rows={[
             ["Created", formatDateTime(org.created)],
             ["Last Updated", formatDateTime(org.updated)],
-            ["Ticket Sharing", SHARING_LABEL[org.sharing] ?? org.sharing],
+            ["Account Manager", manager],
+            ["Auto-Assignment", org.assign_account_manager ? "Tickets go to the Account Manager" : ""],
+            ["Primary Contacts", contacts],
+            ["Ticket Sharing", SHARING.find((x) => x.value === org.sharing)?.label ?? org.sharing],
+            ["Automated Collaboration", collab ? `Added to all tickets: ${collab}` : ""],
             ["Internal Notes", <span key="n" className="whitespace-pre-wrap">{org.internal_notes}</span>],
           ]}
         />

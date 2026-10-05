@@ -186,3 +186,11 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 - **Also seen:** a field added to a form after a ticket existed is missing from that ticket's `custom_fields` until the
   ticket first gets an answer for it; and osTicket's own view pages for a user and an organization do not print
   custom answers (its edit dialog does), so those are checked against the API and the edit dialog.
+
+## Custom answers cannot be list columns
+
+- **Needs:** osTicket lets a queue show custom form fields as columns (and sort by them).
+- **Gives (observed 2026-10-05):** list items (tickets, tasks, users, organizations) carry no custom answers; only the
+  detail endpoints do, and the API has no custom queues or per-queue columns (`KNOWN_LIMITS.md`). Showing a custom answer
+  per row would cost one request per row, so it is not done.
+- **Ask:** `custom_fields` on the list items, optionally limited with `?fields=` to the variable names a screen wants.
