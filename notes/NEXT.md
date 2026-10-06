@@ -29,11 +29,9 @@ Every screen of osTicket's staff panel exists, each compared with osTicket's own
   permissions, a topic's forms. Entries with no API behind them are dimmed with a note.
 - **Live updates**: the backend's WebSocket relayed as Server-Sent Events (`/api/events`); screens refetch what changed.
 
-**Coverage:** measured 2026-10-05 at 115 of 121 endpoint-and-method pairs by logging the API calls the browser makes
-while the suite runs; the schema now has 134 pairs and the coverage was **not re-measured** after the five adoption
-rounds (every new endpoint has a test, but the count is unchecked). The pairs with no UI by nature: `POST /auth/login`
-(the session route), `GET /commands`, `GET /health`, `GET /tickets/{id}/collaborators` and `GET /tasks/{id}/collaborators`
-(the details carry them), and the attachment downloads are reached through the thread links.
+**Coverage, measured 2026-10-06** by logging the API calls the browser makes while the suite runs: **129 of the 134**
+endpoint-and-method pairs. The other five have no UI by nature: `POST /auth/login` (the session route), `GET /commands`,
+`GET /health`, and `GET /tickets/{id}/collaborators` and `GET /tasks/{id}/collaborators` (the details carry them).
 
 **Verification** (last run 2026-10-06, all green): `npm run test:unit` (32 Vitest tests), `npm run test:e2e` (132
 Playwright tests passed, 1 skipped: the known default-order gap), `npm run lint`, `npx tsc --noEmit`, `npm run build`. One
