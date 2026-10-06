@@ -6,8 +6,10 @@ import { can, useMe } from "@/lib/queries/me";
 import { useDepartments } from "@/lib/queries/reference";
 import { taskKeys, useTaskAssignees } from "@/lib/queries/tasks";
 import { collectCustomFields, customDefs } from "@/lib/custom-fields";
+import { attachmentProblem, encodeFile } from "@/lib/attachments";
 import { htmlToText } from "@/lib/canned";
 import { useFormDefinition } from "@/lib/queries/forms";
+import { AttachmentPicker, useAttachmentLimits } from "./attachment-picker";
 import { NoticeBar, button, field, primary, useRunner } from "./action-ui";
 import { CustomFieldInputs } from "./custom-fields";
 import { DeleteButton } from "./delete-button";
@@ -207,17 +209,21 @@ export function TaskReplyBox({ task }: { task: Task }) {
   const [tab, setTab] = useState<"reply" | "note">("reply");
   const [message, setMessage] = useState("");
   const [title, setTitle] = useState("");
+  const [files, setFiles] = useState<File[]>([]);
+  const limits = useAttachmentLimits().data ?? undefined;
   const noteTab = tab === "note" || !canReply;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!message.trim()) return;
+    if (!message.trim() || attachmentProblem(files, limits)) return;
+    const attachments = files.length ? { attachments: await Promise.all(files.map(encodeFile)) } : {};
     const ok = noteTab
-      ? await run("note", { note: message, ...(title.trim() ? { title: title.trim() } : {}) }, "Internal note posted.")
-      : await run("reply", { message }, "Update posted.");
+      ? await run("note", { note: message, ...(title.trim() ? { title: title.trim() } : {}), ...attachments }, "Internal note posted.")
+      : await run("reply", { message, ...attachments }, "Update posted.");
     if (ok) {
       setMessage("");
       setTitle("");
+      setFiles([]);
     }
   }
 
@@ -246,8 +252,8 @@ export function TaskReplyBox({ task }: { task: Task }) {
           placeholder={noteTab ? "Internal note: visible to agents only" : "Post an update to the task's collaborators"}
           className={field}
         />
-        <p className="text-xs text-slate-500">Attachments cannot be uploaded yet (the API has no upload).</p>
-        <button type="submit" disabled={busy || !message.trim()} className={primary}>
+        <AttachmentPicker files={files} onChange={setFiles} />
+        <button type="submit" disabled={busy || !message.trim() || attachmentProblem(files, limits) !== null} className={primary}>
           {busy ? "Posting…" : noteTab ? "Post Note" : "Post Update"}
         </button>
       </form>

@@ -25,7 +25,7 @@ export function Thread({
 }: {
   entries: Entry[];
   attachmentHref: (attachmentId: number) => string;
-  /** Extra controls for one entry (a ticket's Edit and Resend). Tasks have none: their entries cannot be edited. */
+  /** Extra controls for one entry (Edit and Resend). */
   renderActions?: (entry: Entry) => React.ReactNode;
 }) {
   return (

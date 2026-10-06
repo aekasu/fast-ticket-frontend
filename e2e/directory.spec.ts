@@ -109,6 +109,42 @@ test.describe("users and organizations as the admin, compared with osTicket", ()
     await os.dispose();
   });
 
+  test("import: pasted lines create users, a bad line refuses everything", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const stamp = Date.now();
+    const a = { name: `E2E Import A${stamp}`, email: `e2e.import.a.${stamp}@example.com` };
+    const b = { name: `E2E Import B${stamp}`, email: `e2e.import.b.${stamp}@example.com` };
+    try {
+      await page.goto("/users");
+      await page.getByRole("button", { name: "Import", exact: true }).click();
+      const dialog = page.getByRole("form", { name: "Import users" });
+
+      // One bad line refuses the whole import, with osTicket's reason, and nothing is created.
+      await dialog.getByLabel("Users to import").fill(`${a.name}, ${a.email}\nNo Email Here, not-an-email`);
+      await dialog.getByRole("button", { name: "Import", exact: true }).click();
+      await expect(dialog.getByRole("alert")).toBeVisible();
+      console.log(`import refusal: ${await dialog.getByRole("alert").innerText()}`);
+      const none = (await (await request.get(`/api/v1/users?q=${encodeURIComponent(a.email)}`)).json()) as { total: number };
+      expect(none.total).toBe(0);
+
+      await dialog.getByLabel("Users to import").fill(`${a.name}, ${a.email}\n${b.name}, ${b.email}`);
+      await dialog.getByRole("button", { name: "Import", exact: true }).click();
+      await expect(dialog.getByText("Imported 2 users.")).toBeVisible();
+      const found = (await (await request.get(`/api/v1/users?q=E2E%20Import&page_size=10`)).json()) as { items: { name: string }[] };
+      expect(found.items.map((u) => u.name).sort()).toEqual([a.name, b.name]);
+      // osTicket's own directory lists them.
+      expect(await osticketDirectoryNames(os, "users.php", `query=${encodeURIComponent("E2E Import")}`)).toEqual(expect.arrayContaining([a.name, b.name]));
+      // And the list on the page refreshed.
+      await page.getByLabel("Search users").fill("E2E Import");
+      await page.getByRole("button", { name: "Search", exact: true }).click();
+      await expect(page.locator("tbody tr td:first-child a", { hasText: a.name })).toBeVisible();
+    } finally {
+      const rest = (await (await request.get(`/api/v1/users?q=E2E%20Import&page_size=10`)).json()) as { items: { id: number }[] };
+      for (const u of rest.items) await command(request, "DELETE", `/api/v1/users/${u.id}`);
+      await os.dispose();
+    }
+  });
+
   test("the directory tabs link the two lists", async ({ page }) => {
     await page.goto("/users");
     await page.getByRole("link", { name: "Organizations" }).click();

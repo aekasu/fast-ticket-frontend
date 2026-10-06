@@ -9,6 +9,7 @@ import { ACCOUNT_STATUS_LABEL, type UserSort, useAllOrgs, useUsers } from "@/lib
 import { useMe } from "@/lib/queries/me";
 import { DirectoryTabs } from "./directory-tabs";
 import { Pager } from "./pager";
+import { UserImport } from "./user-import";
 
 const PAGE_SIZE = 25;
 const SORTS: UserSort[] = ["name", "email", "status", "created", "updated"];
@@ -102,6 +103,12 @@ export function UserList() {
           </Link>
         )}
       </form>
+
+      {me && hasGlobal(me, "user.create") && (
+        <div className="mb-4">
+          <UserImport />
+        </div>
+      )}
 
       {error && <p role="alert" className="mb-3 text-sm text-red-700">{error.message}</p>}
 

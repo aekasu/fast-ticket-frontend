@@ -14,13 +14,13 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 - **Ask:** break the `priority` tie by `last_activity` (osTicket's own sort), so the first page matches osTicket's.
 - **Meanwhile:** `e2e/tickets.spec.ts` has a `test.fixme` for the exact order; the set of tickets on each page matches.
 
-## Ticket create takes fewer fields than osTicket's "Open a New Ticket"
+## Ticket create: status and attachments
 
-- **Needs (osTicket's staff form, `ticket-open.inc.php`):** ticket source, SLA plan, due date, assign-to, Cc
-  collaborators, and a first Response and Internal Note on the same submit (plus attachments).
-- **Gives:** `POST /tickets/` takes name, email, phone, dept, topic, priority, subject, message and custom fields.
-  The new-ticket screen offers only those and says so; assign-on-create is already in `KNOWN_LIMITS.md`.
-- **Meanwhile:** source/SLA/due date can be changed after creation only where `PATCH /tickets/{id}` allows it.
+- **Needs (osTicket's staff form, `ticket-open.inc.php`):** the initial Ticket Status choice (the API takes `status_id`
+  but has no list of statuses to offer) and attachments on the first message.
+- **Gives (observed 2026-10-06):** everything else on the form is adopted (requester, Cc, source, SLA, due date, assign,
+  response, note, signature, notice). Attachments exist on replies and notes only.
+- **Meanwhile:** the New Ticket screen says status and attachments are not offered.
 
 ## Task pages
 
@@ -28,7 +28,7 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
   shows "Completed"). (Collaborators, thread edit/resend, `ticket_number`, `is_overdue`, `queue=` and `/tasks/queues` are
   adopted.) A task's collaborators can be added but not changed or removed: osTicket has no such action either.
 
-## Knowledge base: attachments and the canned variables
+## Knowledge base: attachments
 
 - **Needs:** the FAQ's attachments (`KNOWN_LIMITS.md`: FAQ and canned attachments are not exposed).
 - **Meanwhile:** none are shown. (Category counts, `category_id` filter and FAQ search are adopted.)
@@ -64,15 +64,6 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
   admin-only.
 - **Meanwhile:** the landing page shows the agent's own ticket and task counts and their assigned tickets (real data,
   labelled as such) and says the activity report is missing; My Profile is read-only with a note.
-
-## Reply signature: accepted, undocumented, effect not observable
-
-- **Needs:** osTicket's reply form offers a signature (None, My Signature, Department Signature).
-- **Gives (observed 2026-10-04):** `POST /tickets/{id}/reply` takes a free `signature` string; `none`, `dept`, `mine`
-  and even `bogus` are all accepted and none changes the stored thread (osTicket appends the signature to the outgoing
-  email only). The accepted values are not in the schema.
-- **Ask:** document the accepted values (an enum in the schema) and reject others.
-- **Meanwhile:** the reply box has no signature selector, since its effect cannot be verified.
 
 ## Ticket relations and statuses osTicket offers that the API does not
 

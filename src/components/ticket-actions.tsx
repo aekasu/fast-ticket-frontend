@@ -5,9 +5,11 @@ import { useState } from "react";
 import type { components } from "@/lib/api/schema";
 import { api } from "@/lib/api/client";
 import { useCannedList } from "@/lib/queries/kb";
+import { AttachmentPicker, useAttachmentLimits } from "./attachment-picker";
 import { can, useMe } from "@/lib/queries/me";
 import { useDepartments } from "@/lib/queries/reference";
 import { NoticeBar, button, field, primary, useRunner } from "./action-ui";
+import { attachmentProblem, encodeFile } from "@/lib/attachments";
 import { ticketKeys, useAssignees } from "@/lib/queries/tickets";
 
 type Ticket = components["schemas"]["TicketDetail"];
@@ -195,6 +197,9 @@ export function TicketReplyBox({ ticket }: { ticket: Ticket }) {
   const [title, setTitle] = useState("");
   const [cannedNote, setCannedNote] = useState<string | null>(null);
   const [append, setAppend] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
+  const [signature, setSignature] = useState("none");
+  const limits = useAttachmentLimits().data ?? undefined;
   const canned = useCannedList();
 
   const canReply = can(me, ticket.dept_id, "ticket.reply");
@@ -216,14 +221,16 @@ export function TicketReplyBox({ ticket }: { ticket: Ticket }) {
   // Notes follow the agent's access to the ticket; the server decides, so the tab is always offered.
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!message.trim()) return;
+    if (!message.trim() || attachmentProblem(files, limits)) return;
+    const attachments = files.length ? { attachments: await Promise.all(files.map(encodeFile)) } : {};
     const ok =
       tab === "reply"
-        ? await run("reply", { message }, "Reply posted.")
-        : await run("note", { message, ...(title.trim() ? { title: title.trim() } : {}) }, "Internal note posted.");
+        ? await run("reply", { message, signature, ...attachments }, "Reply posted.")
+        : await run("note", { message, ...(title.trim() ? { title: title.trim() } : {}), ...attachments }, "Internal note posted.");
     if (ok) {
       setMessage("");
       setTitle("");
+      setFiles([]);
     }
   }
 
@@ -296,8 +303,19 @@ export function TicketReplyBox({ ticket }: { ticket: Ticket }) {
           placeholder={tab === "reply" && canReply ? "Type your response to the user" : "Internal note: visible to agents only"}
           className={field}
         />
-        <p className="text-xs text-slate-500">Attachments cannot be uploaded yet (the API has no upload).</p>
-        <button type="submit" disabled={busy || !message.trim()} className={primary}>
+        {tab === "reply" && canReply && (
+          <label className="flex items-center gap-2 text-sm">
+            <span className="font-semibold text-slate-700">Signature</span>
+            <select aria-label="Signature" value={signature} onChange={(e) => setSignature(e.target.value)} className={`${field} max-w-xs`}>
+              <option value="none">None</option>
+              <option value="mine">My Signature</option>
+              <option value="dept">Department Signature</option>
+            </select>
+            <span className="text-xs text-slate-500">Added to the email only, not to the stored reply.</span>
+          </label>
+        )}
+        <AttachmentPicker files={files} onChange={setFiles} />
+        <button type="submit" disabled={busy || !message.trim() || attachmentProblem(files, limits) !== null} className={primary}>
           {busy ? "Posting…" : tab === "reply" && canReply ? "Post Reply" : "Post Note"}
         </button>
       </form>

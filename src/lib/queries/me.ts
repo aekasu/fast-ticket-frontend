@@ -20,3 +20,9 @@ export function can(me: Me | undefined, deptId: number | null | undefined, permi
   if (me.is_admin) return true;
   return deptId != null && (me.roles[String(deptId)] ?? []).includes(permission);
 }
+
+/** Whether any department's role (or being an administrator) grants the permission: for controls shown before a department is chosen. */
+export function canAnywhere(me: Me | undefined, permission: string): boolean {
+  if (!me) return false;
+  return me.is_admin || Object.values(me.roles).some((perms) => perms.includes(permission));
+}
