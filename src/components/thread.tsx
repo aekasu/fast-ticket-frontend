@@ -50,7 +50,7 @@ export function Thread({
                   </div>
                   <div className="px-3 py-2 text-sm">
                     {entry.title && <p className="mb-1 font-semibold">{entry.title}</p>}
-                    <SafeHtml html={entry.body} />
+                    <SafeHtml html={entry.body} format={entry.format} />
                     {renderActions?.(entry)}
                     {entry.attachments.length > 0 && (
                       <ul className="mt-2 border-t border-inherit pt-2 text-xs">

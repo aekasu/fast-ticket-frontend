@@ -75,7 +75,7 @@ export function TicketView({ id }: { id: number }) {
             rows={[
               ["Assigned To", assignee || <span className="text-slate-500">— Unassigned —</span>],
               ["SLA Plan", ticket.sla_name],
-              ["Due Date", formatDateTime(ticket.due_date)],
+              ["Due Date", ticket.est_due_date ? <span key="due" className={ticket.is_overdue ? "font-semibold text-red-700" : ""}>{formatDateTime(ticket.est_due_date)}{ticket.is_overdue ? " (Overdue)" : ""}</span> : ""],
               ["Help Topic", ticket.topic_name],
               ["Last Message", formatDateTime(lastOf("M"))],
               ["Last Response", formatDateTime(lastOf("R"))],

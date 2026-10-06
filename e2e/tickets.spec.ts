@@ -28,7 +28,9 @@ test.describe("ticket queues as the admin, compared with osTicket", () => {
     await os.dispose();
   });
 
-  // The API cannot yet order like osTicket's default queue sort (notes/BACKEND_REQUESTS.md).
+  // osTicket's default queue sort is priority, then most recently updated (its `lastupdate`, the API's `last_activity`).
+  // The API's priority sort now breaks ties by the row's `updated` instead, which also moves on a note or an edit, so a
+  // ticket touched after its last message sorts earlier than osTicket puts it (notes/BACKEND_REQUESTS.md).
   test.fixme("the first page is in osTicket's default order", async ({ page }) => {
     const os = await osticketAdmin();
     await page.goto("/tickets?queue=open");
@@ -62,6 +64,43 @@ test.describe("ticket queues as the admin, compared with osTicket", () => {
       await ticket.remove();
       await os.dispose();
     }
+  });
+
+  test("every open ticket's Last Updated reads exactly as on osTicket's list", async ({ page }) => {
+    const os = await osticketAdmin();
+    const theirs = new Map<string, string>();
+    for (let p = 1; p <= 3; p++) for (const cells of await osticketRows(os, `tickets.php?queue=1&p=${p}`)) if (cells.length > 2) theirs.set(cells[1], cells[2]);
+    expect(theirs.size).toBeGreaterThan(25);
+    const ours = new Map<string, string>();
+    for (let p = 1; p <= 3; p++) {
+      await page.goto(`/tickets?queue=open&page=${p}`);
+      await expect(page.getByText("Loading…")).toHaveCount(0);
+      await expect(page.locator("tbody tr").first()).toBeVisible();
+      const rows = await page.locator("tbody tr").evaluateAll((trs) => trs.map((r) => [...r.querySelectorAll("td")].slice(0, 2).map((c) => c.textContent?.trim() ?? "")));
+      // An empty page shows a "Query returned 0 results." row: only rows that start with a ticket number are tickets.
+      for (const [number, updated] of rows) if (/^\d+$/.test(number)) ours.set(number, updated);
+    }
+    // This assumes the browser's timezone is the one osTicket is configured with (UTC on the dev stack).
+    expect(ours.size).toBe(theirs.size);
+    for (const [number, updated] of ours) expect(updated, `ticket ${number}`).toBe(theirs.get(number));
+    await os.dispose();
+  });
+
+  test("overdue tickets are marked, and they are the ones osTicket's Overdue queue lists", async ({ page }) => {
+    const os = await osticketAdmin();
+    const theirs = await osticketQueuePage(os, OSTICKET_QUEUE_ID.overdue);
+    const marked: string[] = [];
+    for (let p = 1; p <= 3; p++) {
+      await page.goto(`/tickets?queue=open&page=${p}`);
+      await expect(page.locator("tbody tr").first()).toBeVisible();
+      marked.push(...(await page.locator("tbody tr[data-overdue='true'] td:first-child a").allTextContents()));
+    }
+    expect(theirs.length).toBeGreaterThan(0);
+    expect([...marked].sort()).toEqual([...theirs].sort());
+    await page.goto("/tickets?queue=overdue");
+    await expect(page.locator("tbody tr").first()).toBeVisible();
+    expect(await page.locator("tbody tr:not([data-overdue='true'])").count()).toBe(0);
+    await os.dispose();
   });
 
   test("the tabs and sub-queues have osTicket's names and counts", async ({ page }) => {

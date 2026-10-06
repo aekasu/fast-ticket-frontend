@@ -9,7 +9,7 @@ export function useMe() {
     queryFn: async () => {
       const { data, error } = await api.GET("/api/v1/auth/me");
       if (!data) throw new Error(errorMessage(error));
-      return data as Me;
+      return data;
     },
   });
 }

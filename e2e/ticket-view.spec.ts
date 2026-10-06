@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { createTicket } from "./api";
+import { command, createTicket } from "./api";
 import { AUTH } from "./global-setup";
 import { osticketAdmin, osticketTicket } from "./osticket";
 
@@ -30,6 +30,9 @@ test("the ticket page shows what osTicket's own page shows", async ({ page, requ
     if (unassigned) expect(assigned).toMatch(/Unassigned/i);
     else expect(ref.info["Assigned To"]).toContain(assigned);
 
+    // The Due Date is osTicket's: the manual one, else the SLA's estimate (an Overdue marker follows it).
+    expect(ref.info["Due Date"], `Due Date of ticket ${ticket_id}`).toContain((await cell("Due Date").innerText()).replace(/\s*\(Overdue\)\s*$/, "").trim());
+
     // osTicket counts messages, responses and notes in the tab; events are shown but not counted.
     await expect(page.getByRole("heading", { name: /Ticket Thread \(\d+\)/ })).toContainText(`(${ref.threadCount})`);
   }
@@ -59,6 +62,27 @@ test("hostile HTML in a message is neutralised", async ({ page, request }) => {
     await expect(body.locator("[onerror]")).toHaveCount(0);
     // The anchor may stay, but not its javascript: target (an <a> without href has no link role).
     expect((await body.locator("a", { hasText: "click" }).getAttribute("href")) ?? "").not.toContain("javascript:");
+  } finally {
+    await ticket.remove();
+  }
+});
+
+
+test("a reply is rendered by its declared format: entities decoded, markup kept, scripts removed", async ({ page, request }) => {
+  const ticket = await createTicket(request, { subject: "[e2e] thread format", message: "Plain customer message." });
+  try {
+    expect((await command(request, "POST", `/api/v1/tickets/${ticket.id}/reply`, { message: "Tom & Jerry say <b>hello</b><script>window.__x = 1</script>" })).status).toBe("done");
+    await page.goto(`/tickets/${ticket.id}`);
+    const reply = page.locator("ol li", { hasText: "Jerry say" });
+    await expect(reply).toBeVisible();
+    // "&" was stored as "&amp;": it must read as an ampersand, not as the entity.
+    await expect(reply).toContainText("Tom & Jerry say hello");
+    await expect(reply).not.toContainText("&amp;");
+    await expect(reply.locator("b", { hasText: "hello" })).toBeVisible();
+    await expect(reply.locator("script")).toHaveCount(0);
+    expect(await page.evaluate(() => (window as unknown as { __x?: number }).__x)).toBeUndefined();
+    const entry = ((await (await request.get(`/api/v1/tickets/${ticket.id}`)).json()) as { thread: { type: string; format: string }[] }).thread.find((e) => e.type === "R");
+    expect(entry?.format).toBe("html");
   } finally {
     await ticket.remove();
   }

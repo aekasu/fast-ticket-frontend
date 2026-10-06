@@ -54,8 +54,9 @@ test.describe("transfer and edit as the admin, confirmed on osTicket's own page"
       await expect(cell(page, "Priority")).toHaveText("Emergency");
       await expect(cell(page, "Help Topic")).toHaveText("Access Issue");
       await expect(cell(page, "Source")).toHaveText("Phone");
-      await expect(cell(page, "Due Date")).not.toHaveText("");
       const ref = await osticketTicket(os, ticket.id);
+      // The page shows osTicket's due date: the manual one when set.
+      await expect(cell(page, "Due Date")).toHaveText(ref.info["Due Date"].trim());
       expect(ref.info["Priority"]).toContain("Emergency");
       expect(ref.info["Help Topic"]).toContain("Access Issue");
       expect(ref.info["Source"]).toContain("Phone");
@@ -68,10 +69,11 @@ test.describe("transfer and edit as the admin, confirmed on osTicket's own page"
       await page.getByLabel("Due Date").fill("");
       await page.getByRole("button", { name: "Save" }).click();
       await expect(page).toHaveURL(new RegExp(`/tickets/${ticket.id}$`));
-      await expect(cell(page, "Due Date")).toHaveText("");
-      // osTicket falls back to the SLA's estimated due date, which the API does not expose (BACKEND_REQUESTS.md),
-      // so its page is not blank; the explicit date we set is what must be gone.
-      expect((await osticketTicket(os, ticket.id)).info["Due Date"].trim()).not.toBe(explicitDue);
+      // With the manual date cleared, osTicket falls back to the SLA's estimate, and so does the page: the same date
+      // osTicket shows, and no longer the one we set.
+      const afterClear = (await osticketTicket(os, ticket.id)).info["Due Date"].trim();
+      expect(afterClear).not.toBe(explicitDue);
+      await expect(cell(page, "Due Date")).toHaveText(afterClear);
     } finally {
       await ticket.remove();
       await os.dispose();
@@ -79,6 +81,7 @@ test.describe("transfer and edit as the admin, confirmed on osTicket's own page"
   });
 
   test("a due date in the past is refused, shown, and nothing changes", async ({ page, request }) => {
+    const os = await osticketAdmin();
     const ticket = await createTicket(request, { subject: "[e2e] past due", message: "Refuse me." });
     try {
       await page.goto(`/tickets/${ticket.id}/edit`);
@@ -90,9 +93,13 @@ test.describe("transfer and edit as the admin, confirmed on osTicket's own page"
       await expect(page).toHaveURL(/\/edit$/);
       console.log(`past due date refusal: ${await alert.innerText()}`);
       await page.goto(`/tickets/${ticket.id}`);
-      await expect(cell(page, "Due Date")).toHaveText("");
+      // The refused date was not stored: the page still shows osTicket's own (estimated) due date.
+      const theirs = (await osticketTicket(os, ticket.id)).info["Due Date"].trim();
+      await expect(cell(page, "Due Date")).toHaveText(theirs);
+      expect(theirs).not.toContain("1/1/20");
     } finally {
       await ticket.remove();
+      await os.dispose();
     }
   });
 

@@ -3,50 +3,16 @@
 What a screen needs that the API lacks or gets wrong. Raised in the backend repo, never fixed from here. Delete an
 entry when the backend fixes it (and re-run `npm run api:pull`).
 
-## `GET /api/v1/auth/me` has no response schema
+## The default queue order: the tie-break uses `updated`, osTicket's uses `lastupdate`
 
-- **Needs:** typed `staff_id`, `username`, `name`, `email`, `is_admin`, `assigned_only`, `global_permissions`
-  (string list), `roles` (department id -> permission list), plus `department_ids` and `team_ids`.
-- **Gives:** an empty `{}` response schema in `/openapi.json`, so `openapi-typescript` generates `unknown`.
-- **Meanwhile:** `src/lib/api/me.ts` holds a small hand-written `Me` type, marked as temporary. Replace it with the
-  generated type once the schema exists.
-
-## The generic rate limiter's 429 has no `Retry-After`
-
-- **Needs:** a `Retry-After` header on every 429, as `CLIENTS.md` says ("A locked-out account/address pair gets `429`
-  with `Retry-After`"), so a client can say when to retry.
-- **Gives (observed 2026-10-04):** the per-account lockout (5 failures) is correct: 429, `Retry-After: 300`, and a
-  `detail` message. The per-address limiter (login route: 10 a minute) answers
-  `{"error":"Rate limit exceeded: 10 per 1 minute"}` with no `Retry-After`, and uses `error` where other errors use
-  `detail`. The login screen then says "Try again later" with no number.
-
-## Timestamps carry no timezone
-
-- **Needs:** an unambiguous instant (ISO 8601 with `Z` or an offset) for `created`, `updated`, `closed`, `due_date`.
-- **Gives (observed 2026-10-04):** naive strings such as `"2026-10-03T18:18:02"`. `KNOWN_LIMITS.md` says due dates are
-  UTC, so the frontend treats all of them as UTC (`src/lib/format.ts`) and shows them in the browser's timezone.
-  osTicket shows its own configured timezone, so a time on screen can differ from osTicket's page by the offset.
-
-## The ticket list cannot reproduce osTicket's default queue order
-
-- **Needs:** osTicket's default queue sort, "Priority + Most Recently Updated" (queue sort `queue_sort.yaml`): most
-  urgent priority first, and within one priority the most recently updated first.
-- **Gives (observed 2026-10-04, 31 open tickets):** a single sort key. `sort=priority&descending=false` orders the
-  priorities correctly (Emergency first; the key is osTicket's urgency number, so `descending=true` puts Low first),
-  but breaks ties by oldest update first, the reverse of osTicket. The first 25 rows therefore differ from osTicket's
-  first page once a priority group straddles the page edge.
-- **Ask:** either break `priority` ties by `updated` descending, or accept a named default sort
-  (`sort=default`, or the three "Priority + …" sorts osTicket offers: updated / created / due date).
-- **Meanwhile:** the list defaults to `sort=priority&descending=false`; `e2e/tickets.spec.ts` has a `test.fixme`
-  for the exact order.
-
-## Thread entries do not say whether the body is HTML or text
-
-- **Needs:** a `format` (`html` / `text`) on each thread entry, as osTicket stores it, so a client renders it
-  correctly without guessing.
-- **Gives (observed 2026-10-04):** `body` as a string only; the installer's welcome message is HTML, an agent's note
-  is plain text. The frontend tells them apart by shape (`src/components/safe-html.tsx`) and always sanitises HTML
-  with DOMPurify, since bodies come from customers and email.
+- **Needs:** osTicket's default queue sort, "Priority + Most Recently Updated": most urgent first, and within a priority the
+  ticket with the latest `lastupdate` (the API's `last_activity`) first.
+- **Gives (observed 2026-10-06):** `sort=priority&descending=false` orders the priorities correctly and now breaks ties by
+  most recently *updated*, but by the row's `updated`, which also moves on a note, an edit or a task linked to the ticket.
+  Ticket 613600 (last message 12:58, row updated later) sorts first among the Emergency tickets here and last on
+  osTicket's page.
+- **Ask:** break the `priority` tie by `last_activity` (osTicket's own sort), so the first page matches osTicket's.
+- **Meanwhile:** `e2e/tickets.spec.ts` has a `test.fixme` for the exact order; the set of tickets on each page matches.
 
 ## Ticket create takes fewer fields than osTicket's "Open a New Ticket"
 
@@ -55,17 +21,6 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 - **Gives:** `POST /tickets/` takes name, email, phone, dept, topic, priority, subject, message and custom fields.
   The new-ticket screen offers only those and says so; assign-on-create is already in `KNOWN_LIMITS.md`.
 - **Meanwhile:** source/SLA/due date can be changed after creation only where `PATCH /tickets/{id}` allows it.
-
-## The effective (SLA-estimated) due date and the overdue flag are not exposed
-
-- **Needs:** osTicket's "Due Date" is the manual due date when set, otherwise the SLA's estimated due date
-  (`getEstDueDate()`, computed from the plan's grace period and the business-hours schedule); `isOverdue()` drives
-  the Overdue queue and the red row styling. A screen needs both to look like osTicket's.
-- **Gives (observed 2026-10-04):** `due_date` is only the manual override. Ticket 1 (Default SLA, 18 h grace,
-  created 09/29) shows 10/2/26 8:00 AM on osTicket's page and `due_date: null` in the API, yet it is in the Overdue
-  queue. After clearing a manual due date the API says `null` while osTicket shows the estimate.
-- **Ask:** `est_due_date` (or an `effective_due_date`) and `is_overdue` on the ticket list item and detail.
-- **Meanwhile:** the ticket page's "Due Date" shows `due_date` only, so it is blank where osTicket shows an estimate.
 
 ## Task lists lack what osTicket's Tasks page shows
 
@@ -135,16 +90,6 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 - **Meanwhile:** the landing page shows the agent's own ticket and task counts and their assigned tickets (real data,
   labelled as such) and says the activity report is missing; My Profile is read-only with a note.
 
-## The list's `updated` is not osTicket's "Last Updated"
-
-- **Needs:** osTicket's list column "Last Updated" and its sort ("Priority + Most Recently Updated") use the ticket's
-  `lastupdate`, which moves on a message or a response.
-- **Gives (observed 2026-10-04):** `updated` is the ticket row's own `updated`, which also moves on an internal note,
-  an edit or an assignment. For 30 of 31 dev tickets the two agree; ticket 387564, which received a note after its
-  last message, shows 10/3/26 6:18 PM in the API and 9/29/26 7:12 PM in osTicket's list.
-- **Ask:** expose `last_activity` (osTicket's `lastupdate`) on the list item and detail, and sort by it.
-- **Meanwhile:** the column shows `updated`; a ticket with later notes or edits reads later than osTicket's.
-
 ## Reply signature: accepted, undocumented, effect not observable
 
 - **Needs:** osTicket's reply form offers a signature (None, My Signature, Department Signature).
@@ -195,15 +140,6 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
   per row would cost one request per row, so it is not done.
 - **Ask:** `custom_fields` on the list items, optionally limited with `?fields=` to the variable names a screen wants.
 
-## Global search does not find a ticket by its requester
-
-- **Needs:** osTicket's search for "ada" returns every ticket whose requester is Ada (9 on the dev stack); the header
-  search box is how an agent finds a person's tickets.
-- **Gives (observed 2026-10-05):** `GET /search?q=ada` returns the user Ada Lovelace and no tickets; it matches ticket
-  numbers and subjects only (`GET /tickets/?q=ada` does match the requester, and finds the same tickets osTicket does).
-- **Meanwhile:** the search page asks both: users and organizations from `/search`, tickets from the ticket list's own
-  search (`components/search-results.tsx`). A single call that also matched requesters would remove the second request.
-
 ## Notes on thread entries
 
 - Editing an entry gives it a new id and hides the old one (as the API documents), and a ticket's thread then shows one
@@ -211,3 +147,13 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 - `PATCH` and `resend` apply to customer messages, replies and notes alike; osTicket's own rule (your post, a
   manager, `thread.edit`) decides, and its refusal is shown as worded.
 - Category creation needs a description (osTicket refuses without one); the form now marks it required.
+## A plain-text message loses its line breaks
+
+- **Needs:** a multi-line reply, note or message to keep its lines, as osTicket's own editor does (it stores `<br>` or
+  paragraphs).
+- **Gives (observed 2026-10-06):** `message` "msg line1\nmsg line2" is stored and returned (format `html`) as
+  "msg line1 msg line2": the newline is flattened to a space. Markup typed into the message (`<b>`) is kept as HTML and `&`
+  becomes `&amp;`, so the API treats the text as HTML.
+- **Ask:** convert newlines to `<br>` (or `<p>`) when storing a plain-text message, or accept `format: "text"`.
+- **Meanwhile:** the reply and note boxes send what was typed; a thread shows it by its `format`, so entities decode and
+  markup renders (sanitised), but typed line breaks are gone.

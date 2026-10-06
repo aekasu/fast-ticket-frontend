@@ -8,13 +8,14 @@ import { type QueueKey, type TicketSort, useTicketList } from "@/lib/queries/tic
 import { TicketQueues } from "./ticket-queues";
 
 const QUEUES: QueueKey[] = ["open", "unanswered", "answered", "overdue", "mine", "assigned_me", "assigned_teams", "closed"];
-const SORTS: TicketSort[] = ["updated", "created", "due_date", "number", "subject", "status", "dept", "priority", "assignee", "requester"];
+const SORTS: TicketSort[] = ["last_activity", "updated", "created", "due_date", "number", "subject", "status", "dept", "priority", "assignee", "requester"];
 const PAGE_SIZE = 25;
 
 // osTicket's default ticket columns. `sort` is the API's sort key for the column (none: not sortable here).
 const COLUMNS: { label: string; sort?: TicketSort }[] = [
   { label: "Ticket", sort: "number" },
-  { label: "Last Updated", sort: "updated" },
+  // osTicket's "Last Updated" is the last message or response, which the API calls last_activity.
+  { label: "Last Updated", sort: "last_activity" },
   { label: "Subject", sort: "subject" },
   { label: "From", sort: "requester" },
   { label: "Priority", sort: "priority" },
@@ -129,13 +130,13 @@ export function TicketList() {
           </thead>
           <tbody>
             {data?.items.map((t) => (
-              <tr key={t.ticket_id} className="border-t border-slate-200 hover:bg-sky-50">
+              <tr key={t.ticket_id} className={`border-t border-slate-200 hover:bg-sky-50 ${t.is_overdue ? "text-red-700" : ""}`} data-overdue={t.is_overdue ? "true" : undefined}>
                 <td className="whitespace-nowrap px-3 py-2">
                   <Link href={`/tickets/${t.ticket_id}`} className="font-medium text-sky-800 hover:underline">
                     {t.number}
                   </Link>
                 </td>
-                <td className="whitespace-nowrap px-3 py-2">{formatDateTime(t.updated)}</td>
+                <td className="whitespace-nowrap px-3 py-2">{formatDateTime(t.last_activity ?? t.updated)}</td>
                 <td className="px-3 py-2">
                   <Link href={`/tickets/${t.ticket_id}`} className="text-sky-800 hover:underline">
                     {t.subject}

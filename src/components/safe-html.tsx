@@ -19,13 +19,18 @@ function ensureHook() {
 
 const LOOKS_LIKE_HTML = /<\/?[a-z][\s\S]*?>/i;
 
-/** Renders a thread body. The API does not say whether it is HTML or plain text, so it is told apart by its shape. */
-export function SafeHtml({ html, className }: { html: string; className?: string }) {
+/**
+ * Renders a body. A thread entry says how osTicket stores it (`format`): `html` is sanitised and rendered (osTicket stores
+ * agent replies and notes as HTML too, with entities such as `&amp;` that must be decoded), `text` is shown as written.
+ * Without a format (a FAQ answer, say) HTML is told apart from text by its shape.
+ */
+export function SafeHtml({ html, format, className }: { html: string; format?: "text" | "html"; className?: string }) {
+  const isHtml = format ? format === "html" : LOOKS_LIKE_HTML.test(html);
   const clean = useMemo(() => {
-    if (!LOOKS_LIKE_HTML.test(html)) return null;
+    if (!isHtml) return null;
     ensureHook();
     return DOMPurify.sanitize(html, { FORBID_TAGS: ["style", "form", "input", "button", "iframe"], FORBID_ATTR: ["style"] });
-  }, [html]);
+  }, [html, isHtml]);
 
   if (clean === null) return <div className={`whitespace-pre-wrap break-words ${className ?? ""}`}>{html}</div>;
   return <div className={`break-words [&_a]:text-sky-800 [&_a]:underline [&_p]:my-2 ${className ?? ""}`} dangerouslySetInnerHTML={{ __html: clean }} />;

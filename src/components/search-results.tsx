@@ -14,9 +14,9 @@ type Hit = { id: number; type: string; title: string; subtitle?: string | null; 
 const safePath = (path: string) => (path.startsWith("/") && !path.startsWith("//") ? path : "/");
 
 /**
- * The header search. Users and organizations come from the API's global search. For tickets, the ticket list's own
- * search is used as well, because it also matches the requester's name and email, as osTicket's search does; the global
- * search finds tickets by number and subject only (notes/BACKEND_REQUESTS.md).
+ * The header search. Users and organizations come from the API's global search. Tickets come from the ticket list's own
+ * search instead: it finds the same tickets (both match the requester, as osTicket's search does; a test compares them),
+ * and its rows carry the columns a result table needs, where a global-search hit is only a number and a subject.
  */
 export function SearchResults() {
   const q = (useSearchParams().get("q") ?? "").trim();

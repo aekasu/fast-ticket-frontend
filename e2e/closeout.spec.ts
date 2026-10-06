@@ -37,6 +37,15 @@ test.describe("global search", () => {
     await os.dispose();
   });
 
+  test("the API's global search now finds a ticket by its requester, as osTicket's does", async ({ request }) => {
+    const os = await osticketAdmin();
+    const theirs = await osticketSearchNumbers(os, "ada");
+    const hits = (await get<{ results: { type: string; title: string }[] }>(request, "/api/v1/search?q=ada&limit=50")).results;
+    const numbers = hits.filter((h) => h.type === "ticket").map((h) => h.title);
+    expect([...numbers].sort()).toEqual([...theirs].sort());
+    await os.dispose();
+  });
+
   test("a search with no match, and an empty one, say so", async ({ page }) => {
     await page.goto("/search?q=zzz-nothing-zzz");
     await expect(page.getByText("Query returned 0 results.")).toBeVisible();
