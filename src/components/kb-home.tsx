@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { formatDateTime } from "@/lib/format";
+import { nestCategories } from "@/lib/kb";
 import { canManageCanned, canManageFaqs } from "@/lib/nav";
 import { kbKeys, useCategories, useFaqs } from "@/lib/queries/kb";
 import { useMe } from "@/lib/queries/me";
@@ -25,6 +26,7 @@ export function KbHome() {
   // The API filters and searches: one category's FAQs, or the FAQs matching a search (osTicket's kb.php?q=).
   const faqs = useFaqs({ category_id: cid, q: q || undefined }, cid !== undefined || q !== "");
   const inCategory = faqs.data ?? [];
+  const tree = nestCategories(categories.data ?? []);
   const total = categories.data?.reduce((sum, c) => sum + c.faq_count, 0);
   const manage = me ? canManageFaqs(me) : false;
 
@@ -42,9 +44,9 @@ export function KbHome() {
                 All Categories ({total ?? "…"})
               </Link>
             </li>
-            {categories.data?.map((c) => (
+            {tree.map((c) => (
               <li key={c.id}>
-                <Link href={`/kb?cid=${c.id}`} className={`block px-3 py-1.5 hover:bg-sky-50 ${c.id === cid ? "font-bold" : "text-sky-800"}`}>
+                <Link href={`/kb?cid=${c.id}`} style={{ paddingLeft: `${0.75 + c.depth * 1}rem` }} className={`block py-1.5 pr-3 hover:bg-sky-50 ${c.id === cid ? "font-bold" : "text-sky-800"}`}>
                   {c.name} ({c.faq_count})
                 </Link>
               </li>

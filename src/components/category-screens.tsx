@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { components } from "@/lib/api/schema";
 import { ApiError } from "@/lib/api/errors";
 import { formatDateTime } from "@/lib/format";
+import { nestCategories } from "@/lib/kb";
 import { canManageCanned, canManageFaqs } from "@/lib/nav";
 import { createdId } from "@/lib/queries/directory";
 import { kbKeys, useCategories, useCategory } from "@/lib/queries/kb";
@@ -42,9 +43,9 @@ export function CategoryList() {
             </tr>
           </thead>
           <tbody>
-            {categories.data?.map((c) => (
+            {nestCategories(categories.data ?? []).map((c) => (
               <tr key={c.id} className="border-t border-slate-200 hover:bg-sky-50">
-                <td className="px-3 py-2">
+                <td className="py-2 pr-3" style={{ paddingLeft: `${0.75 + c.depth * 1.25}rem` }}>
                   <Link href={`/kb?cid=${c.id}`} className="font-medium text-sky-800 hover:underline">
                     {c.name}
                   </Link>
