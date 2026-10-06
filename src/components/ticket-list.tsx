@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { formatDateTime } from "@/lib/format";
 import { type QueueKey, type TicketSort, useTicketList } from "@/lib/queries/tickets";
+import { TicketMassActions } from "./ticket-mass-actions";
 import { TicketQueues } from "./ticket-queues";
 
 const QUEUES: QueueKey[] = ["open", "unanswered", "answered", "overdue", "mine", "assigned_me", "assigned_teams", "closed"];
@@ -56,6 +57,11 @@ export function TicketList() {
   }
 
   const [search, setSearch] = useState(q);
+  // Ticked rows are kept by id; only those on this page count, so changing the page or queue drops the rest.
+  const [ticked, setTicked] = useState<number[]>([]);
+  const items = data?.items ?? [];
+  const selected = items.filter((t) => ticked.includes(t.ticket_id));
+  const toggle = (id: number) => setTicked((all) => (all.includes(id) ? all.filter((x) => x !== id) : [...all, id]));
   const total = data?.total ?? 0;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -99,12 +105,23 @@ export function TicketList() {
 
       {error && <p role="alert" className="mb-3 text-sm text-red-700">{error.message}</p>}
 
+      <TicketMassActions items={selected} onDone={() => setTicked([])} />
+
       <div className="overflow-x-auto border border-slate-300 bg-white">
         <table className="w-full text-left text-sm">
           <thead className="bg-slate-100 text-xs uppercase tracking-wide text-slate-600">
             <tr>
-              {COLUMNS.map((col) => (
+              {COLUMNS.map((col, index) => (
                 <th key={col.label} className="px-3 py-2 font-semibold">
+                  {index === 0 && (
+                    <input
+                      type="checkbox"
+                      aria-label="Select all tickets on this page"
+                      className="mr-2 align-middle"
+                      checked={items.length > 0 && selected.length === items.length}
+                      onChange={(e) => setTicked(e.target.checked ? items.map((t) => t.ticket_id) : [])}
+                    />
+                  )}
                   {col.sort ? (
                     <button
                       type="button"
@@ -132,6 +149,7 @@ export function TicketList() {
             {data?.items.map((t) => (
               <tr key={t.ticket_id} className={`border-t border-slate-200 hover:bg-sky-50 ${t.is_overdue ? "text-red-700" : ""}`} data-overdue={t.is_overdue ? "true" : undefined}>
                 <td className="whitespace-nowrap px-3 py-2">
+                  <input type="checkbox" aria-label={`Select ticket ${t.number}`} className="mr-2 align-middle" checked={ticked.includes(t.ticket_id)} onChange={() => toggle(t.ticket_id)} />
                   <Link href={`/tickets/${t.ticket_id}`} className="font-medium text-sky-800 hover:underline">
                     {t.number}
                   </Link>
