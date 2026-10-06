@@ -1,19 +1,17 @@
 "use client";
 
 import { type Answer, type FieldDef, chosenKeys, displayValue, parseChoices } from "@/lib/custom-fields";
-import { type FormType, useFormDefinition } from "@/lib/queries/forms";
+import type { FormType } from "@/lib/queries/forms";
 import { field } from "./action-ui";
 import { Info } from "./info-table";
 
 /** An entity's custom field answers, read-only, in osTicket's label / value table. */
-export function CustomFieldsView({ answers, form }: { answers: Answer[] | undefined; form: FormType }) {
-  // The definitions are admin-only; without them a multiple choice reads as its keys.
-  const defs = useFormDefinition(form).data ?? [];
+export function CustomFieldsView({ answers }: { answers: Answer[] | undefined; form?: FormType }) {
   if (!answers || answers.length === 0) return null;
   return (
     <section className="mt-4 max-w-2xl" aria-label="Custom fields">
       <h2 className="mb-1 text-sm font-semibold text-slate-800">Custom Fields</h2>
-      <Info rows={answers.map((a): [string, React.ReactNode] => [a.label, <span key={a.name} className="whitespace-pre-wrap">{displayValue(a, defs.find((d) => d.name === a.name))}</span>])} />
+      <Info rows={answers.map((a): [string, React.ReactNode] => [a.label, <span key={a.name} className="whitespace-pre-wrap">{displayValue(a)}</span>])} />
     </section>
   );
 }
@@ -26,7 +24,7 @@ export function CustomFieldInputs({ defs, answers }: { defs: FieldDef[]; answers
       {defs.map((def) => {
         const answer = answers?.find((a) => a.name === def.name);
         const name = `cf:${def.name}`;
-        const required = def.mode === "required" || def.mode === "required_for_agents" || def.mode === "internal_required";
+        const required = def.is_required === true;
         const label = (
           <span className="pt-1.5 text-sm font-semibold text-slate-700">
             {def.label}
@@ -37,7 +35,7 @@ export function CustomFieldInputs({ defs, answers }: { defs: FieldDef[]; answers
         if (def.type === "bool") {
           input = (
             <label className="flex items-center gap-2 pt-1.5 text-sm">
-              <input type="checkbox" name={name} defaultChecked={answer?.value === "1"} aria-label={def.label} />
+              <input type="checkbox" name={name} defaultChecked={answer?.bool_value === true} aria-label={def.label} />
               {def.hint}
             </label>
           );

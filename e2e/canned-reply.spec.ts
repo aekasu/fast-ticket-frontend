@@ -28,11 +28,8 @@ test.describe("canned responses in the reply box", () => {
         await expect(box).not.toHaveValue("");
         const theirs = squash(await osticketCannedText(os, ticket.id, c.id));
         const ours = squash(await box.inputValue());
-        // The frontend fills in the variables it can; for those it can, the text is osTicket's. A variable it cannot
-        // resolve stays as written, and then the note says so.
-        const unresolved = /%\{[^}]+\}/.test(ours);
-        if (unresolved) await expect(page.getByRole("status").filter({ hasText: "Not filled in" })).toBeVisible();
-        else expect(ours, c.title).toBe(theirs);
+        // The API has osTicket fill in the variables, so the text is exactly what osTicket's own reply form inserts.
+        expect(ours, c.title).toBe(theirs);
       }
     } finally {
       await ticket.remove();

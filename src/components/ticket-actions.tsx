@@ -4,12 +4,11 @@ import Link from "next/link";
 import { useState } from "react";
 import type { components } from "@/lib/api/schema";
 import { api } from "@/lib/api/client";
-import { expandCanned, htmlToText } from "@/lib/canned";
 import { useCannedList } from "@/lib/queries/kb";
 import { can, useMe } from "@/lib/queries/me";
 import { useDepartments } from "@/lib/queries/reference";
 import { NoticeBar, button, field, primary, useRunner } from "./action-ui";
-import { ticketKeys, useAssignees, useTicketOwner } from "@/lib/queries/tickets";
+import { ticketKeys, useAssignees } from "@/lib/queries/tickets";
 
 type Ticket = components["schemas"]["TicketDetail"];
 
@@ -197,8 +196,6 @@ export function TicketReplyBox({ ticket }: { ticket: Ticket }) {
   const [cannedNote, setCannedNote] = useState<string | null>(null);
   const [append, setAppend] = useState(false);
   const canned = useCannedList();
-  // The owner's email needs the user directory; without it the variable stays as written.
-  const owner = useTicketOwner(ticket.user_id);
 
   const canReply = can(me, ticket.dept_id, "ticket.reply");
   // The picker offers enabled responses that are global or belong to this ticket's department.
@@ -206,26 +203,15 @@ export function TicketReplyBox({ ticket }: { ticket: Ticket }) {
 
   async function insertCanned(id: number) {
     setCannedNote(null);
-    if (!id || !me) return;
-    const { data, error } = await api.GET("/api/v1/canned/{canned_id}", { params: { path: { canned_id: id } } });
-    if (!data) return setCannedNote(error ? "Could not load the canned response." : null);
-    const { text, unresolved } = expandCanned(htmlToText(data.response ?? ""), {
-      ticket: {
-        id: ticket.ticket_id,
-        number: ticket.number,
-        subject: ticket.subject,
-        created: ticket.created,
-        status: ticket.status.name,
-        priority: ticket.priority_name,
-        topic: ticket.topic_name,
-        department: ticket.dept_name,
-        ownerName: ticket.user_name,
-        ownerEmail: owner.data?.email ?? null,
-      },
-      agent: { name: me.name, email: me.email },
+    if (!id) return;
+    // osTicket fills in the ticket's variables itself; the plain form is what the reply box holds.
+    const { data, error } = await api.GET("/api/v1/tickets/{ticket_id}/canned/{canned_id}", {
+      params: { path: { ticket_id: ticket.ticket_id, canned_id: id }, query: { plain: true } },
     });
+    if (!data) return setCannedNote(error ? "Could not load the canned response." : null);
+    const text = data.response ?? "";
     setMessage((current) => (append && current.trim() ? `${current.trimEnd()}\n\n${text}` : text));
-    if (unresolved.length) setCannedNote(`Not filled in (the API cannot resolve them yet): ${unresolved.map((v) => `%{${v}}`).join(", ")}`);
+    if (data.files?.length) setCannedNote(`Attached to this response in osTicket (attachments are not available through the API yet): ${data.files.map((f) => f.name).join(", ")}`);
   }
   // Notes follow the agent's access to the ticket; the server decides, so the tab is always offered.
   async function submit(e: React.FormEvent) {

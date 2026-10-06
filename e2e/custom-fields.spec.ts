@@ -202,10 +202,11 @@ test.describe("custom fields on users, organizations and tasks", () => {
 test.describe("a non-admin agent", () => {
   test.use({ storageState: AUTH.agent });
 
-  test("sees custom answers read-only, because forms are admin-only", async ({ page, request }) => {
+  test("sees custom answers, and gets inputs from the form definitions every agent can read", async ({ page, request }) => {
     // Set up as the administrator: a field and a task that has an answer to it.
     const admin = await (await import("@playwright/test")).request.newContext({ baseURL: "http://localhost:3100", storageState: AUTH.admin });
     let fieldId: number | undefined;
+    let ticketFieldId: number | undefined;
     let task: Awaited<ReturnType<typeof createTask>> | undefined;
     try {
       fieldId = await addFormField(admin, 5, { label: "E2E CF Visible", type: "text", name: "e2e_cf_visible" });
@@ -217,16 +218,19 @@ test.describe("a non-admin agent", () => {
       await settled(page);
       const fields = page.getByRole("region", { name: "Custom fields" });
       await expect(fields.locator("th", { hasText: /^E2E CF Visible:$/ }).locator("xpath=following-sibling::td[1]")).toHaveText("seen by all");
+      // Form definitions are open to every agent: the ticket form's custom fields have inputs for them, and a field
+      // osTicket requires of agents is marked.
       const me = (await (await request.get("/api/v1/auth/me")).json()) as { roles: Record<string, string[]> };
-      if ((me.roles["1"] ?? []).includes("task.edit")) {
-        await page.getByRole("button", { name: "Edit", exact: true }).click();
-        await expect(page.getByLabel("Title", { exact: true })).toBeVisible();
-        // The form definition is admin-only, so there is nothing to type the answer into.
-        await expect(page.getByLabel("E2E CF Visible")).toHaveCount(0);
+      if ((me.roles["1"] ?? []).includes("ticket.create")) {
+        ticketFieldId = await addFormField(admin, TICKET_FORM, { label: "E2E CF Agent Typed", type: "text", name: "e2e_cf_agent_typed", mode: "required" });
+        await page.goto("/tickets/new");
+        await expect(page.getByLabel("E2E CF Agent Typed")).toBeVisible();
+        await expect(page.getByText("E2E CF Agent Typed").first().locator("xpath=..")).toContainText("*");
       }
     } finally {
       await task?.remove();
       if (fieldId) await removeFormField(admin, 5, fieldId);
+      if (ticketFieldId) await removeFormField(admin, TICKET_FORM, ticketFieldId);
       await admin.dispose();
     }
   });

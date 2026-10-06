@@ -16,6 +16,8 @@ describe("customDefs", () => {
     ];
     expect(customDefs(defs, "T").map((d) => d.name)).toEqual(["ticket_ref", "flag"]);
     expect(customDefs([def({ name: "email" }), def({ name: "badge" })], "U").map((d) => d.name)).toEqual(["badge"]);
+    // A field the agent may not type (osTicket's is_editable) is left out.
+    expect(customDefs([def({ name: "locked", is_editable: false })], "U")).toEqual([]);
   });
 });
 
@@ -34,31 +36,23 @@ describe("parseChoices", () => {
 });
 
 describe("displayValue", () => {
-  const a = (over: Partial<Answer>): Answer => ({ name: "f", label: "F", type: "text", ...over });
+  const a = (over: Partial<Answer>): Answer => ({ name: "f", label: "F", type: "text", kind: "text", ...over });
   it("shows text as it is", () => expect(displayValue(a({ value: "hello" }))).toBe("hello"));
   it("shows a bool as Yes or No, and nothing when unset", () => {
-    expect(displayValue(a({ type: "bool", value: "1" }))).toBe("Yes");
-    expect(displayValue(a({ type: "bool", value: "0" }))).toBe("No");
-    expect(displayValue(a({ type: "bool", value: null }))).toBe("");
+    expect(displayValue(a({ type: "bool", kind: "bool", bool_value: true }))).toBe("Yes");
+    expect(displayValue(a({ type: "bool", kind: "bool", bool_value: false }))).toBe("No");
+    expect(displayValue(a({ type: "bool", kind: "bool", bool_value: null }))).toBe("");
   });
-  it("shows the labels of the chosen options, not osTicket's JSON map", () => {
-    expect(displayValue(a({ type: "choices", value: '{"a":"Alpha"}' }))).toBe("Alpha");
-    expect(displayValue(a({ type: "choices", value: '{"a":"Alpha","b":"Beta"}' }))).toBe("Alpha, Beta");
-    expect(displayValue(a({ type: "choices", value: null }))).toBe("");
+  it("shows the labels of the chosen options", () => {
+    expect(displayValue(a({ type: "choices", kind: "choices", choices: [{ key: "a", label: "Alpha" }] }))).toBe("Alpha");
+    expect(displayValue(a({ type: "choices", kind: "choices", choices: [{ key: "a", label: "Alpha" }, { key: "b", label: "Beta" }] }))).toBe("Alpha, Beta");
+    expect(displayValue(a({ type: "choices", kind: "choices", choices: [] }))).toBe("");
   });
-  it("reads a multiple choice, stored as a list of keys, with labels when the definition is known", () => {
-    const answer = a({ type: "choices", value: '["x","z"]' });
-    expect(displayValue(answer)).toBe("x, z");
-    expect(displayValue(answer, { configuration: { choices: "x:Ex\ny:Why\nz:Zed" } })).toBe("Ex, Zed");
-    expect(displayValue(a({ type: "choices", value: '["q"]' }), { configuration: { choices: "x:Ex" } })).toBe("q");
-  });
-  it("keeps a choices value that is not the JSON map", () => expect(displayValue(a({ type: "choices", value: "plain" }))).toBe("plain"));
 });
 
 describe("chosenKeys", () => {
-  it("returns the keys of the stored map", () => {
-    expect(chosenKeys({ name: "f", label: "F", type: "choices", value: '{"b":"Beta"}' })).toEqual(["b"]);
-    expect(chosenKeys({ name: "f", label: "F", type: "choices", value: '["x","z"]' })).toEqual(["x", "z"]);
+  it("returns the keys of the chosen options", () => {
+    expect(chosenKeys({ name: "f", label: "F", type: "choices", kind: "choices", choices: [{ key: "x", label: "Ex" }, { key: "z", label: "Zed" }] })).toEqual(["x", "z"]);
     expect(chosenKeys(undefined)).toEqual([]);
   });
 });
@@ -79,9 +73,9 @@ describe("collectCustomFields", () => {
 
   it("on edit sends only what changed", () => {
     const answers: Answer[] = [
-      { name: "note", label: "N", type: "text", value: "old" },
-      { name: "flag", label: "F", type: "bool", value: "1" },
-      { name: "pick", label: "P", type: "choices", value: '{"a":"Alpha"}' },
+      { name: "note", label: "N", type: "text", kind: "text", value: "old" },
+      { name: "flag", label: "F", type: "bool", kind: "bool", bool_value: true },
+      { name: "pick", label: "P", type: "choices", kind: "choices", choices: [{ key: "a", label: "Alpha" }] },
     ];
     // note unchanged, flag unchanged (still on), pick unchanged
     expect(collectCustomFields(form([["cf:note", "old"], ["cf:flag", "on"], ["cf:pick", "a"]]), defs, answers)).toEqual({});
@@ -91,8 +85,8 @@ describe("collectCustomFields", () => {
 
   it("on edit can clear a text answer and a choice", () => {
     const answers: Answer[] = [
-      { name: "note", label: "N", type: "text", value: "old" },
-      { name: "pick", label: "P", type: "choices", value: '{"a":"Alpha"}' },
+      { name: "note", label: "N", type: "text", kind: "text", value: "old" },
+      { name: "pick", label: "P", type: "choices", kind: "choices", choices: [{ key: "a", label: "Alpha" }] },
     ];
     expect(collectCustomFields(form([]), defs, answers)).toEqual({ note: "", pick: "" });
   });

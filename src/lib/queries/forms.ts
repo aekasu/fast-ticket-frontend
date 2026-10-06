@@ -1,25 +1,28 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
+import { errorMessage } from "@/lib/api/errors";
 import type { FieldDef } from "@/lib/custom-fields";
 
 export type FormType = "T" | "U" | "O" | "A";
 
+const KIND = { T: "ticket", U: "user", O: "organization", A: "task" } as const;
+
 /**
- * The field definitions of the ticket (T), user (U), organization (O) or task (A) form. Forms are admin-only through
- * the API, so for anyone else this resolves to `null`: custom fields can then be shown (from the answers) but not typed.
+ * The field definitions of the ticket (T), user (U), organization (O) or task (A) form, for any agent: the core form's
+ * fields and then, for a ticket, those of the help topic's forms. Re-read when the topic changes.
  */
-export function useFormDefinition(type: FormType) {
+export function useFormDefinition(type: FormType, topicId?: number | null) {
   return useQuery({
-    queryKey: ["forms", "definition", type],
+    queryKey: ["forms", "definition", type, topicId ?? null],
     staleTime: 30_000,
     retry: false,
-    queryFn: async (): Promise<FieldDef[] | null> => {
-      const list = await api.GET("/api/v1/forms");
-      if (!list.data) return null;
-      const form = list.data.items.find((f) => f.type === type);
-      if (!form) return null;
-      const detail = await api.GET("/api/v1/forms/{form_id}", { params: { path: { form_id: form.id } } });
-      return (detail.data?.fields as unknown as FieldDef[] | undefined) ?? null;
+    placeholderData: keepPreviousData, // typed answers survive a topic change
+    queryFn: async (): Promise<FieldDef[]> => {
+      const { data, error } = await api.GET("/api/v1/forms/for/{kind}", {
+        params: { path: { kind: KIND[type] }, query: type === "T" && topicId ? { topic_id: topicId } : {} },
+      });
+      if (!data) throw new Error(errorMessage(error));
+      return data.forms.flatMap((f) => f.fields) as FieldDef[];
     },
   });
 }

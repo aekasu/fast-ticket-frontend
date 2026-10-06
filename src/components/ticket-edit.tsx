@@ -44,7 +44,7 @@ export function TicketEdit({ id }: { id: number }) {
   const topics = useTopics();
   const priorities = usePriorities();
   const slas = useSlas();
-  const formDefs = useFormDefinition("T");
+  const formDefs = useFormDefinition("T", ticket?.topic_id);
   const custom = customDefs(formDefs.data ?? [], "T");
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);

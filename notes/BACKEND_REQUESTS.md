@@ -79,15 +79,6 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 - **Ask:** document the accepted values (an enum in the schema) and reject others.
 - **Meanwhile:** the reply box has no signature selector, since its effect cannot be verified.
 
-## Canned responses are returned as raw templates
-
-- **Needs:** osTicket fills `%{ticket.name.first}`-style variables from the ticket when an agent picks a response
-  (`ajax.php/tickets/{id}/canned-resp/{cid}.txt`).
-- **Gives:** `GET /canned/{id}` returns the stored template.
-- **Meanwhile:** the frontend fills in the variables it can resolve (`src/lib/canned.ts`, unit-tested; verified equal
-  to osTicket's own expansion for the dev responses), leaves the others as written and says which. An endpoint such as
-  `GET /tickets/{id}/canned/{cid}` would remove that duplication of osTicket's variable list.
-
 ## Ticket relations and statuses osTicket offers that the API does not
 
 - **Needs (osTicket's ticket "More" menu and status control):** Link Tickets (and unlink), un-merge, Manage Referrals
@@ -99,18 +90,13 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 - **Meanwhile:** the toolbar has Merge Tickets and Refer; there is no Link, no referral list, and no status choice
   beyond Close / Reopen. The referral panel says referrals cannot be listed or removed.
 
-## Custom fields: the form definition is admin-only, and answers come in two shapes
+## Custom fields: two leftovers
 
-- **Needs:** a non-admin agent who may edit a ticket, user, organization or task must be able to read the *definition*
-  (field names, types, choices, required mode) of the ticket, user, organization and task forms, to type answers.
-- **Gives (observed 2026-10-04):** `GET /forms` and `GET /forms/{id}` are admin-only (`KNOWN_LIMITS.md`). An agent
-  therefore sees a custom field's answers (every entity's `custom_fields` list) but gets no inputs for them.
-- **Answer formats the frontend decodes (`src/lib/custom-fields.ts`):** a single choice is JSON `{"a":"Alpha"}` (key to
-  label), a multiple choice is JSON `["x","z"]` (keys only), a bool is `"1"` or `"0"`, text and memo as typed.
-  Typed values (an object with the field's type and the key list) would remove the decoding.
-- **Also seen:** a field added to a form after a ticket existed is missing from that ticket's `custom_fields` until the
-  ticket first gets an answer for it; and osTicket's own view pages for a user and an organization do not print
-  custom answers (its edit dialog does), so those are checked against the API and the edit dialog.
+- **Seen (2026-10-06):** a field added to a form after a ticket existed is missing from that ticket's `custom_fields`
+  until the ticket first gets an answer for it; and osTicket's own view pages for a user and an organization do not
+  print custom answers (its edit dialog does), so those are checked against the API and the edit dialog.
+- **Not writable yet:** a custom-list field's answer (`KNOWN_LIMITS.md`); the UI shows it read-only.
+- (Typed answers and `GET /forms/for/{kind}` are adopted.)
 
 ## Custom answers cannot be list columns
 

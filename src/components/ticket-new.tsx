@@ -42,7 +42,8 @@ export function TicketNew() {
   const departments = useDepartments();
   const topics = useTopics();
   const priorities = usePriorities();
-  const formDefs = useFormDefinition("T");
+  const [topicId, setTopicId] = useState<number | null>(null);
+  const formDefs = useFormDefinition("T", topicId);
   const custom = customDefs(formDefs.data ?? [], "T");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -107,7 +108,7 @@ export function TicketNew() {
 
         <Section title="Ticket Information and Options">
           <Row label="Help Topic" required>
-            <select name="topic_id" required className={field} defaultValue="">
+            <select name="topic_id" required className={field} defaultValue="" onChange={(e) => setTopicId(e.target.value ? Number(e.target.value) : null)}>
               <option value="">— Select Help Topic —</option>
               {topics.data?.map((t) => (
                 <option key={t.id} value={t.id}>

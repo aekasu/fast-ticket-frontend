@@ -1,25 +1,17 @@
 // Custom fields: the extra fields an administrator adds to osTicket's ticket, user, organization and task forms.
-// The API reports an entity's answers as `{name, label, type, value, value_id}` (the value as text) and a form's field
-// definitions (admin-only) with their type and configuration. These helpers turn one into the other.
+// The API reports an entity's answers typed (`kind`: text, bool or choices, with the decoded value) and every agent can
+// read a form's field definitions (`GET /forms/for/{kind}`) with their type, configuration and whether they are
+// required or editable. These helpers turn one into the other.
 
-export interface FieldDef {
-  id: number;
-  name: string;
-  label: string;
-  type: string;
-  mode?: string | null;
-  hint?: string | null;
-  is_enabled?: boolean;
-  configuration?: Record<string, unknown> | null;
-}
+import type { components } from "@/lib/api/schema";
 
-export interface Answer {
-  name: string;
-  label: string;
-  type: string;
-  value?: string | null;
-  value_id?: number | null;
-}
+/** A form field as the agent-facing form endpoint gives it. */
+export type FieldDef = Pick<components["schemas"]["AgentFormField"], "id" | "name" | "label" | "type"> &
+  Partial<Pick<components["schemas"]["AgentFormField"], "mode" | "hint" | "is_enabled" | "is_required" | "is_editable" | "list_items">> & {
+    configuration?: Record<string, unknown> | null;
+  };
+
+export type Answer = components["schemas"]["CustomFieldAnswer"];
 
 /** The core fields of each form are edited by the screens' own inputs; everything else is a custom field. */
 export const CORE_FIELDS: Record<"T" | "U" | "O" | "A", string[]> = {
@@ -33,7 +25,7 @@ export const CORE_FIELDS: Record<"T" | "U" | "O" | "A", string[]> = {
 export const EDITABLE_TYPES = ["text", "memo", "bool", "choices", "datetime", "phone"] as const;
 
 export function customDefs(defs: FieldDef[], form: keyof typeof CORE_FIELDS): FieldDef[] {
-  return defs.filter((d) => d.is_enabled !== false && !CORE_FIELDS[form].includes(d.name) && (EDITABLE_TYPES as readonly string[]).includes(d.type));
+  return defs.filter((d) => d.is_enabled !== false && d.is_editable !== false && !CORE_FIELDS[form].includes(d.name) && (EDITABLE_TYPES as readonly string[]).includes(d.type));
 }
 
 export interface Choice {
@@ -55,44 +47,21 @@ export function parseChoices(config: unknown): Choice[] {
     });
 }
 
-/**
- * A chosen option is stored as JSON: a map of key to label for a single choice (`{"a":"Alpha"}`), and a list of keys
- * for a multiple choice (`["x","z"]`).
- */
-function chosen(value: string | null | undefined): { keys: string[]; labels: string[] | null } | null {
-  if (!value) return null;
-  try {
-    const parsed: unknown = JSON.parse(value);
-    if (Array.isArray(parsed)) return { keys: parsed.map(String), labels: null };
-    if (parsed && typeof parsed === "object") return { keys: Object.keys(parsed), labels: Object.values(parsed as Record<string, string>).map(String) };
-  } catch {
-    /* not JSON */
-  }
-  return null;
-}
-
-/** What an answer reads as on a page. With the field's definition, a multiple choice shows labels instead of keys. */
-export function displayValue(answer: Answer, def?: Pick<FieldDef, "configuration">): string {
-  const value = answer.value ?? "";
-  if (answer.type === "bool") return value === "1" ? "Yes" : value === "0" ? "No" : "";
-  if (answer.type === "choices") {
-    const c = chosen(value);
-    if (!c) return value;
-    if (c.labels) return c.labels.join(", ");
-    const known = parseChoices(def?.configuration);
-    return c.keys.map((k) => known.find((o) => o.key === k)?.label ?? k).join(", ");
-  }
-  return value;
+/** What an answer reads as on a page. */
+export function displayValue(answer: Answer): string {
+  if (answer.kind === "bool") return answer.bool_value == null ? "" : answer.bool_value ? "Yes" : "No";
+  if (answer.kind === "choices") return (answer.choices ?? []).map((c) => c.label).join(", ");
+  return answer.value ?? "";
 }
 
 /** The keys an answer currently holds, for pre-selecting a choices input. */
 export function chosenKeys(answer: Answer | undefined): string[] {
-  return chosen(answer?.value)?.keys ?? [];
+  return (answer?.choices ?? []).map((c) => c.key);
 }
 
 /** A comparable form of an answer, so an edit sends only what changed. */
 function current(def: FieldDef, answer: Answer | undefined): string | boolean | string[] {
-  if (def.type === "bool") return answer?.value === "1";
+  if (def.type === "bool") return answer?.bool_value === true;
   if (def.type === "choices") return chosenKeys(answer);
   return answer?.value ?? "";
 }
