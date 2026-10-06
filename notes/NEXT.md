@@ -3,8 +3,7 @@
 Last updated 2026-10-06. A fresh session starts here (see `CLAUDE.md` → "Starting a session"). The frontend has adopted
 what the backend offers, including everything in `../fast-ticket/notes/CHANGES_FOR_FRONTEND.md` as of 2026-10-06 (adopted in
 five rounds, commits b82e74b to the last `feat(...)` after it); what is left is almost all on the backend side
-(`notes/BACKEND_REQUESTS.md`, 11 entries). Not adopted from that note, on purpose: nesting KB categories by `parent_id`
-(osTicket's flat category list is what the tests compare with).
+(`notes/BACKEND_REQUESTS.md`, 11 entries). Everything in it is adopted (KB categories are nested by `parent_id`).
 
 ## State
 
@@ -16,7 +15,7 @@ Every screen of osTicket's staff panel exists, each compared with osTicket's own
   (osTicket's whole staff form: existing or new requester, Cc, source, SLA, due date, assign, response with signature,
   note, notice), reply and note with attachments and a signature choice, canned responses filled in by the API,
   Edit, Reply, Internal Note (with canned responses), Claim, Assign (agent or team), Release, Transfer, Close, Reopen,
-  Mark Answered/Unanswered, Change Owner, Collaborators, Merge, Refer (with the referral list and remove), Delete, Add Task, edit and resend thread entries,
+  Mass actions (assign, transfer, close, reopen, delete on ticked rows), an "N new tickets" bar from the live stream, Mark Answered/Unanswered, Change Owner, Collaborators, Merge, Refer (with the referral list and remove), Delete, Add Task, edit and resend thread entries,
   custom form fields.
 - **Tasks**: queues with counts (Open, Overdue, My Tasks, Completed, from `/tasks/queues`), view, collaborators, create (also from a ticket), edit (title, description, due date), claim, assign,
   transfer, close, reopen, update, note, edit and resend of thread entries, attachments, delete, custom fields.
@@ -33,8 +32,8 @@ Every screen of osTicket's staff panel exists, each compared with osTicket's own
 endpoint-and-method pairs. The other five have no UI by nature: `POST /auth/login` (the session route), `GET /commands`,
 `GET /health`, and `GET /tickets/{id}/collaborators` and `GET /tasks/{id}/collaborators` (the details carry them).
 
-**Verification** (last run 2026-10-06, all green): `npm run test:unit` (32 Vitest tests), `npm run test:e2e` (132
-Playwright tests passed, 1 skipped: the known default-order gap), `npm run lint`, `npx tsc --noEmit`, `npm run build`. One
+**Verification** (last run 2026-10-06, all green): `npm run test:unit` (38 Vitest tests), `npm run test:e2e` (138
+Playwright tests passed against `next build && next start` with the CSP, 1 skipped: the known default-order gap), `npm run lint`, `npx tsc --noEmit`, `npm run build`. One
 run of 133 showed a single transient failure in the collaborator test that passed on its own: if it recurs, look at the
 command's `error_message` first. In a production build the session cookie is `Secure; HttpOnly; SameSite=Lax`.
 
@@ -79,9 +78,9 @@ self-service profile, ticket Link/un-merge and a status choice, custom answers a
 answer. After a backend change: `npm run api:pull && npm run api:types`, read the diff, then remove the request that was met.
 
 **Small and optional on the frontend side:** a user in "Locked (Pending Activation)" is not covered by a test (the dev data
-has none), an Overdue task is not covered either (needs a past due date, which the API refuses), mass actions on the lists
-(checkboxes), osTicket's advanced search dialog, a Content-Security-Policy (needs a nonce setup for Next's inline scripts),
-a stronger osTicket check in the help-topic forms test, a toast or "N new tickets" bar for live updates, nested KB categories.
+has none), an Overdue task is not covered either (needs a past due date, which the API refuses), mass actions exist for
+tickets only (not for tasks or users), osTicket's advanced search dialog, a stronger osTicket check in the help-topic forms
+test, and `img-src` blocks remote images in thread HTML on purpose (see `AGENTS.md`).
 
 ## Conventions
 

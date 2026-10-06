@@ -40,6 +40,11 @@ stack, not a mock.
   (`src/lib/live/keys.ts`), batched; there is no replay, so every reconnect refetches everything on screen. The
   relay closes its socket when the page goes away (the backend allows 10 per agent), and answers `unauthorized` when
   the token is dead so the page goes back to the login screen.
+- **Content-Security-Policy (2026-10-06):** a per-request nonce set in `src/proxy.ts` (scripts: `'self'` + nonce +
+  `strict-dynamic`; no remote images, no frames, no objects). Every page is therefore rendered per request (the root layout
+  awaits `connection()`). React's `style={{}}` attributes need `style-src-attr 'unsafe-inline'`; the dev server also needs
+  `'unsafe-inline'` styles and `'unsafe-eval'`. `e2e/csp.spec.ts` checks the header and that nothing is blocked; the
+  whole suite was also run against `next build && next start`.
 - **Tailwind CSS** for styling (no component kit): osTicket's look is utilitarian, and recreating it is easier with
   utility classes than by fighting a kit's defaults.
 - **npm** as the package manager (already installed here; Node 24).

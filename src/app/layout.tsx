@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -6,7 +7,9 @@ export const metadata: Metadata = {
   description: "Demo frontend for fast-ticket, a REST API over osTicket",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // Every page is rendered per request: the Content-Security-Policy nonce (src/proxy.ts) is new for each one.
+  await connection();
   return (
     // Browser extensions (a dark-mode one, say) add attributes to <html> before React loads; this silences that one element.
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>

@@ -10,7 +10,7 @@ test.describe("mass actions on the ticket list, as the admin", () => {
     const os = await osticketAdmin();
     const stamp = Date.now();
     const tag = `[e2e] mass ${stamp}`;
-    const tickets = [];
+    const tickets: Awaited<ReturnType<typeof createTicket>>[] = [];
     for (const n of [1, 2, 3]) tickets.push(await createTicket(request, { subject: `${tag} #${n}`, message: "Mass me." }));
     const state = async (id: number) => ((await (await request.get(`/api/v1/tickets/${id}`)).json()) as { status: { state: string }; assignee_name: string | null; dept_name: string }) ;
     const tick = async (queue: string) => {
