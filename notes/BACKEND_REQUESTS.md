@@ -22,41 +22,21 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
   The new-ticket screen offers only those and says so; assign-on-create is already in `KNOWN_LIMITS.md`.
 - **Meanwhile:** source/SLA/due date can be changed after creation only where `PATCH /tickets/{id}` allows it.
 
-## Task lists lack what osTicket's Tasks page shows
+## Task pages: collaborators are still missing
 
-- **Needs:** (1) the linked ticket's *number* on a task (osTicket's Ticket column shows `530890`, not the id);
-  (2) an overdue flag and count (osTicket's Overdue tab and red rows); (3) team assignments in "My Tasks" (osTicket
-  counts tasks assigned to the agent or their teams); (4) the task's collaborators (osTicket's "Collaborators" row);
-  (5) queue counts in one call, as `GET /tickets/queues` does for tickets.
-- **Gives (observed 2026-10-04):** `ticket_id` only; no overdue data; an `assignee_staff_id` filter only; no
-  collaborators on `TaskDetail`; no counts endpoint. Task status names closed tasks "Closed" where osTicket's UI says
-  "Completed" (the frontend shows "Completed" for the closed state).
-- **Meanwhile:** the Ticket column looks each number up through `GET /tickets/{id}` (one request per distinct ticket,
-  cached); the tab counts are three filtered list calls (`total` with `page_size=1`); there is no Overdue tab and
-  no Collaborators row. The Open and Completed counts and every queue's contents match osTicket's on the dev data.
+- **Needs:** the task's collaborators (osTicket's "Collaborators" row on a task).
+- **Gives (observed 2026-10-06):** no collaborators on `TaskDetail`. (The list now has `ticket_number`, `is_overdue`,
+  `queue=` and `/tasks/queues`; adopted.) Task status names closed tasks "Closed" where osTicket's UI says
+  "Completed" (the frontend shows "Completed").
+- **Meanwhile:** no Collaborators row.
 
-## The user and organization lists are thinner than osTicket's directory
+## Knowledge base: attachments and the canned variables
 
-- **Needs (osTicket's User Directory and Organizations pages):** a text search (`query`), sorting, a `total`, each
-  user's ticket count and registration status (Guest / Registered / Locked, from the account), and each
-  organization's member count; on a user's page, their tickets (a `user_id` filter on `GET /tickets/`).
-- **Gives (observed 2026-10-04):** `GET /users` takes only `org_id`, `page`, `page_size`; `GET /orgs` only paging.
-  Neither returns a `total`. The user list item's `status` is the integer 0 for everyone (not the account state).
-- **Meanwhile:** the lists have no search or sort and page by "a full page may have a next"; the Status and ticket-count
-  columns are left out (a note under the table says so); a user's Tickets table searches tickets by the user's email
-  and keeps the rows whose `user_id` matches. The Organization filter on the user list works.
-- **For reference (osTicket, not a gap):** its `users.php?org_id=` ignores the filter and an organization's members
-  are shown on `orgs.php?id=`; phone numbers are stored as digits (`555-0100` comes back as `5550100`).
-
-## Knowledge base lists have no search or counts
-
-- **Needs (osTicket's kb.php and categories.php):** a FAQ search, each category's FAQ count, and the FAQ's
-  attachments; on the canned-response picker, the same variables expansion osTicket offers.
-- **Gives (observed 2026-10-04):** `GET /kb/faqs` filters only by `category_id`; no search, no per-category count,
-  no `total`; FAQ and canned attachments are not exposed (`KNOWN_LIMITS.md`).
-- **Meanwhile:** the KB screens read the whole (small) lists, up to 200 each, and count and filter on the client;
-  there is no search box (a note says so). If a helpdesk has more than 200 FAQs the counts would be wrong.
-- **For reference:** osTicket calls an unpublished FAQ "Internal"; the UI uses its word.
+- **Needs:** the FAQ's attachments (`KNOWN_LIMITS.md`: FAQ and canned attachments are not exposed).
+- **Meanwhile:** none are shown. (Category counts, `category_id` filter and FAQ search are adopted.)
+- **For reference:** osTicket calls an unpublished FAQ "Internal"; the UI uses its word. osTicket's directory lists a
+  user's ticket count only when it is above zero (the UI does the same), and `users.php?org_id=` ignores the filter
+  (an organization's members are shown on `orgs.php?id=`); phone numbers are stored as digits.
 
 ## Admin Panel pages with no API behind them, and thin admin lists
 

@@ -40,6 +40,26 @@ test.describe("knowledge base as the admin, compared with osTicket", () => {
     await os.dispose();
   });
 
+  test("searching the FAQs finds what osTicket's search finds", async ({ page }) => {
+    const os = await osticketAdmin();
+    const html = await (await os.get("kb.php?a=search&q=password")).text();
+    const theirs = [...html.matchAll(/<a[^>]*href="faq\.php\?id=\d+[^"]*"[^>]*>([\s\S]*?)<\/a>/g)]
+      .map((m) => m[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").replace(/\s+-\s+(Published|Internal)$/, "").trim())
+      .filter(Boolean);
+    expect(theirs.length).toBeGreaterThan(0);
+    await page.goto("/kb");
+    await page.getByLabel("Search FAQs").fill("password");
+    await page.getByRole("button", { name: "Search", exact: true }).click();
+    await expect(page).toHaveURL(/q=password/);
+    await expect(page.getByRole("heading", { name: /Search results/ })).toBeVisible();
+    await expect(page.locator("main li a[href^='/kb/faqs/']").first()).toBeVisible();
+    const shown = await page.locator("main li a[href^='/kb/faqs/']").allTextContents();
+    expect([...new Set(shown)].sort()).toEqual([...new Set(theirs)].sort());
+    await page.goto("/kb?q=zzzznomatchzzzz");
+    await expect(page.getByText("No FAQs match your search.")).toBeVisible();
+    await os.dispose();
+  });
+
   test("a FAQ page shows the sanitised answer, like osTicket", async ({ page, request }) => {
     const os = await osticketAdmin();
     const list = (await (await request.get("/api/v1/kb/faqs?page_size=50")).json()) as { items: { id: number; question: string; is_published: boolean }[] };

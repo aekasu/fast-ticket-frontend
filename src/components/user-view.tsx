@@ -13,10 +13,9 @@ import { Info } from "./info-table";
 import { UserAccount, accountStatus } from "./user-account";
 
 /** The tickets this user opened, as far as the agent can see. */
-function UserTickets({ userId, email }: { userId: number; email: string }) {
-  // The ticket list has no user filter: search by the email and keep the exact owner.
-  const { data, isLoading } = useTicketList({ q: email, page_size: 100, sort: "updated" });
-  const mine = data?.items.filter((t) => t.user_id === userId) ?? [];
+function UserTickets({ userId }: { userId: number }) {
+  const { data, isLoading } = useTicketList({ user_id: userId, page_size: 100, sort: "last_activity" });
+  const mine = data?.items ?? [];
   return (
     <section className="mt-6">
       <h2 className="border-b border-slate-300 pb-1 text-sm font-semibold text-slate-800">Tickets ({isLoading ? "…" : mine.length})</h2>
@@ -38,7 +37,7 @@ function UserTickets({ userId, email }: { userId: number; email: string }) {
                   {t.number}
                 </Link>
               </td>
-              <td className="whitespace-nowrap px-3 py-2">{formatDateTime(t.updated)}</td>
+              <td className="whitespace-nowrap px-3 py-2">{formatDateTime(t.last_activity ?? t.updated)}</td>
               <td className="px-3 py-2">{t.subject}</td>
               <td className="px-3 py-2">{t.status.name}</td>
             </tr>
@@ -129,7 +128,7 @@ export function UserView({ id }: { id: number }) {
 
       <UserAccount user={user} />
 
-      <UserTickets userId={user.id} email={user.email} />
+      <UserTickets userId={user.id} />
     </div>
   );
 }

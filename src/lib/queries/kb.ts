@@ -8,8 +8,8 @@ export const kbKeys = {
   canned: ["kb", "canned"] as const,
 };
 
-// A knowledge base is small, so the lists are read whole (up to 200) and filtered or counted on the client:
-// the API has no search and no per-category counts (notes/BACKEND_REQUESTS.md).
+// A knowledge base is small, so the lists are read whole (up to 200). The category counts come from the API
+// (`faq_count`); the FAQ list is filtered and searched by the API (`category_id`, `q`).
 export function useCategories() {
   return useQuery({
     queryKey: [...kbKeys.categories, "all"],
@@ -21,11 +21,12 @@ export function useCategories() {
   });
 }
 
-export function useFaqs() {
+export function useFaqs(filter: { category_id?: number; q?: string } = {}, enabled = true) {
   return useQuery({
-    queryKey: [...kbKeys.faqs, "all"],
+    queryKey: [...kbKeys.faqs, "all", filter],
+    enabled,
     queryFn: async () => {
-      const { data, error } = await api.GET("/api/v1/kb/faqs", { params: { query: { page: 1, page_size: 200 } } });
+      const { data, error } = await api.GET("/api/v1/kb/faqs", { params: { query: { ...filter, page: 1, page_size: 200 } } });
       if (!data) throw new Error(errorMessage(error));
       return data.items;
     },

@@ -1,14 +1,27 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
 import { ApiError, errorMessage } from "@/lib/api/errors";
+import type { paths } from "@/lib/api/schema";
 
 export const directoryKeys = {
   users: ["users"] as const,
   orgs: ["orgs"] as const,
 };
 
-// The API's user and organization lists have no `total`: a full page means there may be another.
-export function useUsers(query: { org_id?: number; page: number; page_size: number }) {
+export type UserListQuery = NonNullable<paths["/api/v1/users"]["get"]["parameters"]["query"]>;
+export type UserSort = NonNullable<UserListQuery["sort"]>;
+export type OrgListQuery = NonNullable<paths["/api/v1/orgs"]["get"]["parameters"]["query"]>;
+export type OrgSort = NonNullable<OrgListQuery["sort"]>;
+
+/** osTicket's directory Status, as the API's `account_status` names it. */
+export const ACCOUNT_STATUS_LABEL: Record<string, string> = {
+  guest: "Guest",
+  active: "Active (Registered)",
+  pending: "Locked (Pending Activation)",
+  locked: "Locked (Administrative)",
+};
+
+export function useUsers(query: UserListQuery) {
   return useQuery({
     queryKey: [...directoryKeys.users, "list", query],
     queryFn: async () => {
@@ -32,7 +45,7 @@ export function useUser(id: number) {
   });
 }
 
-export function useOrgs(query: { page: number; page_size: number }) {
+export function useOrgs(query: OrgListQuery) {
   return useQuery({
     queryKey: [...directoryKeys.orgs, "list", query],
     queryFn: async () => {

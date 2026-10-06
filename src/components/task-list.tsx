@@ -6,32 +6,21 @@ import { useState } from "react";
 import { formatDateTime } from "@/lib/format";
 import { canCreateTasks } from "@/lib/nav";
 import { useMe } from "@/lib/queries/me";
-import { type TaskQueue, type TaskSort, queueQuery, useTaskCounts, useTaskList } from "@/lib/queries/tasks";
-import { useTicket } from "@/lib/queries/tickets";
+import { type TaskQueue, type TaskSort, useTaskCounts, useTaskList } from "@/lib/queries/tasks";
 
 const PAGE_SIZE = 25;
-const SORTS: TaskSort[] = ["updated", "created", "due_date", "number", "title", "dept"];
-const QUEUES: TaskQueue[] = ["open", "assigned", "closed"];
+const SORTS: TaskSort[] = ["updated", "created", "due_date", "number", "title", "dept", "ticket", "closed"];
+const QUEUES: TaskQueue[] = ["open", "overdue", "assigned", "closed"];
 
 // osTicket's task columns. `sort` is the API key (none: not sortable through the API).
 const COLUMNS: { label: string; sort?: TaskSort }[] = [
   { label: "Number", sort: "number" },
-  { label: "Ticket" },
+  { label: "Ticket", sort: "ticket" },
   { label: "Date Created", sort: "created" },
   { label: "Title", sort: "title" },
   { label: "Department", sort: "dept" },
   { label: "Agent" },
 ];
-
-/** The API gives only the linked ticket's id; osTicket shows its number. */
-function TicketNumber({ id }: { id: number }) {
-  const { data } = useTicket(id);
-  return (
-    <Link href={`/tickets/${id}`} className="text-sky-800 hover:underline">
-      {data?.number ?? "…"}
-    </Link>
-  );
-}
 
 export function TaskList() {
   const router = useRouter();
@@ -45,9 +34,9 @@ export function TaskList() {
   const descending = params.get("dir") !== "asc";
   const page = Math.max(1, Number(params.get("page")) || 1);
 
-  const { counts, error: countsError } = useTaskCounts(me?.staff_id);
+  const { queues, error: countsError } = useTaskCounts();
   const { data, error, isFetching } = useTaskList({
-    ...queueQuery(queue, me?.staff_id),
+    queue,
     q: q || undefined,
     sort,
     descending,
@@ -67,31 +56,25 @@ export function TaskList() {
     router.push(`/tasks?${next.toString()}`);
   }
 
-  // osTicket always shows Open; My Tasks and Completed only when there is something in them.
-  const tabs: { key: TaskQueue; label: string; show: boolean }[] = [
-    { key: "open", label: "Open", show: true },
-    { key: "assigned", label: "My Tasks", show: (counts.assigned ?? 0) > 0 || queue === "assigned" },
-    { key: "closed", label: "Completed", show: (counts.closed ?? 0) > 0 || queue === "closed" },
-  ];
+  // The API lists the tabs the agent's queues give, with osTicket's titles and counts.
+  const tabs = queues.length ? queues : [{ key: "open", title: "Open", count: undefined }];
   const canCreate = me ? canCreateTasks(me) : false;
 
   return (
     <div>
       <ul className="mb-4 flex flex-wrap border-b border-slate-300" aria-label="Task queues">
-        {tabs
-          .filter((t) => t.show)
-          .map((t) => (
-            <li key={t.key}>
-              <Link
-                href={`/tasks?queue=${t.key}`}
-                className={`-mb-px block border border-b-0 px-4 py-2 text-sm font-medium ${
-                  t.key === queue ? "border-slate-300 bg-white text-slate-900" : "border-transparent text-sky-800 hover:bg-slate-200"
-                }`}
-              >
-                {t.label} <span className="text-xs text-slate-500">({counts[t.key] ?? "…"})</span>
-              </Link>
-            </li>
-          ))}
+        {tabs.map((t) => (
+          <li key={t.key}>
+            <Link
+              href={`/tasks?queue=${t.key}`}
+              className={`-mb-px block border border-b-0 px-4 py-2 text-sm font-medium ${
+                t.key === queue ? "border-slate-300 bg-white text-slate-900" : "border-transparent text-sky-800 hover:bg-slate-200"
+              }`}
+            >
+              {t.title} <span className="text-xs text-slate-500">({t.count ?? "…"})</span>
+            </Link>
+          </li>
+        ))}
         {canCreate && (
           <li>
             <Link href="/tasks/new" className="-mb-px block border border-transparent px-4 py-2 text-sm font-medium text-sky-800 hover:bg-slate-200">
@@ -162,13 +145,19 @@ export function TaskList() {
           </thead>
           <tbody>
             {data?.items.map((t) => (
-              <tr key={t.task_id} className="border-t border-slate-200 hover:bg-sky-50">
+              <tr key={t.task_id} data-overdue={t.is_overdue || undefined} className={`border-t border-slate-200 hover:bg-sky-50 ${t.is_overdue ? "text-red-700" : ""}`}>
                 <td className="whitespace-nowrap px-3 py-2">
                   <Link href={`/tasks/${t.task_id}`} className="font-medium text-sky-800 hover:underline">
                     {t.number}
                   </Link>
                 </td>
-                <td className="whitespace-nowrap px-3 py-2">{t.ticket_id != null && <TicketNumber id={t.ticket_id} />}</td>
+                <td className="whitespace-nowrap px-3 py-2">
+                  {t.ticket_id != null && (
+                    <Link href={`/tickets/${t.ticket_id}`} className="text-sky-800 hover:underline">
+                      {t.ticket_number}
+                    </Link>
+                  )}
+                </td>
                 <td className="whitespace-nowrap px-3 py-2">{formatDateTime(t.created)}</td>
                 <td className="px-3 py-2">
                   <Link href={`/tasks/${t.task_id}`} className="text-sky-800 hover:underline">

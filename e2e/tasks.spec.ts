@@ -10,7 +10,7 @@ test.describe("tasks as the admin, compared with osTicket's Tasks page", () => {
 
   test("tabs, counts and each queue's tasks match osTicket", async ({ page }) => {
     const os = await osticketAdmin();
-    for (const [queue, label] of [["open", "Open"], ["assigned", "My Tasks"], ["closed", "Completed"]] as const) {
+    for (const [queue, label] of [["open", "Open"], ["overdue", "Overdue"], ["assigned", "My Tasks"], ["closed", "Completed"]] as const) {
       const ref = await osticketTaskQueue(os, queue);
       await page.goto(`/tasks?queue=${queue}`);
       await expect(page.getByText("Loading…")).toHaveCount(0);

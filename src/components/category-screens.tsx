@@ -6,7 +6,7 @@ import { ApiError } from "@/lib/api/errors";
 import { formatDateTime } from "@/lib/format";
 import { canManageCanned, canManageFaqs } from "@/lib/nav";
 import { createdId } from "@/lib/queries/directory";
-import { kbKeys, useCategories, useCategory, useFaqs } from "@/lib/queries/kb";
+import { kbKeys, useCategories, useCategory } from "@/lib/queries/kb";
 import { useMe } from "@/lib/queries/me";
 import { useSubmitCommand } from "@/lib/queries/submit";
 import { field } from "./action-ui";
@@ -18,8 +18,6 @@ type Category = components["schemas"]["CategoryDetail"];
 export function CategoryList() {
   const { data: me } = useMe();
   const categories = useCategories();
-  const faqs = useFaqs();
-  const count = (id: number) => faqs.data?.filter((f) => f.category_id === id).length ?? "…";
   return (
     <div>
       <KbTabs current="categories" showCanned={me ? canManageCanned(me) : false} />
@@ -52,7 +50,7 @@ export function CategoryList() {
                   </Link>
                 </td>
                 <td className="px-3 py-2">{c.is_public ? "Public" : "Private"}</td>
-                <td className="px-3 py-2">{count(c.id)}</td>
+                <td className="px-3 py-2">{c.faq_count}</td>
                 <td className="whitespace-nowrap px-3 py-2">{formatDateTime(c.updated)}</td>
               </tr>
             ))}

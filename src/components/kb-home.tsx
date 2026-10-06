@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { formatDateTime } from "@/lib/format";
 import { canManageCanned, canManageFaqs } from "@/lib/nav";
 import { kbKeys, useCategories, useFaqs } from "@/lib/queries/kb";
@@ -13,15 +14,18 @@ const link = "rounded border border-slate-400 bg-white px-3 py-1.5 text-sm font-
 
 /** osTicket's kb.php: categories with their FAQ counts on the left; the categories, or one category's FAQs, beside. */
 export function KbHome() {
+  const router = useRouter();
   const params = useSearchParams();
   const { data: me } = useMe();
   const categories = useCategories();
-  const faqs = useFaqs();
   const cid = /^\d+$/.test(params.get("cid") ?? "") ? Number(params.get("cid")) : undefined;
+  const q = params.get("q")?.trim() ?? "";
+  const [search, setSearch] = useState(q);
   const selected = categories.data?.find((c) => c.id === cid);
-
-  const count = (categoryId: number) => faqs.data?.filter((f) => f.category_id === categoryId).length ?? 0;
-  const inCategory = faqs.data?.filter((f) => f.category_id === cid) ?? [];
+  // The API filters and searches: one category's FAQs, or the FAQs matching a search (osTicket's kb.php?q=).
+  const faqs = useFaqs({ category_id: cid, q: q || undefined }, cid !== undefined || q !== "");
+  const inCategory = faqs.data ?? [];
+  const total = categories.data?.reduce((sum, c) => sum + c.faq_count, 0);
   const manage = me ? canManageFaqs(me) : false;
 
   return (
@@ -35,13 +39,13 @@ export function KbHome() {
           <ul>
             <li>
               <Link href="/kb" className={`block px-3 py-1.5 hover:bg-sky-50 ${cid === undefined ? "font-bold" : "text-sky-800"}`}>
-                All Categories ({faqs.data?.length ?? "…"})
+                All Categories ({total ?? "…"})
               </Link>
             </li>
             {categories.data?.map((c) => (
               <li key={c.id}>
                 <Link href={`/kb?cid=${c.id}`} className={`block px-3 py-1.5 hover:bg-sky-50 ${c.id === cid ? "font-bold" : "text-sky-800"}`}>
-                  {c.name} ({count(c.id)})
+                  {c.name} ({c.faq_count})
                 </Link>
               </li>
             ))}
@@ -58,14 +62,50 @@ export function KbHome() {
             )}
           </div>
 
-          {!selected ? (
+          <form
+            className="mb-3 flex gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const next = new URLSearchParams();
+              if (search.trim()) next.set("q", search.trim());
+              if (cid !== undefined && search.trim()) next.set("cid", String(cid));
+              router.push(next.size ? `/kb?${next.toString()}` : "/kb");
+            }}
+          >
+            <input type="search" aria-label="Search FAQs" value={search} onChange={(e) => setSearch(e.target.value)} maxLength={100} placeholder="Search the FAQs" className="w-72 rounded border border-slate-300 bg-white px-3 py-1.5 text-sm" />
+            <button type="submit" className="rounded bg-sky-800 px-3 py-1.5 text-sm font-semibold text-white hover:bg-sky-900">
+              Search
+            </button>
+            {q && (
+              <Link href="/kb" onClick={() => setSearch("")} className="self-center text-sm text-sky-800 underline">
+                Clear
+              </Link>
+            )}
+          </form>
+
+          {q ? (
+            <>
+              <h2 className="mb-2 text-lg font-semibold text-slate-800">Search results for “{q}”</h2>
+              <ul className="space-y-2">
+                {inCategory.map((f) => (
+                  <li key={f.id} className="border border-slate-300 bg-white px-3 py-2 text-sm">
+                    <Link href={`/kb/faqs/${f.id}`} className="font-medium text-sky-800 hover:underline">
+                      {f.question}
+                    </Link>{" "}
+                    <span className="text-slate-500">- {f.is_published ? "Published" : "Internal"}</span>
+                  </li>
+                ))}
+                {faqs.data && inCategory.length === 0 && <li className="text-sm text-slate-500">No FAQs match your search.</li>}
+              </ul>
+            </>
+          ) : !selected ? (
             <>
               <p className="mb-3 text-sm text-slate-600">Click on the category to browse FAQs or manage its existing FAQs.</p>
               <ul className="space-y-3">
                 {categories.data?.map((c) => (
                   <li key={c.id} className="border border-slate-300 bg-white p-3 text-sm">
                     <Link href={`/kb?cid=${c.id}`} className="font-semibold text-sky-800 hover:underline">
-                      {c.name} ({count(c.id)})
+                      {c.name} ({c.faq_count})
                     </Link>{" "}
                     <span className="text-slate-500">- {c.is_public ? "Public" : "Private"}</span>
                     {c.description && <p className="mt-1 text-slate-600">{c.description}</p>}
@@ -108,7 +148,6 @@ export function KbHome() {
           )}
         </section>
       </div>
-      <p className="mt-4 text-xs text-slate-500">Search is not available through the API yet.</p>
     </div>
   );
 }

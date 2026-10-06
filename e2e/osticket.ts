@@ -67,7 +67,7 @@ export async function osticketTicket(ctx: APIRequestContext, id: number) {
 }
 
 /** osTicket's Tasks page for a queue (`open`, `assigned`, `closed`): the task numbers and the tab counts. */
-export async function osticketTaskQueue(ctx: APIRequestContext, status: "open" | "assigned" | "closed") {
+export async function osticketTaskQueue(ctx: APIRequestContext, status: "open" | "overdue" | "assigned" | "closed") {
   const html = await (await ctx.get(`tasks.php?status=${status}`)).text();
   const body = /<tbody>([\s\S]*?)<\/tbody>/.exec(html)?.[1] ?? "";
   const numbers: string[] = [];

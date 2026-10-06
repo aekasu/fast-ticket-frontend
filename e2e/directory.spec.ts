@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { command } from "./api";
 import { AUTH } from "./global-setup";
-import { osticketAdmin, osticketDirectoryNames, osticketPageText } from "./osticket";
+import { osticketAdmin, osticketDirectoryNames, osticketPageText, osticketRows } from "./osticket";
 
 const cell = (page: Page, label: string) => page.locator("th", { hasText: new RegExp(`^${label}:$`) }).locator("xpath=following-sibling::td[1]");
 
@@ -45,6 +45,67 @@ test.describe("users and organizations as the admin, compared with osTicket", ()
     const os = await osticketAdmin();
     const expected = await osticketDirectoryNames(os, "orgs.php");
     expect((await listedNames(page, "/orgs")).sort()).toEqual([...expected].sort());
+    await os.dispose();
+  });
+
+  test("each user row shows osTicket's name with its ticket count, and its status", async ({ page }) => {
+    const os = await osticketAdmin();
+    const theirs = (await osticketRows(os, "users.php")).map((r) => ({ name: r[1].replace(/\s+/g, " ").trim(), status: r[2].trim() }));
+    expect(theirs.length).toBeGreaterThan(0);
+    const ours: { name: string; status: string }[] = [];
+    for (let p = 1; p <= 20; p++) {
+      await page.goto(`/users?page=${p}`);
+      await expect(page.getByText("Loading…")).toHaveCount(0);
+      for (const row of await page.locator("tbody tr").all()) {
+        const cells = await row.locator("td").allInnerTexts();
+        if (cells.length > 2) ours.push({ name: cells[0].replace(/\s+/g, " ").trim(), status: cells[1].trim() });
+      }
+      const next = page.getByRole("button", { name: "Next", exact: true });
+      if ((await next.count()) === 0 || (await next.isDisabled())) break;
+    }
+    const key = (r: { name: string; status: string }) => `${r.name} | ${r.status}`;
+    // osTicket's page shows only its first page of the list, so its rows must all be among ours (same name, count, status).
+    const have = ours.map(key);
+    for (const row of theirs.map(key)) {
+      const at = have.indexOf(row);
+      expect(at, `osTicket's row "${row}" is on our list`).toBeGreaterThanOrEqual(0);
+      have.splice(at, 1);
+    }
+    await os.dispose();
+  });
+
+  test("searching users and sorting by name are done by the API, in the URL", async ({ page, request }) => {
+    const all = (await (await request.get("/api/v1/users?page_size=100")).json()) as { items: { name: string; email: string }[] };
+    const target = all.items[0];
+    const word = target.email.split("@")[0].slice(0, 4);
+    await page.goto("/users");
+    await page.getByLabel("Search users").fill(word);
+    await page.getByRole("button", { name: "Search", exact: true }).click();
+    await expect(page).toHaveURL(/q=/);
+    await expect(page.locator("tbody tr td:first-child a", { hasText: target.name }).first()).toBeVisible();
+    await page.getByRole("button", { name: "Clear" }).click();
+    await expect(page).not.toHaveURL(/q=/);
+    await page.getByRole("button", { name: /^Name/ }).click();
+    await page.getByRole("button", { name: /^Name/ }).click();
+    await expect(page).toHaveURL(/sort=name&dir=desc/);
+    const byName = (a: string, b: string) => b.localeCompare(a, undefined, { sensitivity: "base" });
+    await expect
+      .poll(async () => {
+        const names = await page.locator("tbody tr td:first-child a").allTextContents();
+        return JSON.stringify(names) === JSON.stringify([...names].sort(byName)) && names.length > 1;
+      })
+      .toBe(true);
+  });
+
+  test("an organization row shows the user count osTicket shows", async ({ page }) => {
+    const os = await osticketAdmin();
+    const theirs = await osticketRows(os, "orgs.php");
+    await page.goto("/orgs");
+    await expect(page.getByText("Loading…")).toHaveCount(0);
+    for (const r of theirs) {
+      const row = page.locator("tbody tr", { has: page.getByRole("link", { name: r[1].trim(), exact: true }) });
+      await expect(row.locator("td").nth(1)).toHaveText(r[2].trim());
+    }
     await os.dispose();
   });
 

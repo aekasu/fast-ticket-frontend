@@ -24,7 +24,7 @@ function Card({ href, label, value }: { href: string; label: string; value: numb
 export function DashboardHome() {
   const { data: me } = useMe();
   const queues = useQueueCounts();
-  const taskCounts = useTaskCounts(me?.staff_id);
+  const taskCounts = useTaskCounts();
   const mine = useTicketList({ queue: "assigned_me", sort: "updated", descending: true, page: 1, page_size: 5 });
   const count = (key: string) => queues.data?.find((q) => q.key === key)?.count;
 
@@ -51,6 +51,7 @@ export function DashboardHome() {
       <h2 className="mb-2 text-sm font-semibold text-slate-800">Tasks</h2>
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4" aria-label="Task queues">
         <Card href="/tasks?queue=open" label="Open" value={taskCounts.counts.open} />
+        <Card href="/tasks?queue=overdue" label="Overdue" value={taskCounts.counts.overdue} />
         <Card href="/tasks?queue=assigned" label="My Tasks" value={taskCounts.counts.assigned} />
         <Card href="/tasks?queue=closed" label="Completed" value={taskCounts.counts.closed} />
       </div>
