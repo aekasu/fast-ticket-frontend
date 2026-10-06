@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { markOwnTicket } from "@/lib/live/new-tickets";
 import { useQueryClient } from "@tanstack/react-query";
 import { CommandFailed, runCommand, useActionKey } from "@/lib/queries/commands";
 import { useUserOptions } from "@/lib/queries/directory";
@@ -96,6 +97,7 @@ export function TicketNew() {
       const result = await runCommand({ method: "POST", path: "/api/v1/tickets/", body, key: key.current() });
       key.renew();
       await queryClient.invalidateQueries({ queryKey: ticketKeys.all });
+      markOwnTicket(String(result.ticket_id));
       router.push(`/tickets/${result.ticket_id}`);
     } catch (e) {
       if (e instanceof CommandFailed) key.renew();

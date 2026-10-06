@@ -2,10 +2,13 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useContext, useEffect, useState } from "react";
+import Link from "next/link";
 import { StaleBatch } from "@/lib/live/keys";
+import { othersTickets } from "@/lib/live/new-tickets";
 
 export type LiveState = "connecting" | "live" | "offline";
 const LiveContext = createContext<LiveState>("connecting");
+const FreshContext = createContext<{ ids: string[]; clear: () => void }>({ ids: [], clear: () => {} });
 
 const BATCH_MS = 250;
 
@@ -17,6 +20,7 @@ const BATCH_MS = 250;
 export function LiveUpdates({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const [state, setState] = useState<LiveState>("connecting");
+  const [fresh, setFresh] = useState<string[]>([]);
 
   useEffect(() => {
     const batch = new StaleBatch();
@@ -46,7 +50,8 @@ export function LiveUpdates({ children }: { children: React.ReactNode }) {
     });
     source.onmessage = (event) => {
       try {
-        const { aggregate_type } = JSON.parse(event.data) as { aggregate_type?: string };
+        const { type, aggregate_type, aggregate_id } = JSON.parse(event.data) as { type?: string; aggregate_type?: string; aggregate_id?: string };
+        if (type === "ticket.created" && aggregate_id) setFresh((ids) => (ids.includes(aggregate_id) ? ids : [...ids, aggregate_id]));
         batch.add(aggregate_type ?? "");
         timer ??= setTimeout(flush, BATCH_MS);
       } catch {
@@ -62,7 +67,11 @@ export function LiveUpdates({ children }: { children: React.ReactNode }) {
     };
   }, [queryClient]);
 
-  return <LiveContext.Provider value={state}>{children}</LiveContext.Provider>;
+  return (
+    <LiveContext.Provider value={state}>
+      <FreshContext.Provider value={{ ids: fresh, clear: () => setFresh([]) }}>{children}</FreshContext.Provider>
+    </LiveContext.Provider>
+  );
 }
 
 const LABEL: Record<LiveState, string> = { live: "Live", connecting: "Connecting…", offline: "Offline" };
@@ -77,5 +86,25 @@ export function LiveStatus() {
       <span aria-hidden className={`inline-block h-2 w-2 rounded-full ${DOT[state]}`} />
       {LABEL[state]}
     </span>
+  );
+}
+
+/** "N new tickets": others' tickets that arrived while this page was open, with a way to the open queue. */
+export function NewTicketsBar() {
+  const { ids, clear } = useContext(FreshContext);
+  const count = othersTickets(ids).length;
+  if (count === 0) return null;
+  return (
+    <div role="status" data-new-tickets={count} className="mx-auto flex max-w-screen-2xl items-center gap-3 border-b border-emerald-300 bg-emerald-50 px-4 py-2 text-sm text-emerald-900">
+      <span>
+        {count} new ticket{count === 1 ? "" : "s"} arrived.
+      </span>
+      <Link href="/tickets?queue=open" onClick={clear} className="font-semibold underline">
+        Show open tickets
+      </Link>
+      <button type="button" onClick={clear} className="ml-auto underline">
+        Dismiss
+      </button>
+    </div>
   );
 }

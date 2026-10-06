@@ -27,6 +27,9 @@ test.describe("New Ticket as the admin", () => {
       await expect(page).toHaveURL(/\/tickets\/\d+$/);
       id = Number(page.url().split("/").pop());
       await expect(page.getByRole("heading", { name: /Ticket #/ })).toContainText(subject);
+      // The agent's own ticket is not "new" news: give its event time to arrive, then expect no bar.
+      await page.waitForTimeout(2000);
+      await expect(page.locator("[data-new-tickets]")).toHaveCount(0);
 
       const ref = await osticketTicket(os, id);
       expect(ref.info["Priority"]).toContain("High");

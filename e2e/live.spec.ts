@@ -35,6 +35,23 @@ test.describe("live updates", () => {
     }
   });
 
+  test("a ticket someone else opens raises an N new tickets bar, which leads to the open queue", async ({ page, request }) => {
+    await page.goto("/dashboard");
+    await expect(page.locator("[data-live='live']")).toBeVisible();
+    await expect(page.locator("[data-new-tickets]")).toHaveCount(0);
+    const ticket = await createTicket(request, { subject: "[e2e] new ticket bar", message: "Tell the agent." });
+    try {
+      const bar = page.locator("[data-new-tickets]");
+      await expect(bar).toBeVisible({ timeout: 20_000 });
+      await expect(bar).toContainText(/new tickets? arrived/);
+      await bar.getByRole("link", { name: "Show open tickets" }).click();
+      await expect(page).toHaveURL(/\/tickets\?queue=open/);
+      await expect(bar).toHaveCount(0);
+    } finally {
+      await ticket.remove();
+    }
+  });
+
   test("the ticket list shows a new ticket without a reload", async ({ page, request }) => {
     const subject = `[e2e] live list ${Date.now()}`;
     await page.goto(`/tickets?queue=open&q=${encodeURIComponent(subject)}`);

@@ -1,4 +1,4 @@
-import { LiveStatus } from "@/components/live-updates";
+import { LiveStatus, NewTicketsBar } from "@/components/live-updates";
 import { LogoutButton } from "@/components/logout-button";
 import { PanelNav } from "@/components/panel-nav";
 import { Providers } from "@/components/providers";
@@ -39,6 +39,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
           <PanelNav items={items} />
         </div>
       </header>
+      <NewTicketsBar />
       <main className="mx-auto max-w-screen-2xl px-4 py-6">{children}</main>
     </Providers>
   );
