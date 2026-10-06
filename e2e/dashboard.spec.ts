@@ -73,6 +73,8 @@ test.describe("dashboard, directory and profile as the admin", () => {
 
     await page.getByLabel("Search agents").fill("");
     await page.getByRole("button", { name: "Search" }).click();
+    // Let the cleared search take effect first: two quick URL changes would otherwise build on a stale one.
+    await expect(page).not.toHaveURL(/q=/);
     await page.getByLabel("Department").selectOption({ label: "Sales" });
     await expect(page).toHaveURL(/did=2/);
     const sales = (await (await request.get("/api/v1/agents?dept_id=2")).json()) as { items: unknown[] };

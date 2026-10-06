@@ -46,6 +46,7 @@ for (const [i, subject] of all.entries()) {
       message: `Seeded for frontend development.\n\n${subject}. Reported by ${name}.`,
       name,
       email,
+      topic_id: 1, // osTicket's staff form requires a help topic
       priority_id: (i % 4) + 1,
     }),
   });

@@ -49,6 +49,7 @@ test.describe("New Ticket as the admin", () => {
     await page.getByLabel("Email Address").fill("a@b");
     await page.getByLabel("Full Name").fill("Refused User");
     await page.getByLabel("Issue Summary").fill(subject);
+    await page.getByLabel("Help Topic").selectOption({ label: "General Inquiry" });
     await page.getByLabel("Issue Details").fill("Should not be created.");
     await page.getByRole("button", { name: "Create Ticket" }).click();
 

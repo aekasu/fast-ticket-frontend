@@ -96,6 +96,187 @@
         "title": "AgentDirectoryResponse",
         "type": "object"
       },
+      "AgentForm": {
+        "properties": {
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/AgentFormField"
+            },
+            "title": "Fields",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "instructions": {
+            "default": "",
+            "title": "Instructions",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "type",
+          "fields"
+        ],
+        "title": "AgentForm",
+        "type": "object"
+      },
+      "AgentFormField": {
+        "description": "A field as an agent sees it on osTicket's create/edit pages (enabled and agent-visible only).",
+        "properties": {
+          "configuration": {
+            "$ref": "#/components/schemas/FieldConfiguration",
+            "default": {}
+          },
+          "hint": {
+            "default": "",
+            "title": "Hint",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "is_deletable": {
+            "default": true,
+            "title": "Is Deletable",
+            "type": "boolean"
+          },
+          "is_editable": {
+            "description": "The agent may type an answer (otherwise it is shown read-only)",
+            "title": "Is Editable",
+            "type": "boolean"
+          },
+          "is_enabled": {
+            "default": true,
+            "title": "Is Enabled",
+            "type": "boolean"
+          },
+          "is_name_locked": {
+            "default": false,
+            "title": "Is Name Locked",
+            "type": "boolean"
+          },
+          "is_required": {
+            "title": "Is Required",
+            "type": "boolean"
+          },
+          "is_type_locked": {
+            "default": false,
+            "title": "Is Type Locked",
+            "type": "boolean"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "list_items": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ListItem"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "For a custom-list field (``list-<id>``): the enabled items; answers use the item id",
+            "title": "List Items"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "optional",
+                  "required",
+                  "required_for_users",
+                  "required_for_agents",
+                  "internal_optional",
+                  "internal_required",
+                  "users_only"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "null when the flags match no standard mode.",
+            "title": "Mode"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "sort": {
+            "default": 0,
+            "title": "Sort",
+            "type": "integer"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "label",
+          "type",
+          "is_required",
+          "is_editable"
+        ],
+        "title": "AgentFormField",
+        "type": "object"
+      },
+      "AgentForms": {
+        "description": "The forms to render for one kind of object, in osTicket's order: the core form first, then a ticket's help\ntopic forms.",
+        "properties": {
+          "forms": {
+            "items": {
+              "$ref": "#/components/schemas/AgentForm"
+            },
+            "title": "Forms",
+            "type": "array"
+          }
+        },
+        "required": [
+          "forms"
+        ],
+        "title": "AgentForms",
+        "type": "object"
+      },
+      "AnswerChoice": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label"
+        ],
+        "title": "AnswerChoice",
+        "type": "object"
+      },
       "Assignee": {
         "properties": {
           "id": {
@@ -170,6 +351,80 @@
           "content_type"
         ],
         "title": "Attachment",
+        "type": "object"
+      },
+      "AttachmentLimits": {
+        "description": "What an upload may be, so a client can refuse a file before sending it.",
+        "properties": {
+          "api_max_file_bytes": {
+            "description": "The API's cap per file",
+            "title": "Api Max File Bytes",
+            "type": "integer"
+          },
+          "max_file_bytes": {
+            "description": "Largest file one request may carry: the smaller of osTicket's and the API's caps",
+            "title": "Max File Bytes",
+            "type": "integer"
+          },
+          "max_files": {
+            "description": "Most files in one request",
+            "title": "Max Files",
+            "type": "integer"
+          },
+          "max_total_bytes": {
+            "description": "Most bytes of files in one request",
+            "title": "Max Total Bytes",
+            "type": "integer"
+          },
+          "osticket_max_file_bytes": {
+            "description": "osTicket's own maximum file size (Admin Panel > Settings > Tickets)",
+            "title": "Osticket Max File Bytes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "max_file_bytes",
+          "osticket_max_file_bytes",
+          "api_max_file_bytes",
+          "max_files",
+          "max_total_bytes"
+        ],
+        "title": "AttachmentLimits",
+        "type": "object"
+      },
+      "AttachmentUpload": {
+        "properties": {
+          "content_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Media type, e.g. image/png; osTicket detects it if absent",
+            "title": "Content Type"
+          },
+          "data": {
+            "description": "The file's bytes, base64 encoded",
+            "minLength": 1,
+            "title": "Data",
+            "type": "string"
+          },
+          "name": {
+            "description": "File name as it should appear on the thread",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "data"
+        ],
+        "title": "AttachmentUpload",
         "type": "object"
       },
       "BanlistCreate": {
@@ -495,6 +750,29 @@
         "title": "CannedDetail",
         "type": "object"
       },
+      "CannedFile": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "size": {
+            "title": "Size",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "size"
+        ],
+        "title": "CannedFile",
+        "type": "object"
+      },
       "CannedListItem": {
         "properties": {
           "created": {
@@ -570,6 +848,48 @@
           "page_size"
         ],
         "title": "CannedListResponse",
+        "type": "object"
+      },
+      "CannedRendered": {
+        "description": "A canned response with the ticket's variables filled in (``%{ticket.name.first}``, ``%{ticket.number}``, ...),\nas osTicket's reply form inserts it.",
+        "properties": {
+          "files": {
+            "description": "Files attached to the canned response (names only)",
+            "items": {
+              "$ref": "#/components/schemas/CannedFile"
+            },
+            "title": "Files",
+            "type": "array"
+          },
+          "format": {
+            "enum": [
+              "html",
+              "text"
+            ],
+            "title": "Format",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "response": {
+            "description": "The reply text, HTML unless ``plain`` was asked for",
+            "title": "Response",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "response",
+          "format"
+        ],
+        "title": "CannedRendered",
         "type": "object"
       },
       "CannedUpdate": {
@@ -677,6 +997,12 @@
             "title": "Description",
             "type": "string"
           },
+          "faq_count": {
+            "default": 0,
+            "description": "FAQs in this category and its sub-categories (osTicket's count)",
+            "title": "Faq Count",
+            "type": "integer"
+          },
           "id": {
             "title": "Id",
             "type": "integer"
@@ -693,6 +1019,18 @@
             "default": "",
             "title": "Notes",
             "type": "string"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The parent category, if this is a sub-category",
+            "title": "Parent Id"
           },
           "updated": {
             "format": "date-time",
@@ -722,6 +1060,12 @@
             "title": "Description",
             "type": "string"
           },
+          "faq_count": {
+            "default": 0,
+            "description": "FAQs in this category and its sub-categories (osTicket's count)",
+            "title": "Faq Count",
+            "type": "integer"
+          },
           "id": {
             "title": "Id",
             "type": "integer"
@@ -733,6 +1077,18 @@
           "name": {
             "title": "Name",
             "type": "string"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The parent category, if this is a sub-category",
+            "title": "Parent Id"
           },
           "updated": {
             "format": "date-time",
@@ -1127,7 +1483,46 @@
         "type": "object"
       },
       "CustomFieldAnswer": {
+        "description": "One stored answer. ``value`` / ``value_id`` are osTicket's stored form; ``kind`` and the typed values beside\nthem say what it means, so a client does not decode osTicket's JSON itself.",
         "properties": {
+          "bool_value": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A bool field's answer (kind=bool)",
+            "title": "Bool Value"
+          },
+          "choices": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/AnswerChoice"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The selected choices of a choices or custom-list field (kind=choices), key and label; empty when nothing is selected. A custom-list field's key is the list item's id.",
+            "title": "Choices"
+          },
+          "kind": {
+            "default": "text",
+            "description": "text: use ``value``; bool: use ``bool_value``; choices: use ``choices``",
+            "enum": [
+              "text",
+              "bool",
+              "choices"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
           "label": {
             "title": "Label",
             "type": "string"
@@ -2964,6 +3359,101 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
+      "ListItem": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "value"
+        ],
+        "title": "ListItem",
+        "type": "object"
+      },
+      "Me": {
+        "description": "The agent's identity and current access, read from osTicket on every request.",
+        "properties": {
+          "assigned_only": {
+            "title": "Assigned Only",
+            "type": "boolean"
+          },
+          "department_ids": {
+            "description": "Departments the agent can see",
+            "items": {
+              "type": "integer"
+            },
+            "title": "Department Ids",
+            "type": "array"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "global_permissions": {
+            "description": "Global permission keys (user.*, org.*, faq.manage, ...)",
+            "items": {
+              "type": "string"
+            },
+            "title": "Global Permissions",
+            "type": "array"
+          },
+          "is_admin": {
+            "title": "Is Admin",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "roles": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": "Department id -> the role permission keys held there",
+            "title": "Roles",
+            "type": "object"
+          },
+          "staff_id": {
+            "title": "Staff Id",
+            "type": "integer"
+          },
+          "team_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Team Ids",
+            "type": "array"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "staff_id",
+          "username",
+          "name",
+          "email",
+          "is_admin",
+          "assigned_only",
+          "global_permissions",
+          "roles",
+          "department_ids",
+          "team_ids"
+        ],
+        "title": "Me",
+        "type": "object"
+      },
       "OrganizationCreate": {
         "properties": {
           "address": {
@@ -3270,6 +3760,12 @@
             "title": "Updated",
             "type": "string"
           },
+          "user_count": {
+            "default": 0,
+            "description": "Members (osTicket's Users column)",
+            "title": "User Count",
+            "type": "integer"
+          },
           "website": {
             "default": "",
             "title": "Website",
@@ -3304,6 +3800,12 @@
             "format": "date-time",
             "title": "Updated",
             "type": "string"
+          },
+          "user_count": {
+            "default": 0,
+            "description": "Members (osTicket's Users column)",
+            "title": "User Count",
+            "type": "integer"
           }
         },
         "required": [
@@ -3571,6 +4073,45 @@
         "title": "OrganizationUpdate",
         "type": "object"
       },
+      "PermissionKey": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "kind": {
+            "description": "global: stored on the staff member; role: stored on their roles, per department",
+            "enum": [
+              "global",
+              "role"
+            ],
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "kind"
+        ],
+        "title": "PermissionKey",
+        "type": "object"
+      },
+      "PermissionKeyList": {
+        "properties": {
+          "permissions": {
+            "items": {
+              "$ref": "#/components/schemas/PermissionKey"
+            },
+            "title": "Permissions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "permissions"
+        ],
+        "title": "PermissionKeyList",
+        "type": "object"
+      },
       "PriorityCreate": {
         "properties": {
           "desc": {
@@ -3825,6 +4366,124 @@
           "queues"
         ],
         "title": "QueueCounts",
+        "type": "object"
+      },
+      "Referral": {
+        "properties": {
+          "created": {
+            "format": "date-time",
+            "title": "Created",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "referee_id": {
+            "title": "Referee Id",
+            "type": "integer"
+          },
+          "referee_type": {
+            "enum": [
+              "agent",
+              "team",
+              "department"
+            ],
+            "title": "Referee Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "referee_type",
+          "referee_id",
+          "name",
+          "created"
+        ],
+        "title": "Referral",
+        "type": "object"
+      },
+      "ReferralList": {
+        "properties": {
+          "referrals": {
+            "items": {
+              "$ref": "#/components/schemas/Referral"
+            },
+            "title": "Referrals",
+            "type": "array"
+          }
+        },
+        "required": [
+          "referrals"
+        ],
+        "title": "ReferralList",
+        "type": "object"
+      },
+      "Role": {
+        "properties": {
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "notes": {
+            "default": "",
+            "title": "Notes",
+            "type": "string"
+          },
+          "permissions": {
+            "description": "Role permission keys switched on for this role",
+            "items": {
+              "type": "string"
+            },
+            "title": "Permissions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "enabled",
+          "permissions"
+        ],
+        "title": "Role",
+        "type": "object"
+      },
+      "RoleListResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Role"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "page_size"
+        ],
+        "title": "RoleListResponse",
         "type": "object"
       },
       "SLACreate": {
@@ -5040,6 +5699,14 @@
             ],
             "title": "Closed"
           },
+          "collaborators": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/Collaborator"
+            },
+            "title": "Collaborators",
+            "type": "array"
+          },
           "created": {
             "format": "date-time",
             "title": "Created",
@@ -5086,6 +5753,12 @@
               }
             ],
             "title": "Due Date"
+          },
+          "is_overdue": {
+            "default": false,
+            "description": "osTicket's overdue flag on an open task",
+            "title": "Is Overdue",
+            "type": "boolean"
           },
           "number": {
             "title": "Number",
@@ -5138,6 +5811,18 @@
               }
             ],
             "title": "Ticket Id"
+          },
+          "ticket_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The linked ticket's number (osTicket's Ticket column)",
+            "title": "Ticket Number"
           },
           "title": {
             "title": "Title",
@@ -5351,6 +6036,12 @@
             ],
             "title": "Due Date"
           },
+          "is_overdue": {
+            "default": false,
+            "description": "osTicket's overdue flag on an open task",
+            "title": "Is Overdue",
+            "type": "boolean"
+          },
           "number": {
             "title": "Number",
             "type": "string"
@@ -5394,6 +6085,18 @@
               }
             ],
             "title": "Ticket Id"
+          },
+          "ticket_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The linked ticket's number (osTicket's Ticket column)",
+            "title": "Ticket Number"
           },
           "title": {
             "title": "Title",
@@ -5455,6 +6158,14 @@
       },
       "TaskNote": {
         "properties": {
+          "attachments": {
+            "description": "Files to attach (size-capped, see GET /settings/attachments)",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentUpload"
+            },
+            "title": "Attachments",
+            "type": "array"
+          },
           "note": {
             "minLength": 1,
             "title": "Note",
@@ -5472,6 +6183,52 @@
         "title": "TaskNote",
         "type": "object"
       },
+      "TaskQueueCount": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "key": {
+            "enum": [
+              "open",
+              "overdue",
+              "assigned",
+              "closed"
+            ],
+            "title": "Key",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "title",
+          "count"
+        ],
+        "title": "TaskQueueCount",
+        "type": "object"
+      },
+      "TaskQueueCounts": {
+        "description": "osTicket's task queues in its own order, counted over the agent's task list.",
+        "properties": {
+          "queues": {
+            "items": {
+              "$ref": "#/components/schemas/TaskQueueCount"
+            },
+            "title": "Queues",
+            "type": "array"
+          }
+        },
+        "required": [
+          "queues"
+        ],
+        "title": "TaskQueueCounts",
+        "type": "object"
+      },
       "TaskReopen": {
         "properties": {
           "note": {
@@ -5486,6 +6243,14 @@
       "TaskReply": {
         "description": "An update posted to the task's collaborators.",
         "properties": {
+          "attachments": {
+            "description": "Files to attach (size-capped, see GET /settings/attachments)",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentUpload"
+            },
+            "title": "Attachments",
+            "type": "array"
+          },
           "message": {
             "maxLength": 100000,
             "minLength": 1,
@@ -5854,6 +6619,16 @@
             "title": "Created",
             "type": "string"
           },
+          "format": {
+            "default": "text",
+            "description": "How osTicket stores the body",
+            "enum": [
+              "text",
+              "html"
+            ],
+            "title": "Format",
+            "type": "string"
+          },
           "id": {
             "title": "Id",
             "type": "integer"
@@ -6052,7 +6827,50 @@
         "type": "object"
       },
       "TicketCreate": {
+        "description": "osTicket's staff \"Open a New Ticket\" form. The requester is an existing user (``user_id``) or a name and\nemail (an unknown email makes a new user). Nothing is emailed unless ``notify`` asks for it.",
         "properties": {
+          "assign_agent_id": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Assign to this agent (needs ticket.assign)",
+            "title": "Assign Agent Id"
+          },
+          "assign_team_id": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Assign to this team (needs ticket.assign)",
+            "title": "Assign Team Id"
+          },
+          "cc_user_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "maxItems": 50,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Users added as collaborators (Cc)",
+            "title": "Cc User Ids"
+          },
           "custom_fields": {
             "anyOf": [
               {
@@ -6113,9 +6931,23 @@
             ],
             "title": "Dept Id"
           },
+          "due_date": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "UTC (an offset is converted); must be in the future",
+            "title": "Due Date"
+          },
           "email": {
             "anyOf": [
               {
+                "maxLength": 255,
                 "type": "string"
               },
               {
@@ -6132,6 +6964,7 @@
           "name": {
             "anyOf": [
               {
+                "maxLength": 255,
                 "type": "string"
               },
               {
@@ -6139,6 +6972,30 @@
               }
             ],
             "title": "Name"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "maxLength": 100000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "An internal note (when the ticket is not assigned)",
+            "title": "Note"
+          },
+          "notify": {
+            "default": "none",
+            "description": "Email the new-ticket notice: nobody (default), the requester, or the requester and collaborators",
+            "enum": [
+              "none",
+              "user",
+              "all"
+            ],
+            "title": "Notify",
+            "type": "string"
           },
           "phone": {
             "anyOf": [
@@ -6162,6 +7019,74 @@
             ],
             "title": "Priority Id"
           },
+          "response": {
+            "anyOf": [
+              {
+                "maxLength": 100000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A first reply to the requester (needs ticket.reply)",
+            "title": "Response"
+          },
+          "signature": {
+            "default": "none",
+            "description": "Signature on the emailed first reply",
+            "enum": [
+              "none",
+              "mine",
+              "dept"
+            ],
+            "title": "Signature",
+            "type": "string"
+          },
+          "sla_id": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "0 or absent: the help topic's or default SLA",
+            "title": "Sla Id"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "enum": [
+                  "Phone",
+                  "Email",
+                  "Other",
+                  "API"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Ticket source; the staff form offers Phone, Email and Other. Default API.",
+            "title": "Source"
+          },
+          "status_id": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Initial ticket status; default: the help topic's or the system's",
+            "title": "Status Id"
+          },
           "subject": {
             "maxLength": 255,
             "minLength": 1,
@@ -6178,6 +7103,19 @@
               }
             ],
             "title": "Topic Id"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "An existing user as the requester",
+            "title": "User Id"
           }
         },
         "required": [
@@ -6279,10 +7217,42 @@
             ],
             "title": "Due Date"
           },
+          "est_due_date": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "osTicket's due date: the manual one, else the SLA's estimate (what its pages show)",
+            "title": "Est Due Date"
+          },
           "is_answered": {
             "default": false,
             "title": "Is Answered",
             "type": "boolean"
+          },
+          "is_overdue": {
+            "default": false,
+            "description": "osTicket's overdue flag (what the Overdue queue lists)",
+            "title": "Is Overdue",
+            "type": "boolean"
+          },
+          "last_activity": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "osTicket's 'Last Updated' (lastupdate): moves on a message or a response",
+            "title": "Last Activity"
           },
           "number": {
             "title": "Number",
@@ -6577,10 +7547,42 @@
             ],
             "title": "Due Date"
           },
+          "est_due_date": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "osTicket's due date: the manual one, else the SLA's estimate (what its pages show)",
+            "title": "Est Due Date"
+          },
           "is_answered": {
             "default": false,
             "title": "Is Answered",
             "type": "boolean"
+          },
+          "is_overdue": {
+            "default": false,
+            "description": "osTicket's overdue flag (what the Overdue queue lists)",
+            "title": "Is Overdue",
+            "type": "boolean"
+          },
+          "last_activity": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "osTicket's 'Last Updated' (lastupdate): moves on a message or a response",
+            "title": "Last Activity"
           },
           "number": {
             "title": "Number",
@@ -6785,6 +7787,14 @@
       },
       "TicketNote": {
         "properties": {
+          "attachments": {
+            "description": "Files to attach (size-capped, see GET /settings/attachments)",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentUpload"
+            },
+            "title": "Attachments",
+            "type": "array"
+          },
           "message": {
             "minLength": 1,
             "title": "Message",
@@ -6887,13 +7897,27 @@
       },
       "TicketReply": {
         "properties": {
+          "attachments": {
+            "description": "Files to attach (size-capped, see GET /settings/attachments)",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentUpload"
+            },
+            "title": "Attachments",
+            "type": "array"
+          },
           "message": {
             "minLength": 1,
             "title": "Message",
             "type": "string"
           },
           "signature": {
-            "default": "",
+            "default": "none",
+            "description": "Signature appended to the outgoing email (osTicket's reply form): none, the agent's own, or the department's. It does not change the stored thread, only the email.",
+            "enum": [
+              "none",
+              "mine",
+              "dept"
+            ],
             "title": "Signature",
             "type": "string"
           }
@@ -7008,7 +8032,7 @@
                 "type": "null"
               }
             ],
-            "description": "Must be in the future; null clears it.",
+            "description": "UTC (an offset is converted); must be in the future; null clears it.",
             "title": "Due Date"
           },
           "note": {
@@ -7089,6 +8113,30 @@
           }
         },
         "title": "TicketUpdate",
+        "type": "object"
+      },
+      "TokenResponse": {
+        "properties": {
+          "access_token": {
+            "title": "Access Token",
+            "type": "string"
+          },
+          "expires_in": {
+            "description": "Seconds until the token expires",
+            "title": "Expires In",
+            "type": "integer"
+          },
+          "token_type": {
+            "default": "bearer",
+            "title": "Token Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "access_token",
+          "expires_in"
+        ],
+        "title": "TokenResponse",
         "type": "object"
       },
       "TopicCreate": {
@@ -8058,6 +9106,18 @@
             ],
             "description": "null until the user registers."
           },
+          "account_status": {
+            "default": "guest",
+            "description": "osTicket's directory Status: no account (Guest), Active (Registered), Locked (Pending Activation) or Locked (Administrative)",
+            "enum": [
+              "guest",
+              "active",
+              "pending",
+              "locked"
+            ],
+            "title": "Account Status",
+            "type": "string"
+          },
           "created": {
             "format": "date-time",
             "title": "Created",
@@ -8130,6 +9190,12 @@
             "title": "Status",
             "type": "integer"
           },
+          "ticket_count": {
+            "default": 0,
+            "description": "All of the user's tickets, as osTicket's directory counts them",
+            "title": "Ticket Count",
+            "type": "integer"
+          },
           "updated": {
             "format": "date-time",
             "title": "Updated",
@@ -8146,8 +9212,42 @@
         "title": "UserDetail",
         "type": "object"
       },
+      "UserImport": {
+        "description": "Import users from CSV text (osTicket's Import dialog). All-or-nothing: the first bad row refuses the lot.",
+        "properties": {
+          "csv": {
+            "description": "CSV text: a header row naming user-form fields (name, email, ...), or, with ``pasted``, one ``name, email`` per line",
+            "minLength": 1,
+            "title": "Csv",
+            "type": "string"
+          },
+          "pasted": {
+            "default": false,
+            "description": "Lines of ``name, email`` with no header row (the dialog's pasted box)",
+            "title": "Pasted",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "csv"
+        ],
+        "title": "UserImport",
+        "type": "object"
+      },
       "UserListItem": {
         "properties": {
+          "account_status": {
+            "default": "guest",
+            "description": "osTicket's directory Status: no account (Guest), Active (Registered), Locked (Pending Activation) or Locked (Administrative)",
+            "enum": [
+              "guest",
+              "active",
+              "pending",
+              "locked"
+            ],
+            "title": "Account Status",
+            "type": "string"
+          },
           "created": {
             "format": "date-time",
             "title": "Created",
@@ -8190,6 +9290,12 @@
           "status": {
             "default": 0,
             "title": "Status",
+            "type": "integer"
+          },
+          "ticket_count": {
+            "default": 0,
+            "description": "All of the user's tickets, as osTicket's directory counts them",
+            "title": "Ticket Count",
             "type": "integer"
           },
           "updated": {
@@ -8577,7 +9683,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -8607,7 +9715,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Me"
+                }
               }
             },
             "description": "Successful Response"
@@ -9777,6 +10887,79 @@
         ]
       }
     },
+    "/api/v1/forms/for/{kind}": {
+      "get": {
+        "description": "Enabled, agent-visible fields in osTicket's order, with whether each is editable and required for agents.",
+        "operationId": "forms_for_api_v1_forms_for__kind__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "kind",
+            "required": true,
+            "schema": {
+              "enum": [
+                "ticket",
+                "user",
+                "organization",
+                "task"
+              ],
+              "title": "Kind",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Tickets only: also the help topic's forms",
+            "in": "query",
+            "name": "topic_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Tickets only: also the help topic's forms",
+              "title": "Topic Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentForms"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "The form fields an agent fills in for a ticket, user, organization or task",
+        "tags": [
+          "forms"
+        ]
+      }
+    },
     "/api/v1/forms/{form_id}": {
       "delete": {
         "operationId": "delete_form_api_v1_forms__form_id__delete",
@@ -10518,6 +11701,25 @@
             }
           },
           {
+            "description": "Question, answer, keywords or category name/description contains (as kb.php's search)",
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Question, answer, keywords or category name/description contains (as kb.php's search)",
+              "title": "Q"
+            }
+          },
+          {
             "in": "query",
             "name": "page",
             "required": false,
@@ -10820,6 +12022,51 @@
         "operationId": "list_organizations_api_v1_orgs_get",
         "parameters": [
           {
+            "description": "Name contains (as osTicket's Organizations page)",
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Name contains (as osTicket's Organizations page)",
+              "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "name",
+              "enum": [
+                "name",
+                "users",
+                "created",
+                "updated"
+              ],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "descending",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Descending",
+              "type": "boolean"
+            }
+          },
+          {
             "in": "query",
             "name": "page",
             "required": false,
@@ -11114,6 +12361,32 @@
         "summary": "Update organization",
         "tags": [
           "users"
+        ]
+      }
+    },
+    "/api/v1/permissions": {
+      "get": {
+        "operationId": "list_permission_keys_api_v1_permissions_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermissionKeyList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "osTicket's permission keys and where each lives",
+        "tags": [
+          "roles"
         ]
       }
     },
@@ -11420,6 +12693,67 @@
         ]
       }
     },
+    "/api/v1/roles": {
+      "get": {
+        "operationId": "list_roles_api_v1_roles_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List roles",
+        "tags": [
+          "roles"
+        ]
+      }
+    },
     "/api/v1/search": {
       "get": {
         "description": "Search tickets (that you may see), and users and organizations (if you may use the directory).",
@@ -11481,6 +12815,32 @@
         "summary": "Global search",
         "tags": [
           "search"
+        ]
+      }
+    },
+    "/api/v1/settings/attachments": {
+      "get": {
+        "operationId": "attachment_limits_api_v1_settings_attachments_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttachmentLimits"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "How big an attachment may be",
+        "tags": [
+          "settings"
         ]
       }
     },
@@ -12185,6 +13545,30 @@
             }
           },
           {
+            "description": "One of osTicket's task queues (see GET /tasks/queues)",
+            "in": "query",
+            "name": "queue",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "open",
+                    "overdue",
+                    "assigned",
+                    "closed"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "One of osTicket's task queues (see GET /tasks/queues)",
+              "title": "Queue"
+            }
+          },
+          {
             "in": "query",
             "name": "sort",
             "required": false,
@@ -12196,7 +13580,9 @@
                 "due_date",
                 "number",
                 "title",
-                "dept"
+                "dept",
+                "ticket",
+                "closed"
               ],
               "title": "Sort",
               "type": "string"
@@ -12327,6 +13713,33 @@
           }
         ],
         "summary": "Create a task",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/api/v1/tasks/queues": {
+      "get": {
+        "description": "Open, Overdue, My Tasks (open and assigned to the agent) and Completed — each counted among the tasks the\nagent's own list shows.",
+        "operationId": "task_queues_api_v1_tasks_queues_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskQueueCounts"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Task counts for osTicket's queues",
         "tags": [
           "tasks"
         ]
@@ -12834,6 +14247,124 @@
         ]
       }
     },
+    "/api/v1/tasks/{task_id}/collaborators": {
+      "get": {
+        "operationId": "list_collaborators_api_v1_tasks__task_id__collaborators_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollaboratorList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List a task's collaborators",
+        "tags": [
+          "tasks"
+        ]
+      },
+      "post": {
+        "operationId": "add_collaborator_api_v1_tasks__task_id__collaborators_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketCollaboratorAdd"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Add a collaborator to a task",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
     "/api/v1/tasks/{task_id}/note": {
       "post": {
         "operationId": "add_note_api_v1_tasks__task_id__note_post",
@@ -13050,6 +14581,170 @@
           }
         ],
         "summary": "Post an update to the task's collaborators",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/api/v1/tasks/{task_id}/thread/{entry_id}": {
+      "patch": {
+        "operationId": "edit_entry_api_v1_tasks__task_id__thread__entry_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "entry_id",
+            "required": true,
+            "schema": {
+              "title": "Entry Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketEntryEdit"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Edit a thread entry (the entry gets a new id; the old one is hidden)",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/api/v1/tasks/{task_id}/thread/{entry_id}/resend": {
+      "post": {
+        "operationId": "resend_entry_api_v1_tasks__task_id__thread__entry_id__resend_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "entry_id",
+            "required": true,
+            "schema": {
+              "title": "Entry Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketEntryResend"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Resend a staff reply to the task's collaborators",
         "tags": [
           "tasks"
         ]
@@ -13544,6 +15239,24 @@
             }
           },
           {
+            "description": "Filter to the tickets of one end user (the requester)",
+            "in": "query",
+            "name": "user_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter to the tickets of one end user (the requester)",
+              "title": "User Id"
+            }
+          },
+          {
             "description": "Filter by answered flag",
             "in": "query",
             "name": "is_answered",
@@ -13616,6 +15329,7 @@
               "default": "updated",
               "enum": [
                 "updated",
+                "last_activity",
                 "created",
                 "due_date",
                 "number",
@@ -14287,6 +16001,75 @@
           }
         ],
         "summary": "Download a file attached to one of the ticket's thread entries",
+        "tags": [
+          "tickets"
+        ]
+      }
+    },
+    "/api/v1/tickets/{ticket_id}/canned/{canned_id}": {
+      "get": {
+        "description": "osTicket's own variable expansion, asked of osTicket (the bridge's read mode): the picked canned response as the\nreply box should receive it. 404 for a ticket the agent may not open or a response they may not use.",
+        "operationId": "render_canned_api_v1_tickets__ticket_id__canned__canned_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticket_id",
+            "required": true,
+            "schema": {
+              "title": "Ticket Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "canned_id",
+            "required": true,
+            "schema": {
+              "title": "Canned Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Strip the HTML (osTicket's plain-text reply box)",
+            "in": "query",
+            "name": "plain",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Strip the HTML (osTicket's plain-text reply box)",
+              "title": "Plain",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CannedRendered"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "A canned response with this ticket's variables filled in",
         "tags": [
           "tickets"
         ]
@@ -14997,6 +16780,125 @@
           }
         ],
         "summary": "Refer the ticket to an agent, team or department",
+        "tags": [
+          "tickets"
+        ]
+      }
+    },
+    "/api/v1/tickets/{ticket_id}/referrals": {
+      "get": {
+        "operationId": "list_referrals_api_v1_tickets__ticket_id__referrals_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticket_id",
+            "required": true,
+            "schema": {
+              "title": "Ticket Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReferralList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List the agents, teams and departments the ticket is referred to",
+        "tags": [
+          "tickets"
+        ]
+      }
+    },
+    "/api/v1/tickets/{ticket_id}/referrals/{referral_id}": {
+      "delete": {
+        "operationId": "remove_referral_api_v1_tickets__ticket_id__referrals__referral_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticket_id",
+            "required": true,
+            "schema": {
+              "title": "Ticket Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "referral_id",
+            "required": true,
+            "schema": {
+              "title": "Referral Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Remove a referral",
         "tags": [
           "tickets"
         ]
@@ -15849,6 +17751,52 @@
             }
           },
           {
+            "description": "Name, any email address, organization name or phone contains",
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Name, any email address, organization name or phone contains",
+              "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "name",
+              "enum": [
+                "name",
+                "email",
+                "status",
+                "created",
+                "updated"
+              ],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "descending",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Descending",
+              "type": "boolean"
+            }
+          },
+          {
             "in": "query",
             "name": "page",
             "required": false,
@@ -15962,6 +17910,71 @@
           }
         ],
         "summary": "Create user",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/import": {
+      "post": {
+        "description": "osTicket's own import: ``result.imported`` on the finished command is the number of users; a bad row refuses\nthe whole file (nothing is imported) with osTicket's reason in ``error_message``.",
+        "operationId": "import_users_api_v1_users_import_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserImport"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Import users from CSV",
         "tags": [
           "users"
         ]

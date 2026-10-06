@@ -252,6 +252,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/forms/for/{kind}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The form fields an agent fills in for a ticket, user, organization or task
+         * @description Enabled, agent-visible fields in osTicket's order, with whether each is editable and required for agents.
+         */
+        get: operations["forms_for_api_v1_forms_for__kind__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/forms/{form_id}": {
         parameters: {
             query?: never;
@@ -417,6 +437,23 @@ export interface paths {
         patch: operations["update_organization_api_v1_orgs__org_id__patch"];
         trace?: never;
     };
+    "/api/v1/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** osTicket's permission keys and where each lives */
+        get: operations["list_permission_keys_api_v1_permissions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/priorities": {
         parameters: {
             query?: never;
@@ -457,6 +494,23 @@ export interface paths {
         patch: operations["update_priority_api_v1_priorities__priority_id__patch"];
         trace?: never;
     };
+    "/api/v1/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List roles */
+        get: operations["list_roles_api_v1_roles_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/search": {
         parameters: {
             query?: never;
@@ -469,6 +523,23 @@ export interface paths {
          * @description Search tickets (that you may see), and users and organizations (if you may use the directory).
          */
         get: operations["global_search_api_v1_search_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/attachments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** How big an attachment may be */
+        get: operations["attachment_limits_api_v1_settings_attachments_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -570,6 +641,27 @@ export interface paths {
          * @description Create a standalone task or link it to a ticket via ``ticket_id``.
          */
         post: operations["create_task_api_v1_tasks__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/queues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Task counts for osTicket's queues
+         * @description Open, Overdue, My Tasks (open and assigned to the agent) and Completed — each counted among the tasks the
+         *     agent's own list shows.
+         */
+        get: operations["task_queues_api_v1_tasks_queues_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -680,6 +772,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tasks/{task_id}/collaborators": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List a task's collaborators */
+        get: operations["list_collaborators_api_v1_tasks__task_id__collaborators_get"];
+        put?: never;
+        /** Add a collaborator to a task */
+        post: operations["add_collaborator_api_v1_tasks__task_id__collaborators_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tasks/{task_id}/note": {
         parameters: {
             query?: never;
@@ -725,6 +835,40 @@ export interface paths {
         put?: never;
         /** Post an update to the task's collaborators */
         post: operations["reply_to_task_api_v1_tasks__task_id__reply_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/{task_id}/thread/{entry_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Edit a thread entry (the entry gets a new id; the old one is hidden) */
+        patch: operations["edit_entry_api_v1_tasks__task_id__thread__entry_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/tasks/{task_id}/thread/{entry_id}/resend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resend a staff reply to the task's collaborators */
+        post: operations["resend_entry_api_v1_tasks__task_id__thread__entry_id__resend_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -935,6 +1079,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tickets/{ticket_id}/canned/{canned_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A canned response with this ticket's variables filled in
+         * @description osTicket's own variable expansion, asked of osTicket (the bridge's read mode): the picked canned response as the
+         *     reply box should receive it. 404 for a ticket the agent may not open or a response they may not use.
+         */
+        get: operations["render_canned_api_v1_tickets__ticket_id__canned__canned_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tickets/{ticket_id}/change-owner": {
         parameters: {
             query?: never;
@@ -1068,6 +1233,40 @@ export interface paths {
         /** Refer the ticket to an agent, team or department */
         post: operations["refer_ticket_api_v1_tickets__ticket_id__refer_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/{ticket_id}/referrals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the agents, teams and departments the ticket is referred to */
+        get: operations["list_referrals_api_v1_tickets__ticket_id__referrals_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/{ticket_id}/referrals/{referral_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a referral */
+        delete: operations["remove_referral_api_v1_tickets__ticket_id__referrals__referral_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1251,6 +1450,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import users from CSV
+         * @description osTicket's own import: ``result.imported`` on the finished command is the number of users; a bad row refuses
+         *     the whole file (nothing is imported) with osTicket's reason in ``error_message``.
+         */
+        post: operations["import_users_api_v1_users_import_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/{user_id}": {
         parameters: {
             query?: never;
@@ -1392,6 +1612,101 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** AgentForm */
+        AgentForm: {
+            /** Fields */
+            fields: components["schemas"]["AgentFormField"][];
+            /** Id */
+            id: number;
+            /**
+             * Instructions
+             * @default
+             */
+            instructions: string;
+            /** Title */
+            title: string;
+            /** Type */
+            type: string;
+        };
+        /**
+         * AgentFormField
+         * @description A field as an agent sees it on osTicket's create/edit pages (enabled and agent-visible only).
+         */
+        AgentFormField: {
+            /** @default {} */
+            configuration: components["schemas"]["FieldConfiguration"];
+            /**
+             * Hint
+             * @default
+             */
+            hint: string;
+            /** Id */
+            id: number;
+            /**
+             * Is Deletable
+             * @default true
+             */
+            is_deletable: boolean;
+            /**
+             * Is Editable
+             * @description The agent may type an answer (otherwise it is shown read-only)
+             */
+            is_editable: boolean;
+            /**
+             * Is Enabled
+             * @default true
+             */
+            is_enabled: boolean;
+            /**
+             * Is Name Locked
+             * @default false
+             */
+            is_name_locked: boolean;
+            /** Is Required */
+            is_required: boolean;
+            /**
+             * Is Type Locked
+             * @default false
+             */
+            is_type_locked: boolean;
+            /** Label */
+            label: string;
+            /**
+             * List Items
+             * @description For a custom-list field (``list-<id>``): the enabled items; answers use the item id
+             */
+            list_items?: components["schemas"]["ListItem"][] | null;
+            /**
+             * Mode
+             * @description null when the flags match no standard mode.
+             */
+            mode?: ("optional" | "required" | "required_for_users" | "required_for_agents" | "internal_optional" | "internal_required" | "users_only") | null;
+            /** Name */
+            name: string;
+            /**
+             * Sort
+             * @default 0
+             */
+            sort: number;
+            /** Type */
+            type: string;
+        };
+        /**
+         * AgentForms
+         * @description The forms to render for one kind of object, in osTicket's order: the core form first, then a ticket's help
+         *     topic forms.
+         */
+        AgentForms: {
+            /** Forms */
+            forms: components["schemas"]["AgentForm"][];
+        };
+        /** AnswerChoice */
+        AnswerChoice: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+        };
         /** Assignee */
         Assignee: {
             /** Id */
@@ -1424,6 +1739,55 @@ export interface components {
             name: string;
             /** Size */
             size: number;
+        };
+        /**
+         * AttachmentLimits
+         * @description What an upload may be, so a client can refuse a file before sending it.
+         */
+        AttachmentLimits: {
+            /**
+             * Api Max File Bytes
+             * @description The API's cap per file
+             */
+            api_max_file_bytes: number;
+            /**
+             * Max File Bytes
+             * @description Largest file one request may carry: the smaller of osTicket's and the API's caps
+             */
+            max_file_bytes: number;
+            /**
+             * Max Files
+             * @description Most files in one request
+             */
+            max_files: number;
+            /**
+             * Max Total Bytes
+             * @description Most bytes of files in one request
+             */
+            max_total_bytes: number;
+            /**
+             * Osticket Max File Bytes
+             * @description osTicket's own maximum file size (Admin Panel > Settings > Tickets)
+             */
+            osticket_max_file_bytes: number;
+        };
+        /** AttachmentUpload */
+        AttachmentUpload: {
+            /**
+             * Content Type
+             * @description Media type, e.g. image/png; osTicket detects it if absent
+             */
+            content_type?: string | null;
+            /**
+             * Data
+             * @description The file's bytes, base64 encoded
+             */
+            data: string;
+            /**
+             * Name
+             * @description File name as it should appear on the thread
+             */
+            name: string;
         };
         /** BanlistCreate */
         BanlistCreate: {
@@ -1583,6 +1947,15 @@ export interface components {
              */
             updated: string;
         };
+        /** CannedFile */
+        CannedFile: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Size */
+            size: number;
+        };
         /** CannedListItem */
         CannedListItem: {
             /**
@@ -1617,6 +1990,32 @@ export interface components {
             page_size: number;
             /** Total */
             total?: number | null;
+        };
+        /**
+         * CannedRendered
+         * @description A canned response with the ticket's variables filled in (``%{ticket.name.first}``, ``%{ticket.number}``, ...),
+         *     as osTicket's reply form inserts it.
+         */
+        CannedRendered: {
+            /**
+             * Files
+             * @description Files attached to the canned response (names only)
+             */
+            files?: components["schemas"]["CannedFile"][];
+            /**
+             * Format
+             * @enum {string}
+             */
+            format: "html" | "text";
+            /** Id */
+            id: number;
+            /**
+             * Response
+             * @description The reply text, HTML unless ``plain`` was asked for
+             */
+            response: string;
+            /** Title */
+            title: string;
         };
         /** CannedUpdate */
         CannedUpdate: {
@@ -1660,6 +2059,12 @@ export interface components {
             created: string;
             /** Description */
             description: string;
+            /**
+             * Faq Count
+             * @description FAQs in this category and its sub-categories (osTicket's count)
+             * @default 0
+             */
+            faq_count: number;
             /** Id */
             id: number;
             /** Is Public */
@@ -1671,6 +2076,11 @@ export interface components {
              * @default
              */
             notes: string;
+            /**
+             * Parent Id
+             * @description The parent category, if this is a sub-category
+             */
+            parent_id?: number | null;
             /**
              * Updated
              * Format: date-time
@@ -1686,12 +2096,23 @@ export interface components {
             created: string;
             /** Description */
             description: string;
+            /**
+             * Faq Count
+             * @description FAQs in this category and its sub-categories (osTicket's count)
+             * @default 0
+             */
+            faq_count: number;
             /** Id */
             id: number;
             /** Is Public */
             is_public: boolean;
             /** Name */
             name: string;
+            /**
+             * Parent Id
+             * @description The parent category, if this is a sub-category
+             */
+            parent_id?: number | null;
             /**
              * Updated
              * Format: date-time
@@ -1835,8 +2256,29 @@ export interface components {
              */
             status: string;
         };
-        /** CustomFieldAnswer */
+        /**
+         * CustomFieldAnswer
+         * @description One stored answer. ``value`` / ``value_id`` are osTicket's stored form; ``kind`` and the typed values beside
+         *     them say what it means, so a client does not decode osTicket's JSON itself.
+         */
         CustomFieldAnswer: {
+            /**
+             * Bool Value
+             * @description A bool field's answer (kind=bool)
+             */
+            bool_value?: boolean | null;
+            /**
+             * Choices
+             * @description The selected choices of a choices or custom-list field (kind=choices), key and label; empty when nothing is selected. A custom-list field's key is the list item's id.
+             */
+            choices?: components["schemas"]["AnswerChoice"][] | null;
+            /**
+             * Kind
+             * @description text: use ``value``; bool: use ``bool_value``; choices: use ``choices``
+             * @default text
+             * @enum {string}
+             */
+            kind: "text" | "bool" | "choices";
             /** Label */
             label: string;
             /** Name */
@@ -2446,6 +2888,50 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** ListItem */
+        ListItem: {
+            /** Id */
+            id: number;
+            /** Value */
+            value: string;
+        };
+        /**
+         * Me
+         * @description The agent's identity and current access, read from osTicket on every request.
+         */
+        Me: {
+            /** Assigned Only */
+            assigned_only: boolean;
+            /**
+             * Department Ids
+             * @description Departments the agent can see
+             */
+            department_ids: number[];
+            /** Email */
+            email: string;
+            /**
+             * Global Permissions
+             * @description Global permission keys (user.*, org.*, faq.manage, ...)
+             */
+            global_permissions: string[];
+            /** Is Admin */
+            is_admin: boolean;
+            /** Name */
+            name: string;
+            /**
+             * Roles
+             * @description Department id -> the role permission keys held there
+             */
+            roles: {
+                [key: string]: string[];
+            };
+            /** Staff Id */
+            staff_id: number;
+            /** Team Ids */
+            team_ids: number[];
+            /** Username */
+            username: string;
+        };
         /** OrganizationCreate */
         OrganizationCreate: {
             /** Address */
@@ -2584,6 +3070,12 @@ export interface components {
              */
             updated: string;
             /**
+             * User Count
+             * @description Members (osTicket's Users column)
+             * @default 0
+             */
+            user_count: number;
+            /**
              * Website
              * @default
              */
@@ -2605,6 +3097,12 @@ export interface components {
              * Format: date-time
              */
             updated: string;
+            /**
+             * User Count
+             * @description Members (osTicket's Users column)
+             * @default 0
+             */
+            user_count: number;
         };
         /** OrganizationListResponse */
         OrganizationListResponse: {
@@ -2676,6 +3174,22 @@ export interface components {
             sharing?: ("disabled" | "primary_contacts" | "all_members") | null;
             /** Website */
             website?: string | null;
+        };
+        /** PermissionKey */
+        PermissionKey: {
+            /** Key */
+            key: string;
+            /**
+             * Kind
+             * @description global: stored on the staff member; role: stored on their roles, per department
+             * @enum {string}
+             */
+            kind: "global" | "role";
+        };
+        /** PermissionKeyList */
+        PermissionKeyList: {
+            /** Permissions */
+            permissions: components["schemas"]["PermissionKey"][];
         };
         /** PriorityCreate */
         PriorityCreate: {
@@ -2766,6 +3280,58 @@ export interface components {
         QueueCounts: {
             /** Queues */
             queues: components["schemas"]["QueueCount"][];
+        };
+        /** Referral */
+        Referral: {
+            /**
+             * Created
+             * Format: date-time
+             */
+            created: string;
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Referee Id */
+            referee_id: number;
+            /**
+             * Referee Type
+             * @enum {string}
+             */
+            referee_type: "agent" | "team" | "department";
+        };
+        /** ReferralList */
+        ReferralList: {
+            /** Referrals */
+            referrals: components["schemas"]["Referral"][];
+        };
+        /** Role */
+        Role: {
+            /** Enabled */
+            enabled: boolean;
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /**
+             * Permissions
+             * @description Role permission keys switched on for this role
+             */
+            permissions: string[];
+        };
+        /** RoleListResponse */
+        RoleListResponse: {
+            /** Items */
+            items: components["schemas"]["Role"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
         };
         /** SLACreate */
         SLACreate: {
@@ -3233,6 +3799,11 @@ export interface components {
             /** Closed */
             closed?: string | null;
             /**
+             * Collaborators
+             * @default []
+             */
+            collaborators: components["schemas"]["Collaborator"][];
+            /**
              * Created
              * Format: date-time
              */
@@ -3248,6 +3819,12 @@ export interface components {
             dept_name?: string | null;
             /** Due Date */
             due_date?: string | null;
+            /**
+             * Is Overdue
+             * @description osTicket's overdue flag on an open task
+             * @default false
+             */
+            is_overdue: boolean;
             /** Number */
             number: string;
             status: components["schemas"]["TaskStatusSchema"];
@@ -3264,6 +3841,11 @@ export interface components {
             thread: components["schemas"]["ThreadEntry"][];
             /** Ticket Id */
             ticket_id?: number | null;
+            /**
+             * Ticket Number
+             * @description The linked ticket's number (osTicket's Ticket column)
+             */
+            ticket_number?: string | null;
             /** Title */
             title: string;
             /**
@@ -3314,6 +3896,12 @@ export interface components {
             dept_name?: string | null;
             /** Due Date */
             due_date?: string | null;
+            /**
+             * Is Overdue
+             * @description osTicket's overdue flag on an open task
+             * @default false
+             */
+            is_overdue: boolean;
             /** Number */
             number: string;
             status: components["schemas"]["TaskStatusSchema"];
@@ -3325,6 +3913,11 @@ export interface components {
             team_name?: string | null;
             /** Ticket Id */
             ticket_id?: number | null;
+            /**
+             * Ticket Number
+             * @description The linked ticket's number (osTicket's Ticket column)
+             */
+            ticket_number?: string | null;
             /** Title */
             title: string;
             /**
@@ -3346,6 +3939,11 @@ export interface components {
         };
         /** TaskNote */
         TaskNote: {
+            /**
+             * Attachments
+             * @description Files to attach (size-capped, see GET /settings/attachments)
+             */
+            attachments?: components["schemas"]["AttachmentUpload"][];
             /** Note */
             note: string;
             /**
@@ -3353,6 +3951,26 @@ export interface components {
              * @default
              */
             title: string;
+        };
+        /** TaskQueueCount */
+        TaskQueueCount: {
+            /** Count */
+            count: number;
+            /**
+             * Key
+             * @enum {string}
+             */
+            key: "open" | "overdue" | "assigned" | "closed";
+            /** Title */
+            title: string;
+        };
+        /**
+         * TaskQueueCounts
+         * @description osTicket's task queues in its own order, counted over the agent's task list.
+         */
+        TaskQueueCounts: {
+            /** Queues */
+            queues: components["schemas"]["TaskQueueCount"][];
         };
         /** TaskReopen */
         TaskReopen: {
@@ -3367,6 +3985,11 @@ export interface components {
          * @description An update posted to the task's collaborators.
          */
         TaskReply: {
+            /**
+             * Attachments
+             * @description Files to attach (size-capped, see GET /settings/attachments)
+             */
+            attachments?: components["schemas"]["AttachmentUpload"][];
             /** Message */
             message: string;
         };
@@ -3532,6 +4155,13 @@ export interface components {
              * Format: date-time
              */
             created: string;
+            /**
+             * Format
+             * @description How osTicket stores the body
+             * @default text
+             * @enum {string}
+             */
+            format: "text" | "html";
             /** Id */
             id: number;
             /** Ip Address */
@@ -3611,8 +4241,27 @@ export interface components {
             /** Is Cc */
             is_cc?: boolean | null;
         };
-        /** TicketCreate */
+        /**
+         * TicketCreate
+         * @description osTicket's staff "Open a New Ticket" form. The requester is an existing user (``user_id``) or a name and
+         *     email (an unknown email makes a new user). Nothing is emailed unless ``notify`` asks for it.
+         */
         TicketCreate: {
+            /**
+             * Assign Agent Id
+             * @description Assign to this agent (needs ticket.assign)
+             */
+            assign_agent_id?: number | null;
+            /**
+             * Assign Team Id
+             * @description Assign to this team (needs ticket.assign)
+             */
+            assign_team_id?: number | null;
+            /**
+             * Cc User Ids
+             * @description Users added as collaborators (Cc)
+             */
+            cc_user_ids?: number[] | null;
             /**
              * Custom Fields
              * @description Answers to custom form fields, by variable name.
@@ -3622,20 +4271,69 @@ export interface components {
             } | null;
             /** Dept Id */
             dept_id?: number | null;
+            /**
+             * Due Date
+             * @description UTC (an offset is converted); must be in the future
+             */
+            due_date?: string | null;
             /** Email */
             email?: string | null;
             /** Message */
             message: string;
             /** Name */
             name?: string | null;
+            /**
+             * Note
+             * @description An internal note (when the ticket is not assigned)
+             */
+            note?: string | null;
+            /**
+             * Notify
+             * @description Email the new-ticket notice: nobody (default), the requester, or the requester and collaborators
+             * @default none
+             * @enum {string}
+             */
+            notify: "none" | "user" | "all";
             /** Phone */
             phone?: string | null;
             /** Priority Id */
             priority_id?: number | null;
+            /**
+             * Response
+             * @description A first reply to the requester (needs ticket.reply)
+             */
+            response?: string | null;
+            /**
+             * Signature
+             * @description Signature on the emailed first reply
+             * @default none
+             * @enum {string}
+             */
+            signature: "none" | "mine" | "dept";
+            /**
+             * Sla Id
+             * @description 0 or absent: the help topic's or default SLA
+             */
+            sla_id?: number | null;
+            /**
+             * Source
+             * @description Ticket source; the staff form offers Phone, Email and Other. Default API.
+             */
+            source?: ("Phone" | "Email" | "Other" | "API") | null;
+            /**
+             * Status Id
+             * @description Initial ticket status; default: the help topic's or the system's
+             */
+            status_id?: number | null;
             /** Subject */
             subject: string;
             /** Topic Id */
             topic_id?: number | null;
+            /**
+             * User Id
+             * @description An existing user as the requester
+             */
+            user_id?: number | null;
         };
         /**
          * TicketDetail
@@ -3670,10 +4368,26 @@ export interface components {
             /** Due Date */
             due_date?: string | null;
             /**
+             * Est Due Date
+             * @description osTicket's due date: the manual one, else the SLA's estimate (what its pages show)
+             */
+            est_due_date?: string | null;
+            /**
              * Is Answered
              * @default false
              */
             is_answered: boolean;
+            /**
+             * Is Overdue
+             * @description osTicket's overdue flag (what the Overdue queue lists)
+             * @default false
+             */
+            is_overdue: boolean;
+            /**
+             * Last Activity
+             * @description osTicket's 'Last Updated' (lastupdate): moves on a message or a response
+             */
+            last_activity?: string | null;
             /** Number */
             number: string;
             /** Priority Id */
@@ -3771,10 +4485,26 @@ export interface components {
             /** Due Date */
             due_date?: string | null;
             /**
+             * Est Due Date
+             * @description osTicket's due date: the manual one, else the SLA's estimate (what its pages show)
+             */
+            est_due_date?: string | null;
+            /**
              * Is Answered
              * @default false
              */
             is_answered: boolean;
+            /**
+             * Is Overdue
+             * @description osTicket's overdue flag (what the Overdue queue lists)
+             * @default false
+             */
+            is_overdue: boolean;
+            /**
+             * Last Activity
+             * @description osTicket's 'Last Updated' (lastupdate): moves on a message or a response
+             */
+            last_activity?: string | null;
             /** Number */
             number: string;
             /** Priority Id */
@@ -3831,6 +4561,11 @@ export interface components {
         };
         /** TicketNote */
         TicketNote: {
+            /**
+             * Attachments
+             * @description Files to attach (size-capped, see GET /settings/attachments)
+             */
+            attachments?: components["schemas"]["AttachmentUpload"][];
             /** Message */
             message: string;
             /**
@@ -3887,13 +4622,20 @@ export interface components {
         };
         /** TicketReply */
         TicketReply: {
+            /**
+             * Attachments
+             * @description Files to attach (size-capped, see GET /settings/attachments)
+             */
+            attachments?: components["schemas"]["AttachmentUpload"][];
             /** Message */
             message: string;
             /**
              * Signature
-             * @default
+             * @description Signature appended to the outgoing email (osTicket's reply form): none, the agent's own, or the department's. It does not change the stored thread, only the email.
+             * @default none
+             * @enum {string}
              */
-            signature: string;
+            signature: "none" | "mine" | "dept";
         };
         /** TicketStatusSchema */
         TicketStatusSchema: {
@@ -3928,7 +4670,7 @@ export interface components {
             } | null;
             /**
              * Due Date
-             * @description Must be in the future; null clears it.
+             * @description UTC (an offset is converted); must be in the future; null clears it.
              */
             due_date?: string | null;
             /**
@@ -3949,6 +4691,21 @@ export interface components {
             subject?: string | null;
             /** Topic Id */
             topic_id?: number | null;
+        };
+        /** TokenResponse */
+        TokenResponse: {
+            /** Access Token */
+            access_token: string;
+            /**
+             * Expires In
+             * @description Seconds until the token expires
+             */
+            expires_in: number;
+            /**
+             * Token Type
+             * @default bearer
+             */
+            token_type: string;
         };
         /** TopicCreate */
         TopicCreate: {
@@ -4282,6 +5039,13 @@ export interface components {
             /** @description null until the user registers. */
             account?: components["schemas"]["UserAccountInfo"] | null;
             /**
+             * Account Status
+             * @description osTicket's directory Status: no account (Guest), Active (Registered), Locked (Pending Activation) or Locked (Administrative)
+             * @default guest
+             * @enum {string}
+             */
+            account_status: "guest" | "active" | "pending" | "locked";
+            /**
              * Created
              * Format: date-time
              */
@@ -4327,13 +5091,43 @@ export interface components {
              */
             status: number;
             /**
+             * Ticket Count
+             * @description All of the user's tickets, as osTicket's directory counts them
+             * @default 0
+             */
+            ticket_count: number;
+            /**
              * Updated
              * Format: date-time
              */
             updated: string;
         };
+        /**
+         * UserImport
+         * @description Import users from CSV text (osTicket's Import dialog). All-or-nothing: the first bad row refuses the lot.
+         */
+        UserImport: {
+            /**
+             * Csv
+             * @description CSV text: a header row naming user-form fields (name, email, ...), or, with ``pasted``, one ``name, email`` per line
+             */
+            csv: string;
+            /**
+             * Pasted
+             * @description Lines of ``name, email`` with no header row (the dialog's pasted box)
+             * @default false
+             */
+            pasted: boolean;
+        };
         /** UserListItem */
         UserListItem: {
+            /**
+             * Account Status
+             * @description osTicket's directory Status: no account (Guest), Active (Registered), Locked (Pending Activation) or Locked (Administrative)
+             * @default guest
+             * @enum {string}
+             */
+            account_status: "guest" | "active" | "pending" | "locked";
             /**
              * Created
              * Format: date-time
@@ -4354,6 +5148,12 @@ export interface components {
              * @default 0
              */
             status: number;
+            /**
+             * Ticket Count
+             * @description All of the user's tickets, as osTicket's directory counts them
+             * @default 0
+             */
+            ticket_count: number;
             /**
              * Updated
              * Format: date-time
@@ -4472,7 +5272,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["TokenResponse"];
                 };
             };
             /** @description Validation Error */
@@ -4501,7 +5301,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["Me"];
                 };
             };
         };
@@ -5143,6 +5943,40 @@ export interface operations {
             };
         };
     };
+    forms_for_api_v1_forms_for__kind__get: {
+        parameters: {
+            query?: {
+                /** @description Tickets only: also the help topic's forms */
+                topic_id?: number | null;
+            };
+            header?: never;
+            path: {
+                kind: "ticket" | "user" | "organization" | "task";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentForms"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_form_api_v1_forms__form_id__get: {
         parameters: {
             query?: never;
@@ -5529,6 +6363,8 @@ export interface operations {
             query?: {
                 /** @description Filter by category ID */
                 category_id?: number | null;
+                /** @description Question, answer, keywords or category name/description contains (as kb.php's search) */
+                q?: string | null;
                 page?: number;
                 page_size?: number;
             };
@@ -5697,6 +6533,10 @@ export interface operations {
     list_organizations_api_v1_orgs_get: {
         parameters: {
             query?: {
+                /** @description Name contains (as osTicket's Organizations page) */
+                q?: string | null;
+                sort?: "name" | "users" | "created" | "updated";
+                descending?: boolean;
                 page?: number;
                 page_size?: number;
             };
@@ -5858,6 +6698,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_permission_keys_api_v1_permissions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PermissionKeyList"];
                 };
             };
         };
@@ -6030,6 +6890,38 @@ export interface operations {
             };
         };
     };
+    list_roles_api_v1_roles_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     global_search_api_v1_search_get: {
         parameters: {
             query: {
@@ -6059,6 +6951,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    attachment_limits_api_v1_settings_attachments_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttachmentLimits"];
                 };
             };
         };
@@ -6412,7 +7324,9 @@ export interface operations {
                 ticket_id?: number | null;
                 /** @description Task number or title (contains) */
                 q?: string | null;
-                sort?: "updated" | "created" | "due_date" | "number" | "title" | "dept";
+                /** @description One of osTicket's task queues (see GET /tasks/queues) */
+                queue?: ("open" | "overdue" | "assigned" | "closed") | null;
+                sort?: "updated" | "created" | "due_date" | "number" | "title" | "dept" | "ticket" | "closed";
                 descending?: boolean;
                 page?: number;
                 page_size?: number;
@@ -6474,6 +7388,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    task_queues_api_v1_tasks_queues_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskQueueCounts"];
                 };
             };
         };
@@ -6754,6 +7688,74 @@ export interface operations {
             };
         };
     };
+    list_collaborators_api_v1_tasks__task_id__collaborators_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollaboratorList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_collaborator_api_v1_tasks__task_id__collaborators_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                task_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TicketCollaboratorAdd"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     add_note_api_v1_tasks__task_id__note_post: {
         parameters: {
             query?: never;
@@ -6842,6 +7844,82 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["TaskReply"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    edit_entry_api_v1_tasks__task_id__thread__entry_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                task_id: number;
+                entry_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TicketEntryEdit"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resend_entry_api_v1_tasks__task_id__thread__entry_id__resend_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                task_id: number;
+                entry_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TicketEntryResend"];
             };
         };
         responses: {
@@ -7085,13 +8163,15 @@ export interface operations {
                 topic_id?: number | null;
                 /** @description Filter by SLA plan ID */
                 sla_id?: number | null;
+                /** @description Filter to the tickets of one end user (the requester) */
+                user_id?: number | null;
                 /** @description Filter by answered flag */
                 is_answered?: boolean | null;
                 /** @description Ticket number, subject, or the requester's name or email (contains) */
                 q?: string | null;
                 /** @description One of osTicket's default queues (see GET /tickets/queues) */
                 queue?: ("open" | "unanswered" | "answered" | "overdue" | "mine" | "assigned_me" | "assigned_teams" | "closed") | null;
-                sort?: "updated" | "created" | "due_date" | "number" | "subject" | "status" | "dept" | "priority" | "assignee" | "requester";
+                sort?: "updated" | "last_activity" | "created" | "due_date" | "number" | "subject" | "status" | "dept" | "priority" | "assignee" | "requester";
                 descending?: boolean;
                 /** @description Page number (1-indexed) */
                 page?: number;
@@ -7454,6 +8534,41 @@ export interface operations {
             };
         };
     };
+    render_canned_api_v1_tickets__ticket_id__canned__canned_id__get: {
+        parameters: {
+            query?: {
+                /** @description Strip the HTML (osTicket's plain-text reply box) */
+                plain?: boolean;
+            };
+            header?: never;
+            path: {
+                ticket_id: number;
+                canned_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CannedRendered"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     change_owner_api_v1_tickets__ticket_id__change_owner_post: {
         parameters: {
             query?: never;
@@ -7795,6 +8910,71 @@ export interface operations {
                 "application/json": components["schemas"]["TicketRefer"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_referrals_api_v1_tickets__ticket_id__referrals_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticket_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReferralList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_referral_api_v1_tickets__ticket_id__referrals__referral_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                ticket_id: number;
+                referral_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             202: {
@@ -8246,6 +9426,10 @@ export interface operations {
             query?: {
                 /** @description Filter by organization ID */
                 org_id?: number | null;
+                /** @description Name, any email address, organization name or phone contains */
+                q?: string | null;
+                sort?: "name" | "email" | "status" | "created" | "updated";
+                descending?: boolean;
                 page?: number;
                 page_size?: number;
             };
@@ -8287,6 +9471,41 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["UserCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_users_api_v1_users_import_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserImport"];
             };
         };
         responses: {

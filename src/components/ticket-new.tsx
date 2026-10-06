@@ -106,8 +106,8 @@ export function TicketNew() {
         </Section>
 
         <Section title="Ticket Information and Options">
-          <Row label="Help Topic">
-            <select name="topic_id" className={field} defaultValue="">
+          <Row label="Help Topic" required>
+            <select name="topic_id" required className={field} defaultValue="">
               <option value="">— Select Help Topic —</option>
               {topics.data?.map((t) => (
                 <option key={t.id} value={t.id}>

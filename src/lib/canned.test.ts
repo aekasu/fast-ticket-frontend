@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { formatDateTime } from "./format";
 import { expandCanned, htmlToText, type CannedContext } from "./canned";
 
 const ctx: CannedContext = {
@@ -6,7 +7,7 @@ const ctx: CannedContext = {
     id: 7,
     number: "387564",
     subject: "Printer offline",
-    created: "2026-09-29T19:12:43",
+    created: "2026-09-29T19:12:43Z",
     status: "Open",
     priority: "High",
     topic: "General Inquiry",
@@ -23,7 +24,7 @@ describe("expandCanned", () => {
       "Hi %{ticket.name.first},\n\nYour ticket #%{ticket.number} created on %{ticket.create_date} is in\n%{ticket.dept.name} department.",
       ctx,
     );
-    expect(text).toBe("Hi Grace,\n\nYour ticket #387564 created on 9/29/26 7:12 PM is in\nSupport department.");
+    expect(text).toBe(`Hi Grace,\n\nYour ticket #387564 created on ${formatDateTime("2026-09-29T19:12:43Z")} is in\nSupport department.`);
     expect(unresolved).toEqual([]);
   });
 

@@ -25,6 +25,7 @@ test.describe("custom fields on tickets", () => {
       await page.getByLabel("Email Address").fill(`e2e.cf.${stamp}@example.com`);
       await page.getByLabel("Full Name").fill("E2E CF User");
       await page.getByLabel("Issue Summary").fill(`[e2e] custom fields ${stamp}`);
+      await page.getByLabel("Help Topic").selectOption({ label: "General Inquiry" });
       await page.getByLabel("Issue Details").fill("Has custom answers.");
       await expect(page.getByLabel("E2E CF Text")).toBeVisible();
       await page.getByLabel("E2E CF Text").fill("typed answer");

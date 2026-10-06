@@ -1,6 +1,6 @@
-// The API sends naive ISO timestamps ("2026-10-04T12:00:00"); they are UTC (see notes/BACKEND_REQUESTS.md).
+// Every timestamp the API sends is ISO 8601 in UTC with a "Z" (`2026-10-03T18:18:02Z`), so it is an instant as it stands.
 export function parseApiDate(value: string): Date {
-  return new Date(/[zZ]|[+-]\d\d:?\d\d$/.test(value) ? value : `${value}Z`);
+  return new Date(value);
 }
 
 /** osTicket's date-time style, as its lists show it: `10/4/26 6:45 PM` (no zero padding, 12-hour clock). */

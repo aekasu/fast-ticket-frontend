@@ -35,8 +35,9 @@ export async function deleteTicketAndUser(request: APIRequestContext, ticketId: 
 }
 
 /** Create a ticket; returns its id and a function that deletes it (and its requester) again. */
-export async function createTicket(request: APIRequestContext, body: { subject: string; message: string; name?: string; email?: string }) {
-  const done = await command(request, "POST", "/api/v1/tickets/", { name: "E2E Tester", email: "e2e@example.com", ...body });
+export async function createTicket(request: APIRequestContext, body: { subject: string; message: string; name?: string; email?: string; topic_id?: number }) {
+  // osTicket's staff form requires a help topic (the API refuses a create without one); 1 is "General Inquiry".
+  const done = await command(request, "POST", "/api/v1/tickets/", { name: "E2E Tester", email: "e2e@example.com", topic_id: 1, ...body });
   expect(done.status, done.error_message ?? "").toBe("done");
   const id = done.result.ticket_id as number;
   return { id, remove: () => deleteTicketAndUser(request, id) };
