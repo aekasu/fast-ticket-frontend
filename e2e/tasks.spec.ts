@@ -138,6 +138,42 @@ test.describe("tasks as the admin, compared with osTicket's Tasks page", () => {
     }
   });
 
+  test("a task's collaborator is added, and an update is edited and sent again", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const task = await createTask(request, { title: "[e2e] task people", description: "Collaborate." });
+    try {
+      await page.goto(`/tasks/${task.id}`);
+      await expect(page.getByRole("heading", { name: /Task Thread/ })).toBeVisible();
+      const section = page.getByRole("region", { name: "Task collaborators" });
+      await expect(section).toContainText("No collaborators.");
+      await section.getByRole("button", { name: "Add Collaborator" }).click();
+      const users = (await (await request.get("/api/v1/users?page_size=1&sort=name")).json()) as { items: { id: number; name: string }[] };
+      await section.getByLabel("User").selectOption(String(users.items[0].id));
+      await section.getByRole("button", { name: "Add Collaborator" }).click();
+      await expect(page.getByText(`${users.items[0].name} added as a collaborator.`)).toBeVisible();
+      await expect(section).toContainText(users.items[0].name);
+      const detail = (await (await request.get(`/api/v1/tasks/${task.id}`)).json()) as { collaborators: { user_id: number }[] };
+      expect(detail.collaborators.map((c) => c.user_id)).toEqual([users.items[0].id]);
+      expect((await osticketTask(os, task.id)).html).toContain(users.items[0].name);
+
+      await page.getByLabel("Update", { exact: true }).fill("First wording of the update.");
+      await page.getByRole("button", { name: "Post Update" }).last().click();
+      await expect(page.getByText("Update posted.")).toBeVisible();
+      // The update is the last entry; saving gives it a new id, so the notice goes with the old entry and the thread is the proof.
+      await page.getByRole("button", { name: /^Edit this (reply|note|message)$/ }).last().click();
+      await page.getByLabel(/^Edit the /).fill("Second wording of the update.");
+      await page.getByRole("button", { name: "Save changes" }).click();
+      await expect(page.getByText("Second wording of the update.")).toBeVisible();
+      const html = (await osticketTask(os, task.id)).html;
+      expect(html).toContain("Second wording of the update.");
+      await page.getByRole("button", { name: "Resend this reply" }).last().click();
+      await expect(page.getByText("The reply was sent again.")).toBeVisible();
+    } finally {
+      await task.remove();
+      await os.dispose();
+    }
+  });
+
   test("Add Task from a ticket creates a task linked to it", async ({ page, request }) => {
     const os = await osticketAdmin();
     const ticket = await createTicket(request, { subject: "[e2e] ticket with a task", message: "Needs a task." });

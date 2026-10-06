@@ -22,8 +22,8 @@ test.describe("Admin Panel as the admin", () => {
       await expect(page.getByRole("heading", { name: group, exact: true })).toBeVisible();
     }
     await expect(page.getByRole("link", { name: "Help Topics" }).first()).toBeVisible();
-    await page.goto("/admin/roles");
-    await expect(page.getByRole("heading", { name: "Roles" })).toBeVisible();
+    await page.goto("/admin/logs");
+    await expect(page.getByRole("heading", { name: "System Logs" })).toBeVisible();
     await expect(page.getByRole("status")).toContainText("no endpoint in the API");
     await page.goto("/admin/no-such-page");
     await expect(page.getByText("This page could not be found.")).toBeVisible();
@@ -51,6 +51,22 @@ test.describe("Admin Panel as the admin", () => {
       const shown = await page.locator("tbody tr td:first-child").allTextContents();
       expect(shown.map((t) => t.trim()).sort(), l.slug).toEqual(api.map((i) => l.nameKey(i)).sort());
     }
+    await os.dispose();
+  });
+
+  test("the roles list matches osTicket's, read-only", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const api = ((await (await request.get("/api/v1/roles?page_size=100")).json()) as { items: { name: string; enabled: boolean }[] }).items;
+    const theirs = (await osticketRows(os, "roles.php")).map((cells) => cells.join(" | "));
+    expect(theirs.length).toBe(api.length);
+    for (const r of api) expect(theirs.join("\n"), r.name).toContain(r.name);
+    await page.goto("/admin/roles");
+    await expect(page.locator("tbody tr").first()).toBeVisible();
+    const shown = await page.locator("tbody tr td:first-child").allTextContents();
+    expect(shown.map((t) => t.trim()).sort()).toEqual(api.map((r) => r.name).sort());
+    // No create, and the rows are not links: the API only lists roles.
+    await expect(page.getByRole("link", { name: /^Add New/ })).toHaveCount(0);
+    await expect(page.locator("tbody tr td:first-child a")).toHaveCount(0);
     await os.dispose();
   });
 
@@ -242,7 +258,7 @@ test.describe("Admin Panel as the admin", () => {
       await page.getByLabel(/^Email Address/).fill(`${username}@example.com`);
       await page.getByLabel(/^Password/).fill(`Pw-${s}-Aa1!`);
       await page.getByLabel(/^Primary Department/).selectOption({ label: "Support" });
-      await page.getByLabel(/^Primary Role ID/).fill("3");
+      await page.getByLabel(/^Primary Role/).selectOption("3");
       await page.getByRole("button", { name: "Add Agent" }).click();
       await expect(page).toHaveURL(/\/admin\/staff\/\d+$/);
       id = idFromUrl(page);

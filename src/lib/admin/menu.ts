@@ -71,7 +71,7 @@ export const ADMIN_MENU: AdminGroup[] = [
     items: [
       { label: "Agents", slug: "staff", resource: "staff", page: "staff.php" },
       { label: "Teams", slug: "teams", resource: "teams", page: "teams.php" },
-      { label: "Roles", slug: "roles", page: "roles.php" },
+      { label: "Roles", slug: "roles", resource: "roles", page: "roles.php" },
       { label: "Departments", slug: "departments", resource: "departments", page: "departments.php" },
     ],
   },

@@ -129,7 +129,7 @@ test.describe("owner, collaborators and delete as the admin, confirmed on osTick
     try {
       await page.goto(`/tickets/${ticket.id}`);
       await page.getByRole("button", { name: "Refer", exact: true }).click();
-      await expect(page.getByText(/cannot be (listed|created)|not.*listed or removed/)).toBeVisible();
+      await expect(page.getByText("This ticket has not been referred.")).toBeVisible();
       await page.getByRole("radio", { name: "Department" }).check();
       await page.getByLabel("Refer to").selectOption({ label: "Sales" });
       await page.getByLabel("Comments").fill("e2e referral to a department");
@@ -137,6 +137,7 @@ test.describe("owner, collaborators and delete as the admin, confirmed on osTick
       await expect(page.getByText("Ticket referred.")).toBeVisible();
 
       await page.getByRole("button", { name: "Refer", exact: true }).click();
+      await expect(page.getByRole("list", { name: "Referrals" })).toContainText("Sales (department)");
       await page.getByRole("radio", { name: "Agent" }).check();
       await page.getByLabel("Refer to").selectOption({ label: "Frontend Agent" });
       await page.getByRole("button", { name: "Refer", exact: true }).last().click();
@@ -148,6 +149,17 @@ test.describe("owner, collaborators and delete as the admin, confirmed on osTick
       expect(theirs).toContain("e2e referral to a department");
       // Our thread shows osTicket's "Referral" notes too.
       await expect(page.getByText("e2e referral to a department")).toBeVisible();
+
+      // Both referrals are listed, and one can be removed.
+      await page.getByRole("button", { name: "Refer", exact: true }).click();
+      const list = page.getByRole("list", { name: "Referrals" });
+      await expect(list).toContainText("Sales (department)");
+      await expect(list).toContainText("Frontend Agent (agent)");
+      await page.getByRole("button", { name: "Remove Sales" }).click();
+      await expect(page.getByText("Referral to Sales removed.")).toBeVisible();
+      await expect(list).not.toContainText("Sales (department)");
+      const left = (await (await request.get(`/api/v1/tickets/${ticket.id}/referrals`)).json()) as { referrals: { name: string }[] };
+      expect(left.referrals.map((r) => r.name)).toEqual(["Frontend Agent"]);
     } finally {
       await ticket.remove();
       await os.dispose();

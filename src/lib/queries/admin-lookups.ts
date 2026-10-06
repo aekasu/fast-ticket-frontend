@@ -19,6 +19,30 @@ export function useAgentDirectory() {
   });
 }
 
+/** Roles (admin-only), for the role selects. */
+export function useRoles() {
+  return useQuery({
+    queryKey: ["admin", "roles", "all"],
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data } = await api.GET("/api/v1/roles", { params: { query: { page: 1, page_size: 200 } } });
+      return data?.items ?? [];
+    },
+  });
+}
+
+/** The permission keys the API knows: global ones are stored on an agent, role ones on a role. */
+export function usePermissionKeys() {
+  return useQuery({
+    queryKey: ["reference", "permissions"],
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data } = await api.GET("/api/v1/permissions");
+      return data?.permissions ?? [];
+    },
+  });
+}
+
 /** Names for the ids an admin list or form shows, and the options for its selects. */
 export function useAdminLookups() {
   const departments = useDepartments();
@@ -26,6 +50,7 @@ export function useAdminLookups() {
   const slas = useSlas();
   const agents = useAgentDirectory();
   const topics = useTopics();
+  const roles = useRoles();
 
   const options = {
     departments: (departments.data ?? []).map((d): Option => ({ value: d.id, label: d.name })),
@@ -33,9 +58,10 @@ export function useAdminLookups() {
     slas: (slas.data ?? []).map((s): Option => ({ value: s.id, label: s.name })),
     agents: (agents.data ?? []).map((a): Option => ({ value: a.id, label: a.name })),
     topics: (topics.data ?? []).map((t): Option => ({ value: t.id, label: t.topic })),
+    roles: (roles.data ?? []).map((r): Option => ({ value: r.id, label: r.name })),
   };
   const names = Object.fromEntries(Object.entries(options).map(([k, list]) => [k, new Map(list.map((o) => [o.value, o.label]))])) as Record<keyof typeof options, Map<number, string>>;
-  return { options, names, loading: departments.isLoading || priorities.isLoading || slas.isLoading || agents.isLoading || topics.isLoading };
+  return { options, names, loading: departments.isLoading || priorities.isLoading || slas.isLoading || agents.isLoading || topics.isLoading || roles.isLoading };
 }
 export type AdminLookups = ReturnType<typeof useAdminLookups>;
 
@@ -73,9 +99,4 @@ export function useFormsList() {
       return data?.items ?? [];
     },
   });
-}
-
-/** Roles cannot be listed through the API: the ids already in use by agents are the only ones known. */
-export function knownRoleIds(staff: { role_id?: number | null }[], extra: number[] = []): number[] {
-  return [...new Set([...staff.map((s) => s.role_id ?? 0), ...extra].filter((id) => id > 0))].sort((a, b) => a - b);
 }

@@ -102,7 +102,7 @@ export function AdminList({ resourceKey }: { resourceKey: string }) {
               <tr key={String(item.id)} className="border-t border-slate-200 hover:bg-sky-50">
                 {resource.columns.map((c, i) => (
                   <td key={c.label} className="whitespace-nowrap px-3 py-2">
-                    {i === 0 ? (
+                    {i === 0 && !resource.listOnly ? (
                       <Link href={`/admin/${resource.key}/${item.id}`} className="font-medium text-sky-800 hover:underline">
                         {c.value(item, lk) || "—"}
                       </Link>

@@ -85,7 +85,7 @@ test.describe("users and organizations as the admin, compared with osTicket", ()
     await expect(page.locator("tbody tr td:first-child a", { hasText: target.name }).first()).toBeVisible();
     await page.getByRole("button", { name: "Clear" }).click();
     await expect(page).not.toHaveURL(/q=/);
-    await page.getByRole("button", { name: /^Name/ }).click();
+    // The list starts sorted by name, ascending; the header toggles it.
     await page.getByRole("button", { name: /^Name/ }).click();
     await expect(page).toHaveURL(/sort=name&dir=desc/);
     const byName = (a: string, b: string) => b.localeCompare(a, undefined, { sensitivity: "base" });

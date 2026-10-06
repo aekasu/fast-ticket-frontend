@@ -73,3 +73,16 @@ export function useAssignees(ticketId: number, enabled: boolean) {
     },
   });
 }
+
+/** The referrals on a ticket (who it was referred to), for the agents who may assign. */
+export function useReferrals(ticketId: number, enabled: boolean) {
+  return useQuery({
+    queryKey: [...ticketKeys.detail(ticketId), "referrals"],
+    enabled,
+    queryFn: async () => {
+      const { data, error } = await api.GET("/api/v1/tickets/{ticket_id}/referrals", { params: { path: { ticket_id: ticketId } } });
+      if (!data) throw new Error(errorMessage(error));
+      return data.referrals;
+    },
+  });
+}

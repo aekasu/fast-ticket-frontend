@@ -63,7 +63,7 @@ test("department: extended-access agents, assignment and alerts", async ({ page,
     const card = page.getByRole("region", { name: "Extended access" });
     await expect(card.getByText("No extended-access agents.")).toBeVisible();
     await card.getByLabel("Agent to add").selectOption({ label: "Frontend Agent" });
-    await card.getByLabel("Role ID").fill("3");
+    await card.getByLabel("Role", { exact: true }).selectOption("3");
     await card.getByRole("button", { name: "Add Agent" }).click();
     await expect(card.getByRole("button", { name: "Remove Frontend Agent" })).toBeVisible();
     await card.getByRole("button", { name: "Save Extended Access" }).click();
@@ -108,7 +108,7 @@ test("agent: extra departments, teams and permissions, and the agent really gets
     // Extra department
     const access = page.getByRole("region", { name: "Extended access" });
     await access.getByLabel("Department to add").selectOption({ label: "Sales" });
-    await access.getByLabel("Role ID").fill("3");
+    await access.getByLabel("Role", { exact: true }).selectOption("3");
     await access.getByRole("button", { name: "Add Department" }).click();
     await access.getByRole("button", { name: "Save Extended Access" }).click();
     await expect(access.getByText("Extended access saved.")).toBeVisible();

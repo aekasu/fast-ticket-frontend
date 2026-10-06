@@ -5,7 +5,7 @@ import type { components } from "@/lib/api/schema";
 import { useUserOptions } from "@/lib/queries/directory";
 import { useDepartments } from "@/lib/queries/reference";
 import { can, useMe } from "@/lib/queries/me";
-import { ticketKeys, useAssignees, useTicketList } from "@/lib/queries/tickets";
+import { ticketKeys, useAssignees, useReferrals, useTicketList } from "@/lib/queries/tickets";
 import { NoticeBar, button, field, primary, useRunner } from "./action-ui";
 import { DeleteButton } from "./delete-button";
 
@@ -27,6 +27,7 @@ export function TicketPeopleTools({ ticket }: { ticket: Ticket }) {
   const candidatesList = useTicketList({ queue: "open", sort: "updated", descending: true, page: 1, page_size: 100 });
   const assignees = useAssignees(ticket.ticket_id, panel === "refer");
   const departments = useDepartments();
+  const referrals = useReferrals(ticket.ticket_id, panel === "refer");
 
   const canEdit = can(me, ticket.dept_id, "ticket.edit");
   const canDelete = can(me, ticket.dept_id, "ticket.delete");
@@ -210,7 +211,23 @@ export function TicketPeopleTools({ ticket }: { ticket: Ticket }) {
             ))}
           </select>
           <textarea aria-label="Comments" rows={3} value={referNote} onChange={(e) => setReferNote(e.target.value)} placeholder="Comments (optional)" className={field} />
-          <p className="text-xs text-slate-500">Referrals can be created but not listed or removed through the API yet.</p>
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-600">Referred to</h4>
+            {referrals.error && <p className="text-sm text-red-700">{referrals.error.message}</p>}
+            <ul className="mt-1 text-sm" aria-label="Referrals">
+              {referrals.data?.map((r) => (
+                <li key={r.id} className="flex items-center justify-between border-b border-slate-200 py-1">
+                  <span>
+                    {r.name} <span className="text-slate-500">({r.referee_type})</span>
+                  </span>
+                  <button type="button" disabled={busy} className="text-red-800 underline" onClick={() => run(`referrals/${r.id}`, {}, `Referral to ${r.name} removed.`, "DELETE")}>
+                    Remove {r.name}
+                  </button>
+                </li>
+              ))}
+              {referrals.data?.length === 0 && <li className="py-1 text-slate-500">This ticket has not been referred.</li>}
+            </ul>
+          </div>
           <div className="flex gap-2">
             <button type="submit" className={primary} disabled={busy || !targetId}>
               {busy ? "Working…" : "Refer"}

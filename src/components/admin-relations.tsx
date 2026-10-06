@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { type Row } from "@/lib/admin/resources";
-import { knownRoleIds, useAdminLookups, useFormsList, useStaffList, useTeamsList } from "@/lib/queries/admin-lookups";
+import { useAdminLookups, useFormsList, usePermissionKeys, useStaffList, useTeamsList } from "@/lib/queries/admin-lookups";
 import { NoticeBar, button, field, primary, useRunner } from "./action-ui";
 
 // Editors for the list-valued fields of an admin record: who is on a team, a department's extended-access agents, an
@@ -86,14 +86,13 @@ interface Access {
 
 /** Extended access: agents from other departments who work in this one, with the role they hold here. */
 export function DepartmentMembersEditor({ id, data }: { id: number; data: Row }) {
-  const staff = useStaffList();
   const lookups = useAdminLookups();
   const { busy, notice, clear, save } = useSave(`/api/v1/departments/${id}`, "departments");
   const initial = ((data.members as Row[]) ?? []).map((m, i): Access => ({ key: `m${i}`, id: Number(m.staff_id), role: Number(m.role_id), alerts: m.alerts !== false }));
   const [rows, setRows] = useState<Access[]>(initial);
   const [agent, setAgent] = useState("");
   const [role, setRole] = useState("");
-  const roles = knownRoleIds(staff.data ?? [], rows.map((r) => r.role));
+  const roleName = (rid: number) => lookups.names.roles.get(rid) ?? `#${rid}`;
   const name = (sid: number) => lookups.names.agents.get(sid) ?? `#${sid}`;
 
   function add() {
@@ -103,12 +102,12 @@ export function DepartmentMembersEditor({ id, data }: { id: number; data: Row })
   }
 
   return (
-    <Card title="Extended access" note="Agents whose primary department is another one, and who also work here. Roles cannot be listed through the API: the ids already in use are offered.">
+    <Card title="Extended access" note="Agents whose primary department is another one, and who also work here.">
       <table className="w-full text-left text-sm">
         <thead className="text-xs uppercase tracking-wide text-slate-600">
           <tr>
             <th className="py-1 pr-3 font-semibold">Agent</th>
-            <th className="py-1 pr-3 font-semibold">Role ID</th>
+            <th className="py-1 pr-3 font-semibold">Role</th>
             <th className="py-1 pr-3 font-semibold">Alerts</th>
             <th />
           </tr>
@@ -117,7 +116,7 @@ export function DepartmentMembersEditor({ id, data }: { id: number; data: Row })
           {rows.map((r) => (
             <tr key={r.key} className="border-t border-slate-200">
               <td className="py-1.5 pr-3">{name(r.id)}</td>
-              <td className="py-1.5 pr-3">{r.role}</td>
+              <td className="py-1.5 pr-3">{roleName(r.role)}</td>
               <td className="py-1.5 pr-3">
                 <input type="checkbox" aria-label={`Alerts for ${name(r.id)}`} checked={r.alerts} onChange={(e) => setRows((all) => all.map((x) => (x.key === r.key ? { ...x, alerts: e.target.checked } : x)))} />
               </td>
@@ -146,12 +145,14 @@ export function DepartmentMembersEditor({ id, data }: { id: number; data: Row })
             </option>
           ))}
         </select>
-        <input aria-label="Role ID" list="role-ids" type="number" min={1} value={role} onChange={(e) => setRole(e.target.value)} placeholder="Role ID" className={`${field} max-w-28`} />
-        <datalist id="role-ids">
-          {roles.map((r) => (
-            <option key={r} value={r} />
+        <select aria-label="Role" value={role} onChange={(e) => setRole(e.target.value)} className={`${field} max-w-xs`}>
+          <option value="">— Select a role —</option>
+          {lookups.options.roles.map((r) => (
+            <option key={r.value} value={r.value}>
+              {r.label}
+            </option>
           ))}
-        </datalist>
+        </select>
         <button type="button" className={button} onClick={add} disabled={!agent || !role}>
           Add Agent
         </button>
@@ -164,26 +165,25 @@ export function DepartmentMembersEditor({ id, data }: { id: number; data: Row })
   );
 }
 
-// osTicket's global agent permissions, as the API lists them for the administrator. Keys the agent already holds that
-// are not in this list are kept as they are.
-const PERMISSIONS: { key: string; label: string; group: string }[] = [
-  { group: "Users", key: "user.create", label: "Create users" },
-  { group: "Users", key: "user.edit", label: "Edit users" },
-  { group: "Users", key: "user.delete", label: "Delete users" },
-  { group: "Users", key: "user.manage", label: "Manage user accounts" },
-  { group: "Users", key: "user.dir", label: "Browse the user directory" },
-  { group: "Organizations", key: "org.create", label: "Create organizations" },
-  { group: "Organizations", key: "org.edit", label: "Edit organizations" },
-  { group: "Organizations", key: "org.delete", label: "Delete organizations" },
-  { group: "Knowledge base", key: "faq.manage", label: "Manage FAQs" },
-  { group: "Emails", key: "emails.banlist", label: "Manage the email banlist" },
-  { group: "Visibility", key: "visibility.agents", label: "See agents outside their departments" },
-  { group: "Visibility", key: "visibility.departments", label: "See other departments" },
-];
+// Labels and groups for the global permissions the API lists (`GET /permissions`). A key with no label here is still
+// offered, under "Other", worded as its key.
+const PERMISSION_LABELS: Record<string, { label: string; group: string }> = {
+  "user.create": { group: "Users", label: "Create users" },
+  "user.edit": { group: "Users", label: "Edit users" },
+  "user.delete": { group: "Users", label: "Delete users" },
+  "user.manage": { group: "Users", label: "Manage user accounts" },
+  "user.dir": { group: "Users", label: "Browse the user directory" },
+  "org.create": { group: "Organizations", label: "Create organizations" },
+  "org.edit": { group: "Organizations", label: "Edit organizations" },
+  "org.delete": { group: "Organizations", label: "Delete organizations" },
+  "faq.manage": { group: "Knowledge base", label: "Manage FAQs" },
+  "emails.banlist": { group: "Emails", label: "Manage the email banlist" },
+  "visibility.agents": { group: "Visibility", label: "See agents outside their departments" },
+  "visibility.departments": { group: "Visibility", label: "See other departments" },
+};
 
 /** An agent's extra departments, teams and global permissions: three separate saves. */
 export function StaffAccessEditor({ id, data }: { id: number; data: Row }) {
-  const staff = useStaffList();
   const teams = useTeamsList();
   const lookups = useAdminLookups();
   const access = useSave(`/api/v1/staff/${id}`, "staff");
@@ -194,11 +194,15 @@ export function StaffAccessEditor({ id, data }: { id: number; data: Row }) {
   const [rows, setRows] = useState<Access[]>(initial);
   const [dept, setDept] = useState("");
   const [role, setRole] = useState("");
-  const roles = knownRoleIds(staff.data ?? [], rows.map((r) => r.role));
+  const roleName = (rid: number) => lookups.names.roles.get(rid) ?? `#${rid}`;
   const deptName = (d: number) => lookups.names.departments.get(d) ?? `#${d}`;
   const myTeams = new Set(((data.teams as unknown[]) ?? []).map(asId));
   const held = new Set((data.permissions as string[]) ?? []);
-  const unknownHeld = [...held].filter((k) => !PERMISSIONS.some((p) => p.key === k));
+  const permissionKeys = usePermissionKeys();
+  const PERMISSIONS = (permissionKeys.data ?? [])
+    .filter((p) => p.kind === "global")
+    .map((p) => ({ key: p.key, label: PERMISSION_LABELS[p.key]?.label ?? p.key, group: PERMISSION_LABELS[p.key]?.group ?? "Other" }));
+  const unknownHeld = permissionKeys.data ? [...held].filter((k) => !PERMISSIONS.some((p) => p.key === k)) : [];
 
   async function saveTeams(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -208,18 +212,19 @@ export function StaffAccessEditor({ id, data }: { id: number; data: Row }) {
   async function savePermissions(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
+    if (!permissionKeys.data) return;
     const chosen = PERMISSIONS.filter((p) => form.get(p.key) === "on").map((p) => p.key);
     await permSave.save({ permissions: [...chosen, ...unknownHeld] }, "Permissions saved.");
   }
 
   return (
     <>
-      <Card title="Extended access" note="Other departments this agent works in, with their role there. Roles cannot be listed through the API: the ids already in use are offered.">
+      <Card title="Extended access" note="Other departments this agent works in, with their role there.">
         <table className="w-full text-left text-sm">
           <thead className="text-xs uppercase tracking-wide text-slate-600">
             <tr>
               <th className="py-1 pr-3 font-semibold">Department</th>
-              <th className="py-1 pr-3 font-semibold">Role ID</th>
+              <th className="py-1 pr-3 font-semibold">Role</th>
               <th className="py-1 pr-3 font-semibold">Alerts</th>
               <th />
             </tr>
@@ -228,7 +233,7 @@ export function StaffAccessEditor({ id, data }: { id: number; data: Row }) {
             {rows.map((r) => (
               <tr key={r.key} className="border-t border-slate-200">
                 <td className="py-1.5 pr-3">{deptName(r.id)}</td>
-                <td className="py-1.5 pr-3">{r.role}</td>
+                <td className="py-1.5 pr-3">{roleName(r.role)}</td>
                 <td className="py-1.5 pr-3">
                   <input type="checkbox" aria-label={`Alerts for ${deptName(r.id)}`} checked={r.alerts} onChange={(e) => setRows((all) => all.map((x) => (x.key === r.key ? { ...x, alerts: e.target.checked } : x)))} />
                 </td>
@@ -257,12 +262,14 @@ export function StaffAccessEditor({ id, data }: { id: number; data: Row }) {
               </option>
             ))}
           </select>
-          <input aria-label="Role ID" list="role-ids-staff" type="number" min={1} value={role} onChange={(e) => setRole(e.target.value)} placeholder="Role ID" className={`${field} max-w-28`} />
-          <datalist id="role-ids-staff">
-            {roles.map((r) => (
-              <option key={r} value={r} />
+          <select aria-label="Role" value={role} onChange={(e) => setRole(e.target.value)} className={`${field} max-w-xs`}>
+            <option value="">— Select a role —</option>
+            {lookups.options.roles.map((r) => (
+              <option key={r.value} value={r.value}>
+                {r.label}
+              </option>
             ))}
-          </datalist>
+          </select>
           <button
             type="button"
             className={button}

@@ -22,13 +22,11 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
   The new-ticket screen offers only those and says so; assign-on-create is already in `KNOWN_LIMITS.md`.
 - **Meanwhile:** source/SLA/due date can be changed after creation only where `PATCH /tickets/{id}` allows it.
 
-## Task pages: collaborators are still missing
+## Task pages
 
-- **Needs:** the task's collaborators (osTicket's "Collaborators" row on a task).
-- **Gives (observed 2026-10-06):** no collaborators on `TaskDetail`. (The list now has `ticket_number`, `is_overdue`,
-  `queue=` and `/tasks/queues`; adopted.) Task status names closed tasks "Closed" where osTicket's UI says
-  "Completed" (the frontend shows "Completed").
-- **Meanwhile:** no Collaborators row.
+- **Gives (observed 2026-10-06):** closed tasks are named "Closed" where osTicket's UI says "Completed" (the frontend
+  shows "Completed"). (Collaborators, thread edit/resend, `ticket_number`, `is_overdue`, `queue=` and `/tasks/queues` are
+  adopted.) A task's collaborators can be added but not changed or removed: osTicket has no such action either.
 
 ## Knowledge base: attachments and the canned variables
 
@@ -40,12 +38,12 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 
 ## Admin Panel pages with no API behind them, and thin admin lists
 
-- **No endpoint at all (osTicket page):** roles (`roles.php`), settings (`settings.php?t=` company, system, tickets,
+- **No endpoint at all (osTicket page):** settings (`settings.php?t=` company, system, tickets,
   tasks, agents, users, knowledgebase), ticket filters, schedules, API keys, pages, custom lists, plugins, emails,
   email settings, email templates, email diagnostic, system logs, system information. The Admin Panel shows each as
   a dimmed entry with a note, and the Dashboard group has nothing to show.
-- **Roles are needed even for what is built:** `POST /staff` requires a `role_id`, and department access takes role
-  ids, but roles cannot be listed. The agent form takes a number and says so.
+- **Roles are list-only:** `GET /roles` feeds the pickers and a read-only Roles page; creating, editing and deleting a
+  role (osTicket's `roles.php`) has no endpoint, and a role has no created/updated dates or per-record read.
 - **List items carry less than osTicket's columns** (the list screens say which): agents lack Last Login; departments
   lack Status, Agents count, Email Address and Manager; teams lack Members count and Team Lead; help topics lack
   Priority, Department and the parent path (osTicket shows "Report a Problem / Access Issue"); forms lack field counts.
@@ -55,9 +53,6 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
   Still missing: field types beyond those listed (lists, files), `min`/`max` options of date fields.
 - **Exposed by the frontend (2026-10-04):** team members, a department's extended-access agents, an agent's extended
   department access, teams and permissions, and a help topic's custom forms (`components/admin-relations.tsx`).
-- **Still needed for those editors:** a list of roles (their ids are typed in, with the ones agents already use offered),
-  and the permission keys as data: the 12 keys in `PERMISSIONS` are the ones the administrator holds, the schema only says
-  "see app/core/permissions.py".
 
 ## No dashboard activity report and no self-service profile
 
@@ -81,14 +76,13 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 
 ## Ticket relations and statuses osTicket offers that the API does not
 
-- **Needs (osTicket's ticket "More" menu and status control):** Link Tickets (and unlink), un-merge, Manage Referrals
-  (list and remove), the ticket status choice (Open / Resolved / Closed and custom statuses) on a reply or from the
+- **Needs (osTicket's ticket "More" menu and status control):** Link Tickets (and unlink), un-merge, the ticket status choice (Open / Resolved / Closed and custom statuses) on a reply or from the
   menu, and Print.
 - **Gives (observed 2026-10-04):** `merge` (children are closed and hidden from the queues, as osTicket does), `refer`
-  (create only; osTicket records an internal note "Referral" and an event), `close` and `reopen` only. The
+  (osTicket records an internal note "Referral" and an event; the list and remove are adopted), `close` and `reopen` only. The
   `ticket.link` permission exists but no route uses it.
-- **Meanwhile:** the toolbar has Merge Tickets and Refer; there is no Link, no referral list, and no status choice
-  beyond Close / Reopen. The referral panel says referrals cannot be listed or removed.
+- **Meanwhile:** the toolbar has Merge Tickets and Refer (with the referral list and remove); there is no Link and no
+  status choice beyond Close / Reopen.
 
 ## Custom fields: two leftovers
 

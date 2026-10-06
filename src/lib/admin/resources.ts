@@ -52,6 +52,8 @@ export interface ResourceDef {
   canDelete?: (d: Row) => boolean;
   /** osTicket's list page, for tests. */
   osticketPage?: string;
+  /** The API only lists these (no per-record read, create, edit or delete): rows are not links. */
+  listOnly?: boolean;
 }
 
 const s = (v: unknown) => (v == null ? "" : String(v));
@@ -90,7 +92,7 @@ export const RESOURCES: Record<string, ResourceDef> = {
       ["Status", (r) => active(r.is_active)],
       ["Administrator", (r) => yes(r.is_admin)],
       ["Department", (r, lk) => lookup(lk.names.departments, r.dept_id)],
-      ["Primary Role ID", (r) => s(r.role_id)],
+      ["Primary Role", (r, lk) => lookup(lk.names.roles, r.role_id)],
       ["Listed in directory", (r) => yes(r.is_visible)],
       ["On vacation", (r) => yes(r.on_vacation)],
       ["Limited access", (r) => (r.assigned_only ? "Only tickets assigned to them" : "No")],
@@ -107,7 +109,7 @@ export const RESOURCES: Record<string, ResourceDef> = {
       { name: "password", label: "Password", kind: "password", required: true, on: "create" },
       { name: "password", label: "New Password", kind: "password", on: "edit", help: "Leave empty to keep the current password." },
       { name: "dept_id", label: "Primary Department", kind: "select", optionsFrom: "departments", required: true },
-      { name: "role_id", label: "Primary Role ID", kind: "number", required: true, help: "Roles cannot be listed through the API yet: enter the role's ID (1 = the administrator's)." },
+      { name: "role_id", label: "Primary Role", kind: "select", optionsFrom: "roles", required: true },
       { name: "phone", label: "Phone Number", kind: "text" },
       { name: "phone_ext", label: "Extension", kind: "text" },
       { name: "mobile", label: "Mobile Number", kind: "text" },
@@ -120,6 +122,26 @@ export const RESOURCES: Record<string, ResourceDef> = {
     ],
     // Extended access, teams and permissions are edited by StaffAccessEditor.
     canDelete: (d) => d.id !== 1,
+  },
+
+  roles: {
+    key: "roles",
+    title: "Roles",
+    singular: "role",
+    path: "/api/v1/roles",
+    osticketPage: "roles.php",
+    name: (r) => s(r.name),
+    columns: [
+      { label: "Name", value: (r) => s(r.name) },
+      { label: "Status", value: (r) => (r.enabled ? "Enabled" : "Disabled") },
+      { label: "Permissions", value: (r) => String(((r.permissions as unknown[]) ?? []).length) },
+      { label: "Notes", value: (r) => s(r.notes) },
+    ],
+    listNote: "Roles are read-only through the API: they can be listed (and chosen for an agent), not created, edited or deleted.",
+    info: [],
+    fields: [],
+    canCreate: false,
+    listOnly: true,
   },
 
   teams: {

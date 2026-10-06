@@ -4,20 +4,12 @@ import Link from "next/link";
 import { ApiError } from "@/lib/api/errors";
 import { formatDateTime } from "@/lib/format";
 import { useTask } from "@/lib/queries/tasks";
-import { useTicket } from "@/lib/queries/tickets";
+import { TaskEntryActions } from "./entry-actions";
+import { TaskCollaborators } from "./task-collaborators";
 import { TaskReplyBox, TaskToolbar } from "./task-actions";
 import { CustomFieldsView } from "./custom-fields";
 import { Info } from "./info-table";
 import { Thread } from "./thread";
-function LinkedTicket({ id }: { id: number }) {
-  const { data } = useTicket(id);
-  return (
-    <Link href={`/tickets/${id}`} className="text-sky-800 hover:underline">
-      Ticket #{data?.number ?? "…"}
-    </Link>
-  );
-}
-
 export function TaskView({ id }: { id: number }) {
   const { data: task, error, isLoading } = useTask(id);
 
@@ -65,15 +57,26 @@ export function TaskView({ id }: { id: number }) {
           rows={[
             ["Department", task.dept_name],
             ["Assigned To", assignee || <span className="text-slate-500">— Unassigned —</span>],
-            ["Ticket", task.ticket_id != null ? <LinkedTicket id={task.ticket_id} /> : ""],
+            [
+              "Ticket",
+              task.ticket_id != null ? (
+                <Link key="ticket" href={`/tickets/${task.ticket_id}`} className="text-sky-800 hover:underline">
+                  Ticket #{task.ticket_number}
+                </Link>
+              ) : (
+                ""
+              ),
+            ],
           ]}
         />
       </div>
 
+      <TaskCollaborators task={task} />
+
       <CustomFieldsView answers={task.custom_fields} form="A" />
 
       <h2 className="mt-4 border-b border-slate-300 pb-1 text-sm font-semibold text-slate-800">Task Thread ({posts.length})</h2>
-      <Thread entries={task.thread} attachmentHref={(attachmentId) => `/api/v1/tasks/${task.task_id}/attachments/${attachmentId}`} />
+      <Thread entries={task.thread} attachmentHref={(attachmentId) => `/api/v1/tasks/${task.task_id}/attachments/${attachmentId}`} renderActions={(entry) => <TaskEntryActions task={task} entry={entry} />} />
 
       <TaskReplyBox task={task} />
     </div>

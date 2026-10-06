@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { components } from "@/lib/api/schema";
 import { htmlToText } from "@/lib/canned";
 import { can, useMe } from "@/lib/queries/me";
+import { taskKeys } from "@/lib/queries/tasks";
 import { ticketKeys } from "@/lib/queries/tickets";
 import { NoticeBar, button, field, primary, useRunner } from "./action-ui";
 
@@ -11,15 +12,23 @@ type Ticket = components["schemas"]["TicketDetail"];
 type Entry = components["schemas"]["ThreadEntry"];
 
 /**
- * Edit and Resend for one thread entry of a ticket. The API gates both by `ticket.reply` and osTicket applies its own
- * rule (your own post, a department manager, or `thread.edit`), whose refusal is shown as it words it. Editing gives the
- * entry a new id and hides the old one, so after a save the thread simply shows the new version.
+ * Edit and Resend for one thread entry of a ticket or a task. The API gates both by the reply permission and osTicket
+ * applies its own rule (your own post, a department manager, or `thread.edit`), whose refusal is shown as it words it.
+ * Editing gives the entry a new id and hides the old one, so after a save the thread simply shows the new version.
  */
 export function TicketEntryActions({ ticket, entry }: { ticket: Ticket; entry: Entry }) {
+  return <EntryActions base={`/api/v1/tickets/${ticket.ticket_id}/thread/${entry.id}`} keys={ticketKeys.all} deptId={ticket.dept_id} permission="ticket.reply" entry={entry} />;
+}
+
+export function TaskEntryActions({ task, entry }: { task: components["schemas"]["TaskDetail"]; entry: Entry }) {
+  return <EntryActions base={`/api/v1/tasks/${task.task_id}/thread/${entry.id}`} keys={taskKeys.all} deptId={task.dept_id} permission="task.reply" entry={entry} />;
+}
+
+function EntryActions({ base, keys, deptId, permission, entry }: { base: string; keys: readonly unknown[]; deptId: number | null | undefined; permission: string; entry: Entry }) {
   const { data: me } = useMe();
-  const { run, busy, notice, clear } = useRunner(`/api/v1/tickets/${ticket.ticket_id}/thread/${entry.id}`, ticketKeys.all);
+  const { run, busy, notice, clear } = useRunner(base, keys);
   const [editing, setEditing] = useState(false);
-  if (!can(me, ticket.dept_id, "ticket.reply")) return null;
+  if (!can(me, deptId, permission)) return null;
 
   const isReply = entry.type === "R";
   const label = isReply ? "reply" : entry.type === "N" ? "note" : "message";
