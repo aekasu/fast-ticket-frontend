@@ -17,9 +17,7 @@ function Card({ href, label, value }: { href: string; label: string; value: numb
 }
 
 /**
- * The landing page. osTicket's Dashboard is an activity report (tickets opened, closed and reopened per department,
- * topic and agent over a period), which the API has no endpoint for. What it can give is the agent's own queues, so
- * this page shows those, and says what is missing.
+ * The landing page: the agent's own queues and assigned tickets. osTicket's activity report is its own tab (/report).
  */
 export function DashboardHome() {
   const { data: me } = useMe();
@@ -91,13 +89,11 @@ export function DashboardHome() {
         </tbody>
       </table>
 
-      <section className="border border-slate-300 bg-white px-4 py-3 text-sm">
-        <h2 className="mb-1 font-semibold text-slate-800">Ticket Activity</h2>
-        <p role="status" className="text-slate-600">
-          osTicket&apos;s activity report (opened, assigned, overdue, closed, reopened and deleted tickets, with service and response times, per
-          department, help topic and agent over a chosen period) has no endpoint in the API yet, so it is not shown here.
-        </p>
-      </section>
+      <p className="text-sm">
+        <Link href="/report" className="text-sky-800 underline">
+          Ticket activity report →
+        </Link>
+      </p>
     </div>
   );
 }

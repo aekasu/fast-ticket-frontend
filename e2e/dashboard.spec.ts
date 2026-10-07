@@ -8,7 +8,7 @@ type Queue = { key: string; count: number };
 test.describe("dashboard, directory and profile as the admin", () => {
   test.use({ storageState: AUTH.admin });
 
-  test("the dashboard shows the real queue and task counts, and says the activity report is missing", async ({ page, request }) => {
+  test("the dashboard shows the real queue and task counts, and links to the activity report", async ({ page, request }) => {
     const os = await osticketAdmin();
     const { queues } = (await (await request.get("/api/v1/tickets/queues")).json()) as { queues: Queue[] };
     await page.goto("/");
@@ -25,7 +25,7 @@ test.describe("dashboard, directory and profile as the admin", () => {
     if (tabs["My Tasks"] !== undefined) await expect(taskCards.getByRole("link", { name: new RegExp(`^${tabs["My Tasks"]}\\s*My Tasks$`) })).toBeVisible();
     if (tabs["Completed"] !== undefined) await expect(taskCards.getByRole("link", { name: new RegExp(`^${tabs["Completed"]}\\s*Completed$`) })).toBeVisible();
 
-    await expect(page.getByRole("status")).toContainText("activity report");
+    await expect(page.getByRole("link", { name: "Ticket activity report →" })).toBeVisible();
     await expect(page.getByRole("list", { name: "Dashboard" })).toContainText("Agent Directory");
     // A card leads to its queue.
     await ticketCards.getByRole("link", { name: /Closed$/ }).click();
@@ -140,5 +140,20 @@ test.describe("a non-admin agent", () => {
     await page.getByRole("link", { name: "My Profile" }).click();
     await expect(page.locator("th", { hasText: /^Account type:$/ }).locator("xpath=following-sibling::td[1]")).toHaveText("Agent");
     await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Dashboard" })).toBeVisible();
+  });
+});
+
+test.describe("the activity report as the admin", () => {
+  test.use({ storageState: AUTH.admin });
+
+  test("shows osTicket's report table for a period and groups it", async ({ page }) => {
+    await page.goto("/report");
+    await expect(page.getByRole("heading", { name: "Activity Report" })).toBeVisible();
+    const table = page.getByRole("table", { name: "Activity" });
+    await expect(table.getByRole("columnheader", { name: "Opened", exact: true })).toBeVisible();
+    await expect(table.getByRole("columnheader", { name: "Service Time" })).toBeVisible();
+    await page.getByLabel("Group by").selectOption("agent");
+    await expect(table.getByRole("columnheader").first()).toHaveText(/Agent|Staff/i);
+    await expect(page.getByRole("img", { name: /Events per day/ })).toBeVisible();
   });
 });

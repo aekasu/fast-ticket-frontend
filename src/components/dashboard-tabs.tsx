@@ -1,11 +1,12 @@
 import Link from "next/link";
 
-type Tab = "dashboard" | "directory" | "profile";
+type Tab = "dashboard" | "report" | "directory" | "profile";
 
 /** osTicket's Dashboard sub-menu. */
 export function DashboardTabs({ current }: { current: Tab }) {
   const tabs: { key: Tab; href: string; label: string }[] = [
     { key: "dashboard", href: "/", label: "Dashboard" },
+    { key: "report", href: "/report", label: "Activity Report" },
     { key: "directory", href: "/directory", label: "Agent Directory" },
     { key: "profile", href: "/profile", label: "My Profile" },
   ];
