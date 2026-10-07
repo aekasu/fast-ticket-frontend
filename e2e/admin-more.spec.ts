@@ -203,4 +203,62 @@ test.describe("more Admin Panel pages as the admin, confirmed on osTicket's page
       await os.dispose();
     }
   });
+
+  test("a schedule with an entry, and an email template set with an edited message", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const stamp1 = stamp();
+    const sched = `E2E Schedule ${stamp1}`;
+    const set = `E2E Templates ${stamp1}`;
+    let schedId: number | undefined;
+    let setId: number | undefined;
+    try {
+      await page.goto("/admin/schedules/new");
+      await page.getByLabel("Name", { exact: true }).fill(sched);
+      await page.getByLabel("Type", { exact: true }).selectOption("holidays");
+      await page.getByRole("button", { name: "Add Schedule" }).click();
+      await expect(page).toHaveURL(/\/admin\/schedules\/\d+$/);
+      schedId = idFromUrl(page);
+      expect(await rowsOf(os, "schedules.php")).toContain(sched);
+
+      const entry = page.getByRole("form", { name: "Add entry" });
+      await entry.getByLabel("Entry name").fill("E2E Holiday");
+      await entry.getByLabel("Starts on").fill("2027-12-24");
+      await entry.getByRole("button", { name: "Add Entry" }).click();
+      await expect(page.getByText("E2E Holiday added.")).toBeVisible();
+      await expect(page.getByRole("list", { name: "Schedule entries" })).toContainText("E2E Holiday");
+      await page.getByRole("button", { name: "Remove E2E Holiday" }).click();
+      await expect(page.getByText("This schedule has no entries.")).toBeVisible();
+      await page.getByRole("button", { name: "Delete", exact: true }).click();
+      await page.getByRole("button", { name: "Delete schedule" }).click();
+      await expect(page).toHaveURL(/\/admin\/schedules$/);
+      expect(await rowsOf(os, "schedules.php")).not.toContain(sched);
+      schedId = undefined;
+
+      await page.goto("/admin/templates/new");
+      await page.getByLabel("Name", { exact: true }).fill(set);
+      await page.getByRole("button", { name: "Add Template set" }).click();
+      await expect(page).toHaveURL(/\/admin\/templates\/\d+$/);
+      setId = idFromUrl(page);
+      expect(await rowsOf(os, "templates.php")).toContain(set);
+      const list = page.getByRole("list", { name: "Template messages" });
+      await expect(list.locator("li")).toHaveCount(19);
+      await list.locator("li").first().getByRole("button", { name: /^Edit / }).click();
+      const form = list.locator("form");
+      await form.getByLabel("Subject").fill("E2E subject");
+      await form.getByLabel("Body").fill("E2E body %{ticket.number}");
+      await form.getByRole("button", { name: "Save Message" }).click();
+      await expect(page.getByText("Message saved.")).toBeVisible();
+      await expect(list.locator("li").first()).toContainText("E2E subject");
+
+      await page.getByRole("button", { name: "Delete", exact: true }).click();
+      await page.getByRole("button", { name: "Delete template set" }).click();
+      await expect(page).toHaveURL(/\/admin\/templates$/);
+      expect(await rowsOf(os, "templates.php")).not.toContain(set);
+      setId = undefined;
+    } finally {
+      await remove(request, "/api/v1/schedules", schedId);
+      await remove(request, "/api/v1/email-templates", setId);
+      await os.dispose();
+    }
+  });
 });

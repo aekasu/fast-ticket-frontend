@@ -446,3 +446,140 @@ export function ListItemsEditor({ id, data }: { id: number; data: Row }) {
     </Card>
   );
 }
+
+type ScheduleEntry = { id: number; name: string; description: string; repeats: string; starts_on: string };
+const REPEATS = ["never", "daily", "weekly", "weekdays", "weekends", "monthly", "yearly"];
+
+/** A schedule's entries: osTicket's own sentence for each, add and remove. (An entry is replaced whole by the API; to change one, remove and add it.) */
+export function ScheduleEntriesEditor({ id, data }: { id: number; data: Row }) {
+  const entries = (data.entries as ScheduleEntry[]) ?? [];
+  const { run, busy, notice, clear } = useRunner(`/api/v1/schedules/${id}/entries`, ["admin", "schedules"]);
+  const [version, setVersion] = useState(0);
+  const [repeats, setRepeats] = useState("never");
+  const [allDay, setAllDay] = useState(true);
+
+  async function add(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    const t = (n: string) => String(f.get(n) ?? "").trim();
+    const num = (n: string) => (t(n) ? Number(t(n)) : undefined);
+    const body = {
+      name: t("name"),
+      repeats,
+      starts_on: t("starts_on"),
+      all_day: allDay,
+      ...(!allDay && t("starts_at") ? { starts_at: t("starts_at") } : {}),
+      ...(!allDay && t("ends_at") ? { ends_at: t("ends_at") } : {}),
+      ...(t("stops_on") ? { stops_on: t("stops_on") } : {}),
+      ...(num("day") ? { day: num("day") } : {}),
+      ...(num("week") ? { week: num("week") } : {}),
+      ...(num("month") ? { month: num("month") } : {}),
+    };
+    if (await run("", body, `${body.name} added.`, "POST")) setVersion((v) => v + 1);
+  }
+
+  return (
+    <Card title="Entries" note="osTicket's rules apply: unique names, one daily entry excludes others, no overlapping weekday entries. Weekly takes a day 1-7 (Mon-Sun); monthly and yearly repeat on the start date, or on the n-th weekday (week 1-5 or -1 for the last, with a day).">
+      <NoticeBar notice={notice} />
+      <ul className="text-sm" aria-label="Schedule entries">
+        {entries.map((en) => (
+          <li key={en.id} className="flex items-center justify-between gap-3 border-b border-slate-200 py-1.5">
+            <span>
+              <strong>{en.name}</strong> <span className="text-slate-600">— {en.description}</span>
+            </span>
+            <button type="button" disabled={busy} className="text-red-800 underline" onClick={() => run(String(en.id), {}, `${en.name} removed.`, "DELETE")}>
+              Remove {en.name}
+            </button>
+          </li>
+        ))}
+        {entries.length === 0 && <li className="py-1 text-slate-500">This schedule has no entries.</li>}
+      </ul>
+      <form key={version} onSubmit={add} className="grid gap-2 border-t border-slate-200 pt-3 sm:grid-cols-2" aria-label="Add entry">
+        <input name="name" aria-label="Entry name" required placeholder="Name" className={field} />
+        <select aria-label="Repeats" value={repeats} onChange={(e) => setRepeats(e.target.value)} className={field}>
+          {REPEATS.map((r) => (
+            <option key={r}>{r}</option>
+          ))}
+        </select>
+        <label className="flex items-center gap-2 text-sm">
+          Starts on <input name="starts_on" aria-label="Starts on" type="date" required className={field} />
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          Stops on <input name="stops_on" aria-label="Stops on" type="date" className={field} />
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={allDay} onChange={(e) => setAllDay(e.target.checked)} /> All day
+        </label>
+        {!allDay && (
+          <div className="flex gap-2">
+            <input name="starts_at" aria-label="From" type="time" className={field} />
+            <input name="ends_at" aria-label="To" type="time" className={field} />
+          </div>
+        )}
+        <input name="day" aria-label="Day (1-7)" type="number" placeholder="Day 1-7" className={field} />
+        <input name="week" aria-label="Week (1-5, -1 last)" type="number" placeholder="Week 1-5 or -1" className={field} />
+        <input name="month" aria-label="Month (1-12)" type="number" placeholder="Month 1-12" className={field} />
+        <button type="submit" disabled={busy} className={primary} onClick={clear}>
+          Add Entry
+        </button>
+      </form>
+    </Card>
+  );
+}
+
+type TemplateMessage = { code_name: string; name: string; group: string; description: string; defined: boolean; subject: string };
+
+/** An email template set's messages: all 19 osTicket knows, with the ones the set has no copy of marked; edit a copy's subject and body. */
+export function TemplateMessagesEditor({ id, data }: { id: number; data: Row }) {
+  const messages = (data.messages as TemplateMessage[]) ?? [];
+  const [open, setOpen] = useState<string | null>(null);
+  const body = useQuery({
+    queryKey: ["admin", "templates", "message", id, open],
+    enabled: open != null,
+    queryFn: () => getJson<{ subject: string; body: string }>(`/api/v1/email-templates/${id}/messages/${open}`),
+  });
+  const { run, busy, notice, clear } = useRunner(`/api/v1/email-templates/${id}/messages`, ["admin", "templates"]);
+
+  async function save(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    if (await run(String(open), { subject: String(f.get("subject") ?? ""), body: String(f.get("body") ?? "") }, "Message saved.", "PUT")) setOpen(null);
+  }
+
+  return (
+    <Card title="Messages" note="A message the set has no copy of uses osTicket's built-in text until it is saved here.">
+      <NoticeBar notice={notice} />
+      <ul className="text-sm" aria-label="Template messages">
+        {messages.map((m) => (
+          <li key={m.code_name} className="border-b border-slate-200 py-1.5">
+            <div className="flex items-center justify-between gap-3">
+              <span>
+                <span className="text-xs uppercase text-slate-500">{m.group}</span> <strong>{m.name}</strong>{" "}
+                <span className="text-slate-600">{m.defined ? m.subject : "(built-in text)"}</span>
+              </span>
+              <button type="button" className="text-sky-800 underline" aria-expanded={open === m.code_name} onClick={() => { clear(); setOpen(open === m.code_name ? null : m.code_name); }}>
+                {open === m.code_name ? "Close" : "Edit"} {m.name}
+              </button>
+            </div>
+            {open === m.code_name && (
+              <form key={body.data ? "loaded" : "loading"} onSubmit={save} className="mt-2 space-y-2" aria-label={`Edit ${m.name}`}>
+                <p className="text-xs text-slate-500">{m.description}</p>
+                {body.isLoading ? (
+                  <p className="text-slate-500">Loading…</p>
+                ) : (
+                  <>
+                    <input name="subject" aria-label="Subject" required defaultValue={body.data?.subject ?? ""} className={field} />
+                    <textarea name="body" aria-label="Body" required rows={10} defaultValue={body.data?.body ?? ""} className={`${field} font-mono`} />
+                    <button type="submit" disabled={busy} className={primary}>
+                      {busy ? "Saving…" : "Save Message"}
+                    </button>
+                  </>
+                )}
+              </form>
+            )}
+          </li>
+        ))}
+      </ul>
+    </Card>
+  );
+}

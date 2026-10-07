@@ -43,7 +43,7 @@ async function json(res: Response) {
  * Resolves with the parsed `result_payload` once the command is done; rejects with `CommandFailed` carrying
  * osTicket's reason when it failed. `key` is the Idempotency-Key: reuse it only to retry the same action.
  */
-export async function runCommand(opts: { method: "POST" | "PATCH" | "DELETE"; path: string; body?: unknown; key: string }) {
+export async function runCommand(opts: { method: "POST" | "PATCH" | "PUT" | "DELETE"; path: string; body?: unknown; key: string }) {
   const res = await fetch(opts.path, {
     method: opts.method,
     headers: { "Content-Type": "application/json", "Idempotency-Key": opts.key },

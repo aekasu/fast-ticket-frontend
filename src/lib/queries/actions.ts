@@ -9,7 +9,7 @@ import { runCommand } from "./commands";
 export function useResourceAction(basePath: string, invalidate: readonly unknown[]) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (variables: { action: string; body?: Record<string, unknown>; key: string; method?: "POST" | "PATCH" | "DELETE" }) =>
+    mutationFn: (variables: { action: string; body?: Record<string, unknown>; key: string; method?: "POST" | "PATCH" | "PUT" | "DELETE" }) =>
       runCommand({
         method: variables.method ?? (variables.action ? "POST" : "PATCH"),
         path: variables.action ? `${basePath}/${variables.action}` : basePath,

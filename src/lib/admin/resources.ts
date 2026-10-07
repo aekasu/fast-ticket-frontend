@@ -553,4 +553,85 @@ export const RESOURCES: Record<string, ResourceDef> = {
     // A list osTicket manages itself (ticket statuses) is read-only: its Update and Delete are refused with osTicket's wording.
     canDelete: (d) => d.is_deletable === true,
   },
+
+  schedules: {
+    key: "schedules",
+    title: "Schedules",
+    singular: "schedule",
+    path: "/api/v1/schedules",
+    osticketPage: "schedules.php",
+    name: (r) => s(r.name),
+    columns: [
+      { label: "Name", value: (r) => s(r.name) },
+      { label: "Type", value: (r) => (r.type === "holidays" ? "Holidays" : "Business Hours") },
+      { label: "Entries", value: (r) => s(r.entry_count) },
+      { label: "Timezone", value: (r) => s(r.timezone) || "Floating" },
+      { label: "Last Updated", value: (r) => date(r.updated) },
+    ],
+    info: [
+      ["Name", (r) => s(r.name)],
+      ["Type", (r) => (r.type === "holidays" ? "Holidays" : "Business Hours")],
+      ["Timezone", (r) => s(r.timezone) || "Floating (the viewer's timezone)"],
+      ["Entries", (r) => s(r.entry_count)],
+      ["Holiday schedules", (r) => ((r.holiday_schedule_ids as number[]) ?? []).join(", ")],
+      ["Created", (r) => date(r.created)],
+      ["Last Updated", (r) => date(r.updated)],
+      ["Description", (r) => s(r.description)],
+    ],
+    fields: [
+      { name: "name", label: "Name", kind: "text", required: true },
+      {
+        name: "type",
+        label: "Type",
+        kind: "select",
+        required: true,
+        on: "create",
+        options: [
+          { value: "business_hours", label: "Business hours" },
+          { value: "holidays", label: "Holidays" },
+        ],
+      },
+      { name: "timezone", label: "Timezone", kind: "text", help: "An IANA name such as Europe/Berlin; empty floats with the viewer's timezone." },
+      { name: "copy_from_id", label: "Copy entries from schedule ID", kind: "number", on: "create", help: "A copy must be the same type." },
+      { name: "description", label: "Description", kind: "textarea" },
+    ],
+    // The entries (and a business-hours schedule's holiday links) are edited by ScheduleEntriesEditor.
+  },
+
+  templates: {
+    key: "templates",
+    title: "Email Template Sets",
+    singular: "template set",
+    path: "/api/v1/email-templates",
+    osticketPage: "templates.php",
+    name: (r) => s(r.name),
+    columns: [
+      { label: "Name", value: (r) => s(r.name) },
+      { label: "Status", value: (r) => (r.is_active ? "Enabled" : "Disabled") },
+      { label: "In use", value: (r) => yes(r.in_use) },
+      { label: "Messages", value: (r) => s(r.message_count) },
+      { label: "Language", value: (r) => s(r.lang) },
+      { label: "Last Updated", value: (r) => date(r.updated) },
+    ],
+    info: [
+      ["Name", (r) => s(r.name)],
+      ["Status", (r) => (r.is_active ? "Enabled" : "Disabled")],
+      ["In use", (r) => yes(r.in_use)],
+      ["Language", (r) => s(r.lang)],
+      ["Messages with their own copy", (r) => s(r.message_count)],
+      ["Created", (r) => date(r.created)],
+      ["Last Updated", (r) => date(r.updated)],
+      ["Notes", (r) => s(r.notes)],
+    ],
+    fields: [
+      { name: "name", label: "Name", kind: "text", required: true },
+      { name: "lang", label: "Language", kind: "text", help: "A language code such as en_US." },
+      { name: "copy_from_id", label: "Copy messages from set ID", kind: "number", on: "create" },
+      { name: "is_active", label: "Set is enabled", kind: "bool", defaultChecked: true },
+      { name: "notes", label: "Admin Notes", kind: "textarea" },
+    ],
+    // The default set and a department's set are "in use": osTicket refuses to disable or delete them.
+    canDelete: (d) => d.in_use !== true,
+    // The messages are edited by TemplateMessagesEditor.
+  },
 };

@@ -13,7 +13,7 @@ import { useSubmitCommand } from "@/lib/queries/submit";
 import { field } from "./action-ui";
 import { DeleteButton } from "./delete-button";
 import { FormButtons, FormError, FormRow, formBox } from "./form-kit";
-import { DepartmentMembersEditor, ListItemsEditor, StaffAccessEditor, TeamMembersEditor, TopicFormsEditor } from "./admin-relations";
+import { DepartmentMembersEditor, ListItemsEditor, ScheduleEntriesEditor, StaffAccessEditor, TemplateMessagesEditor, TeamMembersEditor, TopicFormsEditor } from "./admin-relations";
 import { FormFieldsAdmin } from "./form-fields";
 import { Info } from "./info-table";
 import { Pager } from "./pager";
@@ -180,6 +180,8 @@ export function AdminView({ resourceKey, id }: { resourceKey: string; id: number
       {resource.key === "teams" && <TeamMembersEditor id={id} data={data} />}
       {resource.key === "departments" && <DepartmentMembersEditor id={id} data={data} />}
       {resource.key === "staff" && <StaffAccessEditor id={id} data={data} />}
+      {resource.key === "schedules" && <ScheduleEntriesEditor id={id} data={data} />}
+      {resource.key === "templates" && <TemplateMessagesEditor id={id} data={data} />}
       {resource.key === "lists" && <ListItemsEditor id={id} data={data} />}
       {resource.key === "topics" && <TopicFormsEditor id={id} data={data} />}
       {resource.key === "forms" && <FormFieldsAdmin formId={id} fields={(data.fields as never[]) ?? []} />}

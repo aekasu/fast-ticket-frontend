@@ -16,7 +16,7 @@ export function useRunner(basePath: string, invalidate: readonly unknown[]) {
   const key = useActionKey();
   const [notice, setNotice] = useState<Notice | null>(null);
 
-  async function run(name: string, body: Record<string, unknown>, success: string, method?: "POST" | "PATCH" | "DELETE"): Promise<boolean> {
+  async function run(name: string, body: Record<string, unknown>, success: string, method?: "POST" | "PATCH" | "PUT" | "DELETE"): Promise<boolean> {
     setNotice(null);
     try {
       await action.mutateAsync({ action: name, body, key: key.current(), method });
