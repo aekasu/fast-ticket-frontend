@@ -218,7 +218,7 @@ export function TicketReplyBox({ ticket }: { ticket: Ticket }) {
     if (!data) return setCannedNote(error ? "Could not load the canned response." : null);
     const text = data.response ?? "";
     setMessage((current) => (append && current.trim() ? `${current.trimEnd()}\n\n${text}` : text));
-    if (data.files?.length) setCannedNote(`Attached to this response in osTicket (attachments are not available through the API yet): ${data.files.map((f) => f.name).join(", ")}`);
+    if (data.files?.length) setCannedNote(`This response has files in osTicket (not added to this reply): ${data.files.map((f) => f.name).join(", ")}`);
   }
   // Notes follow the agent's access to the ticket; the server decides, so the tab is always offered.
   async function submit(e: React.FormEvent) {

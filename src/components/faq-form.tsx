@@ -2,6 +2,10 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { AttachmentPicker, useAttachmentLimits } from "./attachment-picker";
+import { StoredFiles } from "./stored-files";
+import { attachmentProblem, encodeFile } from "@/lib/attachments";
 import type { components } from "@/lib/api/schema";
 import { ApiError } from "@/lib/api/errors";
 import { canManageFaqs } from "@/lib/nav";
@@ -17,10 +21,15 @@ type Faq = components["schemas"]["FAQDetail"];
 function FaqFormBody({ faq, presetCategory }: { faq?: Faq; presetCategory?: number }) {
   const categories = useCategories();
   const { submit, error, setError, busy } = useSubmitCommand([kbKeys.faqs, kbKeys.categories]);
+  const [files, setFiles] = useState<File[]>([]);
+  const [removed, setRemoved] = useState<number[]>([]);
+  const limits = useAttachmentLimits().data ?? undefined;
   if (categories.isLoading) return <p className="text-sm text-slate-500">Loading…</p>;
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const problem = attachmentProblem(files, limits);
+    if (problem) return setError(problem);
     const form = new FormData(event.currentTarget);
     const text = (name: string) => String(form.get(name) ?? "");
     const next = {
@@ -31,13 +40,14 @@ function FaqFormBody({ faq, presetCategory }: { faq?: Faq; presetCategory?: numb
       notes: text("notes"),
       is_published: form.get("is_published") === "1",
     };
+    const added = files.length ? { attachments: await Promise.all(files.map(encodeFile)) } : {};
     if (faq) {
-      const body: Record<string, unknown> = {};
+      const body: Record<string, unknown> = { ...added, ...(removed.length ? { remove_attachment_ids: removed } : {}) };
       for (const k of Object.keys(next) as (keyof typeof next)[]) if (next[k] !== (faq[k] ?? (k === "is_published" ? false : ""))) body[k] = next[k];
       if (Object.keys(body).length === 0) return setError("No changes to save.");
       await submit("PATCH", `/api/v1/kb/faqs/${faq.id}`, body, () => `/kb/faqs/${faq.id}`);
     } else {
-      await submit("POST", "/api/v1/kb/faqs", next, (r) => `/kb/faqs/${createdId(r)}`);
+      await submit("POST", "/api/v1/kb/faqs", { ...next, ...added }, (r) => `/kb/faqs/${createdId(r)}`);
     }
   }
 
@@ -75,7 +85,13 @@ function FaqFormBody({ faq, presetCategory }: { faq?: Faq; presetCategory?: numb
         <FormRow label="Internal Notes">
           <textarea name="notes" rows={3} defaultValue={faq?.notes ?? ""} className={field} />
         </FormRow>
-        <p className="text-xs text-slate-500">The answer is HTML. Attachments cannot be uploaded yet.</p>
+        <FormRow label="Attachments">
+          <div className="space-y-2">
+            {faq && <StoredFiles files={faq.attachments} hrefOf={(id) => `/api/v1/kb/faqs/${faq.id}/attachments/${id}`} removed={removed} onToggle={(id) => setRemoved((r) => (r.includes(id) ? r.filter((x) => x !== id) : [...r, id]))} />}
+            <AttachmentPicker files={files} onChange={setFiles} />
+          </div>
+        </FormRow>
+        <p className="text-xs text-slate-500">The answer is HTML.</p>
         <FormButtons busy={busy} submitLabel={faq ? "Save Changes" : "Add FAQ"} cancelHref={faq ? `/kb/faqs/${faq.id}` : "/kb"} />
       </form>
     </>

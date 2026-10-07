@@ -1,6 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { AttachmentPicker, useAttachmentLimits } from "./attachment-picker";
+import { StoredFiles } from "./stored-files";
+import { attachmentProblem, encodeFile } from "@/lib/attachments";
 import type { components } from "@/lib/api/schema";
 import { ApiError } from "@/lib/api/errors";
 import { formatDateTime } from "@/lib/format";
@@ -75,10 +79,15 @@ export function CannedList() {
 function CannedFormBody({ canned }: { canned?: Canned }) {
   const departments = useDepartments();
   const { submit, error, setError, busy } = useSubmitCommand([kbKeys.canned]);
+  const [files, setFiles] = useState<File[]>([]);
+  const [removed, setRemoved] = useState<number[]>([]);
+  const limits = useAttachmentLimits().data ?? undefined;
   if (departments.isLoading) return <p className="text-sm text-slate-500">Loading…</p>;
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const problem = attachmentProblem(files, limits);
+    if (problem) return setError(problem);
     const form = new FormData(event.currentTarget);
     const text = (name: string) => String(form.get(name) ?? "");
     const next = {
@@ -88,13 +97,14 @@ function CannedFormBody({ canned }: { canned?: Canned }) {
       dept_id: Number(text("dept_id")),
       is_enabled: text("is_enabled") === "1",
     };
+    const added = files.length ? { attachments: await Promise.all(files.map(encodeFile)) } : {};
     if (canned) {
-      const body: Record<string, unknown> = {};
+      const body: Record<string, unknown> = { ...added, ...(removed.length ? { remove_attachment_ids: removed } : {}) };
       for (const k of Object.keys(next) as (keyof typeof next)[]) if (next[k] !== (canned[k] ?? (k === "is_enabled" ? false : k === "dept_id" ? 0 : ""))) body[k] = next[k];
       if (Object.keys(body).length === 0) return setError("No changes to save.");
       await submit("PATCH", `/api/v1/canned/${canned.id}`, body, () => "/kb/canned");
     } else {
-      await submit("POST", "/api/v1/canned", next, (r) => (createdId(r) ? "/kb/canned" : "/kb/canned"));
+      await submit("POST", "/api/v1/canned", { ...next, ...added }, (r) => (createdId(r) ? "/kb/canned" : "/kb/canned"));
     }
   }
 
@@ -124,10 +134,16 @@ function CannedFormBody({ canned }: { canned?: Canned }) {
         <FormRow label="Canned Response" required>
           <textarea name="response" required rows={10} defaultValue={canned?.response ?? ""} className={field} />
         </FormRow>
+        <FormRow label="Attachments">
+          <div className="space-y-2">
+            {canned && <StoredFiles files={canned.attachments} hrefOf={(id) => `/api/v1/canned/${canned.id}/attachments/${id}`} removed={removed} onToggle={(id) => setRemoved((r) => (r.includes(id) ? r.filter((x) => x !== id) : [...r, id]))} />}
+            <AttachmentPicker files={files} onChange={setFiles} />
+          </div>
+        </FormRow>
         <FormRow label="Internal Notes">
           <textarea name="notes" rows={3} defaultValue={canned?.notes ?? ""} className={field} />
         </FormRow>
-        <p className="text-xs text-slate-500">Supported variables such as %{"{"}ticket.number{"}"} are filled in when the response is used. Attachments cannot be uploaded yet.</p>
+        <p className="text-xs text-slate-500">Supported variables such as %{"{"}ticket.number{"}"} are filled in when the response is used.</p>
         <FormButtons busy={busy} submitLabel={canned ? "Save Changes" : "Add Response"} cancelHref="/kb/canned" />
       </form>
     </>

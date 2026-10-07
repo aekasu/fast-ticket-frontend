@@ -8,6 +8,7 @@ import { kbKeys, useCategories, useFaq } from "@/lib/queries/kb";
 import { useMe } from "@/lib/queries/me";
 import { DeleteButton } from "./delete-button";
 import { SafeHtml } from "./safe-html";
+import { StoredFiles } from "./stored-files";
 
 export function FaqView({ id }: { id: number }) {
   const { data: me } = useMe();
@@ -59,6 +60,12 @@ export function FaqView({ id }: { id: number }) {
       <div className="border border-slate-300 bg-white p-4 text-sm">
         <SafeHtml html={faq.answer ?? ""} />
       </div>
+      {faq.attachments.some((f) => !f.inline) && (
+        <div className="mt-3">
+          <h2 className="mb-1 text-sm font-semibold text-slate-800">Attachments</h2>
+          <StoredFiles files={faq.attachments} hrefOf={(id) => `/api/v1/kb/faqs/${faq.id}/attachments/${id}`} />
+        </div>
+      )}
       {faq.keywords && <p className="mt-3 text-xs text-slate-500">Keywords: {faq.keywords}</p>}
       {faq.notes && (
         <p className="mt-2 border border-amber-200 bg-amber-50 px-3 py-2 text-sm">

@@ -104,6 +104,22 @@ test.describe("knowledge base as the admin, compared with osTicket", () => {
       expect(await osticketPageText(os, `faq.php?id=${faqId}`)).toContain("E2E answer text");
       expect((await osticketKb(os, categoryId)).faqs).toContain(`E2E question ${stamp}?`);
 
+      // Attach a file, see it on the FAQ and on osTicket's page, download it, then remove it again
+      await page.getByRole("link", { name: "Edit FAQ" }).click();
+      await page.getByLabel("Attach files").setInputFiles({ name: `e2e-${stamp}.txt`, mimeType: "text/plain", buffer: Buffer.from("hello attachment") });
+      await page.getByRole("button", { name: "Save Changes" }).click();
+      await expect(page).toHaveURL(new RegExp(`/kb/faqs/${faqId}$`));
+      const fileLink = page.getByRole("link", { name: `e2e-${stamp}.txt` });
+      await expect(fileLink).toBeVisible();
+      expect(await osticketPageText(os, `faq.php?id=${faqId}`)).toContain(`e2e-${stamp}.txt`);
+      const download = await request.get(await fileLink.getAttribute("href") as string);
+      expect(await download.text()).toBe("hello attachment");
+      await page.getByRole("link", { name: "Edit FAQ" }).click();
+      await page.getByLabel(`Remove e2e-${stamp}.txt`).check();
+      await page.getByRole("button", { name: "Save Changes" }).click();
+      await expect(page).toHaveURL(new RegExp(`/kb/faqs/${faqId}$`));
+      await expect(fileLink).toHaveCount(0);
+
       // Update the FAQ: unpublish it
       await page.getByRole("link", { name: "Edit FAQ" }).click();
       await page.getByLabel("Listing Type").selectOption("0");

@@ -11,10 +11,8 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
   shows "Completed"). (Collaborators, thread edit/resend, `ticket_number`, `is_overdue`, `queue=` and `/tasks/queues` are
   adopted.) A task's collaborators can be added but not changed or removed: osTicket has no such action either.
 
-## Knowledge base: attachments
+## Knowledge base: notes
 
-- **Needs:** the FAQ's attachments (`KNOWN_LIMITS.md`: FAQ and canned attachments are not exposed).
-- **Meanwhile:** none are shown. (Category counts, `category_id` filter and FAQ search are adopted.)
 - **For reference:** osTicket calls an unpublished FAQ "Internal"; the UI uses its word. osTicket's directory lists a
   user's ticket count only when it is above zero (the UI does the same), and `users.php?org_id=` ignores the filter
   (an organization's members are shown on `orgs.php?id=`); phone numbers are stored as digits.
