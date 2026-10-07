@@ -44,8 +44,9 @@ Every screen of osTicket's staff panel exists, each compared with osTicket's own
 **Verification** (2026-10-07): `npm run test:unit` (40 Vitest tests), `npm run test:e2e` (about 156 Playwright tests against
 the dev server; in the last full run 153 passed, 2 failed transiently and passed on rerun, 1 failed for data reasons: the
 Overdue queue test, see below), `npm run lint`, `npx tsc --noEmit`, `npm run build`. Run the suite with the backend's `.env`
-sourced (`set -a; . ../fast-ticket/.env; set +a`). The two transient ones were the custom-list-field test and the mass-actions
-test: if either recurs, look at the command's `error_message` first.
+sourced (`set -a; . ../fast-ticket/.env; set +a`). Which tests fail transiently changes from run to run (custom-list field, mass actions, New Ticket in
+three full runs; each passes alone): a full run is slow on the shared dev backend, so look at the command's `error_message`
+and rerun the file before suspecting code.
 
 ## Running it
 
