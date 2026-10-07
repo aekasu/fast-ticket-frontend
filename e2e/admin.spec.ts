@@ -35,7 +35,7 @@ test.describe("Admin Panel as the admin", () => {
       { slug: "staff", osPage: "staff.php", nameKey: (i) => `${i.firstname} ${i.lastname}` },
       { slug: "departments", osPage: "departments.php", nameKey: (i) => i.name },
       { slug: "teams", osPage: "teams.php", nameKey: (i) => i.name },
-      { slug: "topics", osPage: "helptopics.php", nameKey: (i) => i.topic },
+      { slug: "topics", osPage: "helptopics.php", nameKey: (i) => i.path || i.topic },
       { slug: "slas", osPage: "slas.php", nameKey: (i) => i.name },
       { slug: "banlist", osPage: "banlist.php", nameKey: (i) => i.val },
     ];
@@ -54,7 +54,7 @@ test.describe("Admin Panel as the admin", () => {
     await os.dispose();
   });
 
-  test("the roles list matches osTicket's, read-only", async ({ page, request }) => {
+  test("the roles list matches osTicket's", async ({ page, request }) => {
     const os = await osticketAdmin();
     const api = ((await (await request.get("/api/v1/roles?page_size=100")).json()) as { items: { name: string; enabled: boolean }[] }).items;
     const theirs = (await osticketRows(os, "roles.php")).map((cells) => cells.join(" | "));
@@ -64,10 +64,58 @@ test.describe("Admin Panel as the admin", () => {
     await expect(page.locator("tbody tr").first()).toBeVisible();
     const shown = await page.locator("tbody tr td:first-child").allTextContents();
     expect(shown.map((t) => t.trim()).sort()).toEqual(api.map((r) => r.name).sort());
-    // No create, and the rows are not links: the API only lists roles.
-    await expect(page.getByRole("link", { name: /^Add New/ })).toHaveCount(0);
-    await expect(page.locator("tbody tr td:first-child a")).toHaveCount(0);
     await os.dispose();
+  });
+
+  test("the team list shows osTicket's Members count and Team Lead", async ({ page }) => {
+    const os = await osticketAdmin();
+    const theirs = await osticketRows(os, "teams.php");
+    await page.goto("/admin/teams");
+    await expect(page.locator("tbody tr").first()).toBeVisible();
+    const headers = (await page.locator("thead th").allTextContents()).map((h) => h.trim());
+    const members = headers.indexOf("Members");
+    expect(members).toBeGreaterThan(-1);
+    const shown = await page.locator("tbody tr").evaluateAll((rows, idx) => rows.map((r) => [(r.querySelectorAll("td")[0].textContent ?? "").trim(), (r.querySelectorAll("td")[idx].textContent ?? "").trim()]), members);
+    for (const [name, count] of shown) {
+      const row = theirs.find((cells) => cells.includes(name));
+      expect(row, name).toBeTruthy();
+      expect(row!.join("|"), `${name} members`).toContain(count);
+    }
+    await os.dispose();
+  });
+
+  test("a role is added, updated and deleted, and osTicket lists it; an empty permission set is refused", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const name = `E2E Role ${stamp()}`;
+    let id: number | undefined;
+    try {
+      await page.goto("/admin/roles/new");
+      await page.getByLabel("Name", { exact: true }).fill(name);
+      await page.getByRole("button", { name: "Add Role" }).click();
+      // osTicket needs at least one permission: its refusal is shown as worded.
+      await expect(page.getByRole("alert")).toBeVisible();
+      await page.getByRole("group", { name: "Permissions" }).getByLabel("create", { exact: true }).first().check();
+      await page.getByRole("button", { name: "Add Role" }).click();
+      await expect(page).toHaveURL(/\/admin\/roles\/\d+$/);
+      id = idFromUrl(page);
+      await expect(page.getByRole("heading", { name })).toBeVisible();
+      expect((await osticketList(os, "roles.php")).join("\n")).toContain(name);
+
+      await page.getByRole("link", { name: "Update" }).click();
+      await page.getByLabel("Admin Notes").fill("changed by e2e");
+      await page.getByRole("button", { name: "Save Changes" }).click();
+      await expect(page).toHaveURL(new RegExp(`/admin/roles/${id}$`));
+      await expect(cellOf(page, "Notes")).toHaveText("changed by e2e");
+
+      await page.getByRole("button", { name: "Delete", exact: true }).click();
+      await page.getByRole("button", { name: "Delete role" }).click();
+      await expect(page).toHaveURL(/\/admin\/roles$/);
+      expect((await osticketList(os, "roles.php")).join("\n")).not.toContain(name);
+      id = undefined;
+    } finally {
+      await remove(request, "/api/v1/roles", id);
+      await os.dispose();
+    }
   });
 
   test("an unknown id says so", async ({ page }) => {

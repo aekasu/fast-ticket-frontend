@@ -9,7 +9,7 @@ export interface Column {
   value: (item: Row, lk: Lk) => string;
 }
 
-export type FieldKind = "text" | "email" | "password" | "textarea" | "number" | "bool" | "select";
+export type FieldKind = "text" | "email" | "password" | "textarea" | "number" | "bool" | "select" | "permissions";
 
 export interface FieldDef {
   name: string;
@@ -82,9 +82,9 @@ export const RESOURCES: Record<string, ResourceDef> = {
       { label: "Username", value: (r) => s(r.username) },
       { label: "Status", value: (r) => active(r.is_active) },
       { label: "Department", value: (r, lk) => lookup(lk.names.departments, r.dept_id) },
+      { label: "Last Login", value: (r) => date(r.last_login) },
       { label: "Created", value: (r) => date(r.created) },
     ],
-    listNote: "osTicket's Last Login column is not available through the API.",
     info: [
       ["Name", fullName],
       ["Username", (r) => s(r.username)],
@@ -135,13 +135,26 @@ export const RESOURCES: Record<string, ResourceDef> = {
       { label: "Name", value: (r) => s(r.name) },
       { label: "Status", value: (r) => (r.enabled ? "Enabled" : "Disabled") },
       { label: "Permissions", value: (r) => String(((r.permissions as unknown[]) ?? []).length) },
-      { label: "Notes", value: (r) => s(r.notes) },
+      { label: "In use", value: (r) => s(r.in_use) },
+      { label: "Created", value: (r) => date(r.created) },
+      { label: "Last Updated", value: (r) => date(r.updated) },
     ],
-    listNote: "Roles are read-only through the API: they can be listed (and chosen for an agent), not created, edited or deleted.",
-    info: [],
-    fields: [],
-    canCreate: false,
-    listOnly: true,
+    info: [
+      ["Name", (r) => s(r.name)],
+      ["Status", (r) => (r.enabled ? "Enabled" : "Disabled")],
+      ["In use", (r) => (r.in_use ? `Yes (${s(r.in_use)})` : "No")],
+      ["Created", (r) => date(r.created)],
+      ["Last Updated", (r) => date(r.updated)],
+      ["Permissions", (r) => ((r.permissions as string[]) ?? []).join(", ")],
+      ["Notes", (r) => s(r.notes)],
+    ],
+    fields: [
+      { name: "name", label: "Name", kind: "text", required: true },
+      { name: "enabled", label: "Role is enabled", kind: "bool", defaultChecked: true },
+      { name: "permissions", label: "Permissions", kind: "permissions", help: "osTicket needs at least one." },
+      { name: "notes", label: "Admin Notes", kind: "textarea" },
+    ],
+    // A role an agent or a department's access entry uses is refused by osTicket ("in use"): its answer is shown.
   },
 
   teams: {
@@ -154,10 +167,11 @@ export const RESOURCES: Record<string, ResourceDef> = {
     columns: [
       { label: "Team Name", value: (r) => s(r.name) },
       { label: "Status", value: (r) => (r.is_enabled ? "Active" : "Disabled") },
+      { label: "Members", value: (r) => s(r.members_count) },
+      { label: "Team Lead", value: (r) => s(r.lead_name) },
       { label: "Created", value: (r) => date(r.created) },
       { label: "Last Updated", value: (r) => date(r.updated) },
     ],
-    listNote: "osTicket's Members count and Team Lead columns are not in the list endpoint.",
     info: [
       ["Team Name", (r) => s(r.name)],
       ["Status", (r) => (r.is_enabled ? "Active" : "Disabled")],
@@ -187,9 +201,12 @@ export const RESOURCES: Record<string, ResourceDef> = {
     columns: [
       { label: "Name", value: (r) => s(r.name) },
       { label: "Type", value: (r) => kind(r.is_public) },
+      { label: "Status", value: (r) => (s(r.status) === "active" ? "Active" : s(r.status)) },
+      { label: "Agents", value: (r) => s(r.agents_count) },
+      { label: "Email Address", value: (r) => s(r.email_address) },
+      { label: "Manager", value: (r) => s(r.manager_name) },
       { label: "Created", value: (r) => date(r.created) },
     ],
-    listNote: "osTicket's Status, Agents, Email Address and Manager columns are not in the list endpoint.",
     info: [
       ["Name", (r) => s(r.name)],
       ["Status", (r) => (s(r.status) === "active" ? "Active" : s(r.status))],
@@ -228,13 +245,14 @@ export const RESOURCES: Record<string, ResourceDef> = {
     osticketPage: "helptopics.php",
     name: (r) => s(r.topic),
     columns: [
-      { label: "Help Topic", value: (r) => s(r.topic) },
+      { label: "Help Topic", value: (r) => s(r.path) || s(r.topic) },
       { label: "Status", value: (r) => active(r.is_active) },
       { label: "Type", value: (r) => kind(r.is_public) },
+      { label: "Priority", value: (r) => s(r.priority_name) },
+      { label: "Department", value: (r) => s(r.dept_name) },
       { label: "Last Updated", value: (r) => date(r.updated) },
       { label: "Created", value: (r) => date(r.created) },
     ],
-    listNote: "osTicket's Priority and Department columns are not in the list endpoint.",
     info: [
       ["Help Topic", (r) => s(r.topic)],
       ["Status", (r) => (s(r.status) === "active" ? "Active" : s(r.status))],
@@ -354,6 +372,7 @@ export const RESOURCES: Record<string, ResourceDef> = {
     columns: [
       { label: "Title", value: (r) => s(r.title) },
       { label: "Type", value: (r) => s(r.type) },
+      { label: "Fields", value: (r) => s(r.field_count) },
       { label: "Last Updated", value: (r) => date(r.updated) },
     ],
     info: [

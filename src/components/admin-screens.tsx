@@ -8,7 +8,7 @@ import { getJson } from "@/lib/api/raw";
 import { ADMIN_MENU, type AdminItem } from "@/lib/admin/menu";
 import { RESOURCES, type FieldDef, type ResourceDef, type Row } from "@/lib/admin/resources";
 import { createdId } from "@/lib/queries/directory";
-import { useAdminLookups } from "@/lib/queries/admin-lookups";
+import { useAdminLookups, usePermissionKeys } from "@/lib/queries/admin-lookups";
 import { useSubmitCommand } from "@/lib/queries/submit";
 import { field } from "./action-ui";
 import { DeleteButton } from "./delete-button";
@@ -225,6 +225,26 @@ export function AdminView({ resourceKey, id }: { resourceKey: string; id: number
   );
 }
 
+/** A role's permissions: the role-kind keys of `GET /permissions`, as checkboxes grouped by their prefix. */
+function PermissionChecks({ name, held }: { name: string; held: string[] }) {
+  const keys = usePermissionKeys().data?.filter((p) => p.kind === "role").map((p) => p.key) ?? [];
+  const groups = [...new Set(keys.map((k) => k.split(".")[0]))];
+  return (
+    <div className="space-y-2" role="group" aria-label="Permissions">
+      {groups.map((g) => (
+        <fieldset key={g} className="flex flex-wrap gap-x-4 gap-y-1">
+          <legend className="text-xs font-semibold uppercase tracking-wide text-slate-600">{g}</legend>
+          {keys.filter((k) => k.startsWith(`${g}.`)).map((k) => (
+            <label key={k} className="flex items-center gap-1 text-sm">
+              <input type="checkbox" name={`${name}:${k}`} defaultChecked={held.includes(k)} /> {k.slice(g.length + 1)}
+            </label>
+          ))}
+        </fieldset>
+      ))}
+    </div>
+  );
+}
+
 function FieldInput({ f, data, lk }: { f: FieldDef; data?: Row; lk: ReturnType<typeof useAdminLookups> }) {
   const current = data?.[f.name];
   if (f.kind === "bool") {
@@ -233,6 +253,14 @@ function FieldInput({ f, data, lk }: { f: FieldDef; data?: Row; lk: ReturnType<t
         <input type="checkbox" name={f.name} defaultChecked={data ? Boolean(current) : Boolean(f.defaultChecked)} />
         {f.label}
       </label>
+    );
+  }
+  if (f.kind === "permissions") {
+    return (
+      <div>
+        <PermissionChecks name={f.name} held={(current as string[]) ?? []} />
+        {f.help && <p className="mt-1 text-xs text-slate-500">{f.help}</p>}
+      </div>
     );
   }
   const common = { name: f.name, required: f.required, "aria-label": f.label, className: field };
@@ -275,6 +303,12 @@ function AdminFormBody({ resource, data }: { resource: ResourceDef; data?: Row }
     const form = new FormData(event.currentTarget);
     const body: Record<string, unknown> = {};
     for (const f of fields) {
+      if (f.kind === "permissions") {
+        const chosen = [...form.keys()].filter((k) => k.startsWith(`${f.name}:`)).map((k) => k.slice(f.name.length + 1)).sort();
+        const cur = [...(((data?.[f.name] as string[]) ?? []))].sort();
+        if (!data || JSON.stringify(chosen) !== JSON.stringify(cur)) body[f.name] = chosen;
+        continue;
+      }
       const raw = f.kind === "bool" ? form.get(f.name) === "on" : String(form.get(f.name) ?? "");
       let next: unknown;
       if (f.kind === "bool") next = raw;
