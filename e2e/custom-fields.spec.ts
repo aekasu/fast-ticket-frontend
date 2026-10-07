@@ -87,6 +87,49 @@ test.describe("custom fields on tickets", () => {
   });
 });
 
+test.describe("a custom-list field", () => {
+  test.use({ storageState: AUTH.admin });
+
+  test("is picked from the list's items on a new ticket, shown, and changed on edit", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const stamp = Date.now();
+    let listId: number | undefined;
+    let fieldId: number | undefined;
+    let ticketId: number | undefined;
+    try {
+      const made = await command(request, "POST", "/api/v1/lists", { name: `E2E Colours ${stamp}`, name_plural: `E2E Colours ${stamp}s` });
+      expect(made.status, made.error_message ?? "").toBe("done");
+      listId = Object.values(made.result).find((v): v is number => typeof v === "number")!;
+      for (const value of ["Red", "Blue"]) expect((await command(request, "POST", `/api/v1/lists/${listId}/items`, { value })).status).toBe("done");
+      fieldId = await addFormField(request, TICKET_FORM, { label: "E2E CF List", type: `list-${listId}`, name: "e2e_cf_list" });
+
+      await page.goto("/tickets/new");
+      await page.getByLabel("Email Address").fill(`e2e.list.${stamp}@example.com`);
+      await page.getByLabel("Full Name").fill("E2E List User");
+      await page.getByLabel("Issue Summary").fill(`[e2e] list field ${stamp}`);
+      await page.getByLabel("Help Topic").selectOption({ label: "General Inquiry" });
+      await page.getByLabel("Issue Details").fill("Picks from a list.");
+      await page.getByLabel("E2E CF List").selectOption({ label: "Red" });
+      await page.getByRole("button", { name: "Create Ticket" }).click();
+      await expect(page).toHaveURL(/\/tickets\/\d+$/);
+      ticketId = Number(page.url().split("/").pop());
+      const fields = page.getByRole("region", { name: "Custom fields" });
+      await expect(fields.locator("th", { hasText: /^E2E CF List:$/ }).locator("xpath=following-sibling::td[1]")).toHaveText("Red");
+      expect(await osticketPageText(os, `tickets.php?id=${ticketId}`)).toContain("Red");
+
+      await page.getByRole("link", { name: "Edit", exact: true }).click();
+      await page.getByLabel("E2E CF List").selectOption({ label: "Blue" });
+      await page.getByRole("button", { name: "Save" }).click();
+      await expect(fields.locator("th", { hasText: /^E2E CF List:$/ }).locator("xpath=following-sibling::td[1]")).toHaveText("Blue");
+    } finally {
+      if (ticketId) await command(request, "DELETE", `/api/v1/tickets/${ticketId}`).catch(() => undefined);
+      if (fieldId) await removeFormField(request, TICKET_FORM, fieldId);
+      if (listId) await command(request, "DELETE", `/api/v1/lists/${listId}`).catch(() => undefined);
+      await os.dispose();
+    }
+  });
+});
+
 test.describe("custom fields on users, organizations and tasks", () => {
   test.use({ storageState: AUTH.admin });
 

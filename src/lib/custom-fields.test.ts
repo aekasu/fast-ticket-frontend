@@ -91,3 +91,25 @@ describe("collectCustomFields", () => {
     expect(collectCustomFields(form([]), defs, answers)).toEqual({ note: "", pick: "" });
   });
 });
+
+describe("custom-list fields", () => {
+  const list = def({ name: "colour", type: "list-7", list_items: [{ id: 11, value: "Red" }, { id: 12, value: "Blue" }] });
+
+  it("can be typed, offer the list's items, and send item ids", () => {
+    expect(customDefs([list], "T").map((d) => d.name)).toEqual(["colour"]);
+    expect(parseChoices(null, list)).toEqual([{ key: "11", label: "Red" }, { key: "12", label: "Blue" }]);
+    const form = new FormData();
+    form.append("cf:colour", "12");
+    expect(collectCustomFields(form, [list])).toEqual({ colour: 12 });
+  });
+
+  it("send a list of ids when several can be chosen, and null when the answer is cleared", () => {
+    const many = { ...list, configuration: { multiselect: true } };
+    const form = new FormData();
+    form.append("cf:colour", "11");
+    form.append("cf:colour", "12");
+    expect(collectCustomFields(form, [many])).toEqual({ colour: [11, 12] });
+    const answers: Answer[] = [{ name: "colour", label: "Colour", type: "list-7", kind: "choices", choices: [{ key: "11", label: "Red" }] }];
+    expect(collectCustomFields(new FormData(), [list], answers)).toEqual({ colour: null });
+  });
+});

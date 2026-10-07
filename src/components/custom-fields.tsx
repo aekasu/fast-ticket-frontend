@@ -1,6 +1,6 @@
 "use client";
 
-import { type Answer, type FieldDef, chosenKeys, displayValue, parseChoices } from "@/lib/custom-fields";
+import { type Answer, type FieldDef, chosenKeys, displayValue, isListType, parseChoices } from "@/lib/custom-fields";
 import type { FormType } from "@/lib/queries/forms";
 import { field } from "./action-ui";
 import { Info } from "./info-table";
@@ -41,8 +41,8 @@ export function CustomFieldInputs({ defs, answers }: { defs: FieldDef[]; answers
           );
         } else if (def.type === "memo") {
           input = <textarea name={name} aria-label={def.label} rows={4} defaultValue={answer?.value ?? ""} className={field} />;
-        } else if (def.type === "choices") {
-          const choices = parseChoices(def.configuration);
+        } else if (def.type === "choices" || isListType(def.type)) {
+          const choices = parseChoices(def.configuration, def);
           const selected = chosenKeys(answer);
           input = def.configuration?.multiselect ? (
             <fieldset className="space-y-1 pt-1.5" aria-label={def.label}>
