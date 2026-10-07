@@ -23,8 +23,8 @@ test.describe("Admin Panel as the admin", () => {
     }
     await expect(page.getByRole("link", { name: "Help Topics" }).first()).toBeVisible();
     // A page with no endpoint behind it says so.
-    await page.goto("/admin/settings-company");
-    await expect(page.getByRole("heading", { name: "Company" })).toBeVisible();
+    await page.goto("/admin/emailtest");
+    await expect(page.getByRole("heading", { name: "Diagnostic" })).toBeVisible();
     await expect(page.getByRole("status")).toContainText("no endpoint in the API");
     await page.goto("/admin/no-such-page");
     await expect(page.getByText("This page could not be found.")).toBeVisible();

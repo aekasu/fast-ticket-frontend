@@ -6,6 +6,8 @@ export interface AdminItem {
   /** The resource config key in `resources.ts`, when the API serves it. */
   resource?: string;
   /** A hand-built screen (not the generic resource list) the API serves for this entry. */
+  /** For a settings screen: the `/settings/{section}` it edits. */
+  section?: string;
   screen?: "logs" | "system" | "plugins" | "settings" | "schedules" | "templates" | "filters";
   /** osTicket's page, for reference in the unavailable notice. */
   page: string;
@@ -30,13 +32,13 @@ export const ADMIN_MENU: AdminGroup[] = [
     key: "settings",
     label: "Settings",
     items: [
-      { label: "Company", slug: "settings-company", page: "settings.php?t=pages" },
-      { label: "System", slug: "settings-system", page: "settings.php?t=system" },
-      { label: "Tickets", slug: "settings-tickets", page: "settings.php?t=tickets" },
-      { label: "Tasks", slug: "settings-tasks", page: "settings.php?t=tasks" },
-      { label: "Agents", slug: "settings-agents", page: "settings.php?t=agents" },
-      { label: "Users", slug: "settings-users", page: "settings.php?t=users" },
-      { label: "Knowledgebase", slug: "settings-kb", page: "settings.php?t=kb" },
+      { label: "Company", slug: "settings-company", screen: "settings", section: "pages", page: "settings.php?t=pages" },
+      { label: "System", slug: "settings-system", screen: "settings", section: "system", page: "settings.php?t=system" },
+      { label: "Tickets", slug: "settings-tickets", screen: "settings", section: "tickets", page: "settings.php?t=tickets" },
+      { label: "Tasks", slug: "settings-tasks", screen: "settings", section: "tasks", page: "settings.php?t=tasks" },
+      { label: "Agents", slug: "settings-agents", screen: "settings", section: "agents", page: "settings.php?t=agents" },
+      { label: "Users", slug: "settings-users", screen: "settings", section: "users", page: "settings.php?t=users" },
+      { label: "Knowledgebase", slug: "settings-kb", screen: "settings", section: "kb", page: "settings.php?t=kb" },
     ],
   },
   {
@@ -61,7 +63,7 @@ export const ADMIN_MENU: AdminGroup[] = [
     label: "Emails",
     items: [
       { label: "Emails", slug: "emails", resource: "emails", page: "emails.php" },
-      { label: "Settings", slug: "emailsettings", page: "emailsettings.php" },
+      { label: "Settings", slug: "emailsettings", screen: "settings", section: "emails", page: "emailsettings.php" },
       { label: "Banlist", slug: "banlist", resource: "banlist", page: "banlist.php" },
       { label: "Templates", slug: "templates", page: "templates.php" },
       { label: "Diagnostic", slug: "emailtest", page: "emailtest.php" },

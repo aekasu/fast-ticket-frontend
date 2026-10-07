@@ -1,7 +1,7 @@
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 import { command } from "./api";
 import { AUTH } from "./global-setup";
-import { osticketAdmin, osticketPageText, osticketRows } from "./osticket";
+import { osticketAdmin, osticketPageText, osticketRaw, osticketRows } from "./osticket";
 
 const stamp = () => Date.now();
 const idFromUrl = (page: Page) => Number(page.url().split("/").filter((p) => /^\d+$/.test(p)).pop());
@@ -176,5 +176,31 @@ test.describe("more Admin Panel pages as the admin, confirmed on osTicket's page
       if (name.trim() && !/No plugins/.test(name)) expect(await osticketPageText(os, "plugins.php")).toContain(name.trim());
     }
     await os.dispose();
+  });
+
+  test("settings: a change is saved and shows on osTicket's page, and osTicket's refusal is shown as worded", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const before = (await (await request.get("/api/v1/settings/system")).json()) as { helpdesk_title: string };
+    const title = `E2E Desk ${stamp()}`;
+    try {
+      await page.goto("/admin/settings-system");
+      const form = page.getByRole("form", { name: "System settings" });
+      await form.getByLabel("Helpdesk title").fill(title);
+      await form.getByRole("button", { name: "Save Changes" }).click();
+      await expect(page.getByText("Successfully updated settings.")).toBeVisible();
+      expect((await osticketRaw(os, "settings.php?t=system")).body).toContain(`value="${title}"`);
+
+      await page.goto("/admin/settings-tickets");
+      const tickets = page.getByRole("form", { name: "Tickets settings" });
+      const original = await tickets.getByLabel("Ticket number format").inputValue();
+      await tickets.getByLabel("Ticket number format").fill("no-hash-here");
+      await tickets.getByRole("button", { name: "Save Changes" }).click();
+      await expect(tickets.getByRole("alert")).toContainText("hash");
+      // A refused save changes nothing.
+      expect(((await (await request.get("/api/v1/settings/tickets")).json()) as { ticket_number_format: string }).ticket_number_format).toBe(original);
+    } finally {
+      await command(request, "PATCH", "/api/v1/settings/system", { helpdesk_title: before.helpdesk_title }).catch(() => undefined);
+      await os.dispose();
+    }
   });
 });
