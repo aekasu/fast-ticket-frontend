@@ -46,9 +46,10 @@ test.describe("dashboard, directory and profile as the admin", () => {
     } finally {
       await ticket.remove();
     }
-    // With nothing assigned any more, the empty state shows.
+    // With nothing assigned any more, the empty state shows (if the dev data has no ticket assigned to the admin).
+    const left = (await (await request.get("/api/v1/tickets/?queue=assigned_me&page_size=1")).json()) as { total: number };
     await page.goto("/");
-    await expect(page.getByText("Nothing is assigned to you.")).toBeVisible();
+    if (left.total === 0) await expect(page.getByText("Nothing is assigned to you.")).toBeVisible();
   });
 
   test("the agent directory lists the same people as osTicket's", async ({ page }) => {
@@ -95,13 +96,39 @@ test.describe("dashboard, directory and profile as the admin", () => {
     expect(theirs.email).toBe(me.email);
     expect(theirs.username).toBe(me.username);
     expect(`${theirs.firstname} ${theirs.lastname}`).toBe(me.name);
-    await expect(page.getByRole("status")).toContainText("not available through the API");
     await os.dispose();
+  });
+
+  test("My Profile shows osTicket's refusal as worded (its validator rejects the dev admin's .local address)", async ({ page, request }) => {
+    const before = (await (await request.get("/api/v1/profile")).json()) as { mobile: string };
+    await page.goto("/profile");
+    const form = page.getByRole("form", { name: "Profile" });
+    await form.getByLabel("Mobile Number").fill("5550001111");
+    await form.getByRole("button", { name: "Save Changes" }).click();
+    await expect(form.getByRole("alert")).toContainText("Profile was not updated");
+    // A refused save changes nothing.
+    expect(((await (await request.get("/api/v1/profile")).json()) as { mobile: string }).mobile).toBe(before.mobile);
   });
 });
 
 test.describe("a non-admin agent", () => {
   test.use({ storageState: AUTH.agent });
+
+  test("saves their own profile details", async ({ page, request }) => {
+    const before = (await (await request.get("/api/v1/profile")).json()) as { mobile: string };
+    const mobile = `555${String(Date.now()).slice(-7)}`;
+    try {
+      await page.goto("/profile");
+      const form = page.getByRole("form", { name: "Profile" });
+      await form.getByLabel("Mobile Number").fill(mobile);
+      await form.getByRole("button", { name: "Save Changes" }).click();
+      await expect(page.getByText("Profile updated successfully.")).toBeVisible();
+      // osTicket stores a phone number formatted, "(555) 543-0023".
+      expect(((await (await request.get("/api/v1/profile")).json()) as { mobile: string }).mobile.replace(/\D/g, "")).toBe(mobile);
+    } finally {
+      await page.request.patch("/api/v1/profile", { data: { mobile: before.mobile } });
+    }
+  });
 
   test("sees their own dashboard, the directory and their profile", async ({ page, request }) => {
     const me = (await (await request.get("/api/v1/auth/me")).json()) as { username: string };

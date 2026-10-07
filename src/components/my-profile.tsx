@@ -4,8 +4,9 @@ import { useMe } from "@/lib/queries/me";
 import { useDepartments } from "@/lib/queries/reference";
 import { DashboardTabs } from "./dashboard-tabs";
 import { Info } from "./info-table";
+import { MyProfileForm } from "./my-profile-form";
 
-/** The agent's own account, read-only: the API has no self-service update (notes/BACKEND_REQUESTS.md). */
+/** The agent's own account: osTicket's profile.php form, then what the role system grants. */
 export function MyProfile() {
   const { data: me, error, isLoading } = useMe();
   const departments = useDepartments();
@@ -17,6 +18,9 @@ export function MyProfile() {
       <h1 className="mb-3 text-xl font-bold text-slate-800">My Account Profile</h1>
       {isLoading && <p className="text-sm text-slate-500">Loading…</p>}
       {error && <p role="alert" className="text-sm text-red-700">{error.message}</p>}
+      <div className="mb-6">
+        <MyProfileForm />
+      </div>
       {me && (
         <>
           <div className="grid gap-4 lg:grid-cols-2">
@@ -62,9 +66,6 @@ export function MyProfile() {
               )}
             </tbody>
           </table>
-          <p role="status" className="mt-4 text-xs text-slate-500">
-            Editing your profile, signature, preferences (page size, refresh rate, default queue), vacation mode and password is not available through the API yet.
-          </p>
         </>
       )}
     </div>

@@ -37,17 +37,6 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 - **Exposed by the frontend (2026-10-04):** team members, a department's extended-access agents, an agent's extended
   department access, teams and permissions, and a help topic's custom forms (`components/admin-relations.tsx`).
 
-## No dashboard activity report and no self-service profile
-
-- **Needs (osTicket's Dashboard menu):** (1) the activity report of `dashboard.php`: per department, help topic and
-  agent over a period, the tickets opened, assigned, overdue, closed, reopened and deleted, with service and
-  response times (and its export); (2) `profile.php`: an agent editing their own name, phone, signature, password,
-  vacation mode and preferences (page size, auto-refresh, default queue, thread order, paper size, redirect).
-- **Gives (observed 2026-10-04):** nothing for (1); for (2) `GET /auth/me` is read-only and `PATCH /staff/{id}` is
-  admin-only.
-- **Meanwhile:** the landing page shows the agent's own ticket and task counts and their assigned tickets (real data,
-  labelled as such) and says the activity report is missing; My Profile is read-only with a note.
-
 
 ## Custom fields: two leftovers
 
