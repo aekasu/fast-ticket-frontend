@@ -3,24 +3,7 @@
 What a screen needs that the API lacks or gets wrong. Raised in the backend repo, never fixed from here. Delete an
 entry when the backend fixes it (and re-run `npm run api:pull`).
 
-## The default queue order: the tie-break uses `updated`, osTicket's uses `lastupdate`
 
-- **Needs:** osTicket's default queue sort, "Priority + Most Recently Updated": most urgent first, and within a priority the
-  ticket with the latest `lastupdate` (the API's `last_activity`) first.
-- **Gives (observed 2026-10-06):** `sort=priority&descending=false` orders the priorities correctly and now breaks ties by
-  most recently *updated*, but by the row's `updated`, which also moves on a note, an edit or a task linked to the ticket.
-  Ticket 613600 (last message 12:58, row updated later) sorts first among the Emergency tickets here and last on
-  osTicket's page.
-- **Ask:** break the `priority` tie by `last_activity` (osTicket's own sort), so the first page matches osTicket's.
-- **Meanwhile:** `e2e/tickets.spec.ts` has a `test.fixme` for the exact order; the set of tickets on each page matches.
-
-## Ticket create: status and attachments
-
-- **Needs (osTicket's staff form, `ticket-open.inc.php`):** the initial Ticket Status choice (the API takes `status_id`
-  but has no list of statuses to offer) and attachments on the first message.
-- **Gives (observed 2026-10-06):** everything else on the form is adopted (requester, Cc, source, SLA, due date, assign,
-  response, note, signature, notice). Attachments exist on replies and notes only.
-- **Meanwhile:** the New Ticket screen says status and attachments are not offered.
 
 ## Task pages
 
@@ -65,22 +48,12 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 - **Meanwhile:** the landing page shows the agent's own ticket and task counts and their assigned tickets (real data,
   labelled as such) and says the activity report is missing; My Profile is read-only with a note.
 
-## Ticket relations and statuses osTicket offers that the API does not
-
-- **Needs (osTicket's ticket "More" menu and status control):** Link Tickets (and unlink), un-merge, the ticket status choice (Open / Resolved / Closed and custom statuses) on a reply or from the
-  menu, and Print.
-- **Gives (observed 2026-10-04):** `merge` (children are closed and hidden from the queues, as osTicket does), `refer`
-  (osTicket records an internal note "Referral" and an event; the list and remove are adopted), `close` and `reopen` only. The
-  `ticket.link` permission exists but no route uses it.
-- **Meanwhile:** the toolbar has Merge Tickets and Refer (with the referral list and remove); there is no Link and no
-  status choice beyond Close / Reopen.
 
 ## Custom fields: two leftovers
 
 - **Seen (2026-10-06):** a field added to a form after a ticket existed is missing from that ticket's `custom_fields`
   until the ticket first gets an answer for it; and osTicket's own view pages for a user and an organization do not
   print custom answers (its edit dialog does), so those are checked against the API and the edit dialog.
-- **Not writable yet:** a custom-list field's answer (`KNOWN_LIMITS.md`); the UI shows it read-only.
 - (Typed answers and `GET /forms/for/{kind}` are adopted.)
 
 ## Custom answers cannot be list columns
@@ -98,13 +71,3 @@ entry when the backend fixes it (and re-run `npm run api:pull`).
 - `PATCH` and `resend` apply to customer messages, replies and notes alike; osTicket's own rule (your post, a
   manager, `thread.edit`) decides, and its refusal is shown as worded.
 - Category creation needs a description (osTicket refuses without one); the form now marks it required.
-## A plain-text message loses its line breaks
-
-- **Needs:** a multi-line reply, note or message to keep its lines, as osTicket's own editor does (it stores `<br>` or
-  paragraphs).
-- **Gives (observed 2026-10-06):** `message` "msg line1\nmsg line2" is stored and returned (format `html`) as
-  "msg line1 msg line2": the newline is flattened to a space. Markup typed into the message (`<b>`) is kept as HTML and `&`
-  becomes `&amp;`, so the API treats the text as HTML.
-- **Ask:** convert newlines to `<br>` (or `<p>`) when storing a plain-text message, or accept `format: "text"`.
-- **Meanwhile:** the reply and note boxes send what was typed; a thread shows it by its `format`, so entities decode and
-  markup renders (sanitised), but typed line breaks are gone.

@@ -5,12 +5,12 @@ import type { components } from "@/lib/api/schema";
 import { useUserOptions } from "@/lib/queries/directory";
 import { useDepartments } from "@/lib/queries/reference";
 import { can, useMe } from "@/lib/queries/me";
-import { ticketKeys, useAssignees, useReferrals, useTicketList } from "@/lib/queries/tickets";
+import { ticketKeys, useAssignees, useReferrals, useRelated, useTicketList } from "@/lib/queries/tickets";
 import { NoticeBar, button, field, primary, useRunner } from "./action-ui";
 import { DeleteButton } from "./delete-button";
 
 type Ticket = components["schemas"]["TicketDetail"];
-type Panel = "owner" | "collaborators" | "merge" | "refer" | null;
+type Panel = "owner" | "collaborators" | "merge" | "link" | "refer" | null;
 
 /** osTicket's "More" menu entries about people: Change Owner, Manage Collaborators, and Delete Ticket. */
 export function TicketPeopleTools({ ticket }: { ticket: Ticket }) {
@@ -28,12 +28,14 @@ export function TicketPeopleTools({ ticket }: { ticket: Ticket }) {
   const assignees = useAssignees(ticket.ticket_id, panel === "refer");
   const departments = useDepartments();
   const referrals = useReferrals(ticket.ticket_id, panel === "refer");
+  const related = useRelated(ticket.ticket_id).data;
 
   const canEdit = can(me, ticket.dept_id, "ticket.edit");
   const canDelete = can(me, ticket.dept_id, "ticket.delete");
   const canMerge = can(me, ticket.dept_id, "ticket.merge");
+  const canLink = can(me, ticket.dept_id, "ticket.link");
   const canRefer = can(me, ticket.dept_id, "ticket.refer");
-  if (!canEdit && !canDelete && !canMerge && !canRefer) return null;
+  if (!canEdit && !canDelete && !canMerge && !canLink && !canRefer) return null;
 
   const collaboratorIds = new Set(ticket.collaborators.map((c) => c.user_id));
   const candidates = (users.data ?? []).filter((u) => (panel === "owner" ? u.id !== ticket.user_id : u.id !== ticket.user_id && !collaboratorIds.has(u.id)));
@@ -55,6 +57,15 @@ export function TicketPeopleTools({ ticket }: { ticket: Ticket }) {
     e.preventDefault();
     if (children.length === 0) return;
     if (await run("merge", { child_ids: children }, `${children.length} ticket${children.length === 1 ? "" : "s"} merged into this ticket.`)) {
+      setChildren([]);
+      setPanel(null);
+    }
+  }
+
+  async function link(e: React.FormEvent) {
+    e.preventDefault();
+    if (children.length === 0) return;
+    if (await run("link", { child_ids: children }, `${children.length} ticket${children.length === 1 ? "" : "s"} linked to this ticket.`)) {
       setChildren([]);
       setPanel(null);
     }
@@ -121,6 +132,21 @@ export function TicketPeopleTools({ ticket }: { ticket: Ticket }) {
             Merge Tickets
           </button>
         )}
+        {canLink && (!related || related.relation === "none") && (
+          <button type="button" className={button} onClick={() => toggle("link")} aria-expanded={panel === "link"}>
+            Link Tickets
+          </button>
+        )}
+        {canLink && related?.relation === "linked" && (
+          <button type="button" className={button} disabled={busy} onClick={() => run("unlink", {}, related.is_parent ? "All linked tickets released." : "This ticket is no longer linked.")}>
+            Unlink {related.is_parent ? "Tickets" : "Ticket"}
+          </button>
+        )}
+        {canMerge && related?.relation === "merged" && (
+          <button type="button" className={button} disabled={busy} onClick={() => run("unmerge", {}, related.is_parent ? "The merge was undone." : "This ticket is no longer merged.")}>
+            Un-merge {related.is_parent ? "Tickets" : "Ticket"}
+          </button>
+        )}
         {canRefer && (
           <button type="button" className={button} onClick={() => toggle("refer")} aria-expanded={panel === "refer"}>
             Refer
@@ -151,10 +177,12 @@ export function TicketPeopleTools({ ticket }: { ticket: Ticket }) {
         </form>
       )}
 
-      {panel === "merge" && (
-        <form onSubmit={merge} className="mt-3 max-w-2xl space-y-3 border border-slate-300 bg-white p-4" aria-label="Merge tickets">
-          <h3 className="text-sm font-semibold text-slate-800">Merge Tickets into #{ticket.number}</h3>
-          <p className="text-sm text-slate-600">The tickets you select are merged into this one and no longer appear in the queues.</p>
+      {(panel === "merge" || panel === "link") && (
+        <form onSubmit={panel === "merge" ? merge : link} className="mt-3 max-w-2xl space-y-3 border border-slate-300 bg-white p-4" aria-label={panel === "merge" ? "Merge tickets" : "Link tickets"}>
+          <h3 className="text-sm font-semibold text-slate-800">{panel === "merge" ? "Merge Tickets into" : "Link Tickets to"} #{ticket.number}</h3>
+          <p className="text-sm text-slate-600">
+            {panel === "merge" ? "The tickets you select are merged into this one and no longer appear in the queues." : "The tickets you select are linked to this one; their threads stay apart and nothing is closed."}
+          </p>
           <input type="search" aria-label="Find tickets" placeholder="Filter by number, subject or user" value={search} onChange={(e) => setSearch(e.target.value)} className={field} />
           <ul className="max-h-64 overflow-y-auto border border-slate-200 text-sm">
             {mergeable.map((t) => (
@@ -169,12 +197,12 @@ export function TicketPeopleTools({ ticket }: { ticket: Ticket }) {
                 </label>
               </li>
             ))}
-            {candidatesList.data && mergeable.length === 0 && <li className="px-2 py-3 text-center text-slate-500">No open tickets to merge.</li>}
+            {candidatesList.data && mergeable.length === 0 && <li className="px-2 py-3 text-center text-slate-500">No open tickets to {panel === "merge" ? "merge" : "link"}.</li>}
           </ul>
           <p className="text-xs text-slate-500">The 100 most recently updated open tickets are listed.</p>
           <div className="flex gap-2">
             <button type="submit" className={primary} disabled={busy || children.length === 0}>
-              {busy ? "Working…" : `Merge ${children.length || ""} ticket${children.length === 1 ? "" : "s"}`.replace("  ", " ")}
+              {busy ? "Working…" : `${panel === "merge" ? "Merge" : "Link"} ${children.length || ""} ticket${children.length === 1 ? "" : "s"}`.replace("  ", " ")}
             </button>
             <button type="button" className={button} onClick={() => setPanel(null)}>
               Cancel

@@ -7,7 +7,7 @@ import { api } from "@/lib/api/client";
 import { useCannedList } from "@/lib/queries/kb";
 import { AttachmentPicker, useAttachmentLimits } from "./attachment-picker";
 import { can, useMe } from "@/lib/queries/me";
-import { useDepartments } from "@/lib/queries/reference";
+import { useDepartments, useTicketStatuses } from "@/lib/queries/reference";
 import { NoticeBar, button, field, primary, useRunner } from "./action-ui";
 import { attachmentProblem, encodeFile } from "@/lib/attachments";
 import { ticketKeys, useAssignees } from "@/lib/queries/tickets";
@@ -199,6 +199,8 @@ export function TicketReplyBox({ ticket }: { ticket: Ticket }) {
   const [append, setAppend] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [signature, setSignature] = useState("none");
+  const [statusId, setStatusId] = useState("");
+  const statuses = useTicketStatuses().data ?? [];
   const limits = useAttachmentLimits().data ?? undefined;
   const canned = useCannedList();
 
@@ -222,7 +224,10 @@ export function TicketReplyBox({ ticket }: { ticket: Ticket }) {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!message.trim() || attachmentProblem(files, limits)) return;
-    const attachments = files.length ? { attachments: await Promise.all(files.map(encodeFile)) } : {};
+    const attachments = {
+      ...(files.length ? { attachments: await Promise.all(files.map(encodeFile)) } : {}),
+      ...(statusId ? { status_id: Number(statusId) } : {}),
+    };
     const ok =
       tab === "reply"
         ? await run("reply", { message, signature, ...attachments }, "Reply posted.")
@@ -231,6 +236,7 @@ export function TicketReplyBox({ ticket }: { ticket: Ticket }) {
       setMessage("");
       setTitle("");
       setFiles([]);
+      setStatusId("");
     }
   }
 
@@ -315,6 +321,19 @@ export function TicketReplyBox({ ticket }: { ticket: Ticket }) {
           </label>
         )}
         <AttachmentPicker files={files} onChange={setFiles} />
+        {statuses.length > 0 && (
+          <label className="flex items-center gap-2 text-sm">
+            <span className="font-semibold text-slate-700">Ticket Status</span>
+            <select aria-label="Ticket status" value={statusId} onChange={(e) => setStatusId(e.target.value)} className={`${field} max-w-xs`}>
+              <option value="">— Unchanged —</option>
+              {statuses.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <button type="submit" disabled={busy || !message.trim() || attachmentProblem(files, limits) !== null} className={primary}>
           {busy ? "Posting…" : tab === "reply" && canReply ? "Post Reply" : "Post Note"}
         </button>

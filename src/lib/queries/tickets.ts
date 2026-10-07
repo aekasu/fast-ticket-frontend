@@ -86,3 +86,15 @@ export function useReferrals(ticketId: number, enabled: boolean) {
     },
   });
 }
+
+/** Linked or merged tickets: the relation of this ticket to others (parent, children). */
+export function useRelated(ticketId: number) {
+  return useQuery({
+    queryKey: [...ticketKeys.detail(ticketId), "related"],
+    queryFn: async () => {
+      const { data, error } = await api.GET("/api/v1/tickets/{ticket_id}/related", { params: { path: { ticket_id: ticketId } } });
+      if (!data) throw new Error(errorMessage(error));
+      return data;
+    },
+  });
+}

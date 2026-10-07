@@ -9,11 +9,13 @@ import { CommandFailed, runCommand, useActionKey } from "@/lib/queries/commands"
 import { useUserOptions } from "@/lib/queries/directory";
 import { useAgentDirectory, useTeamsList } from "@/lib/queries/admin-lookups";
 import { canAnywhere, useMe } from "@/lib/queries/me";
-import { useDepartments, usePriorities, useSlas, useTopics } from "@/lib/queries/reference";
+import { useDepartments, usePriorities, useSlas, useTicketStatuses, useTopics } from "@/lib/queries/reference";
 import { ticketKeys } from "@/lib/queries/tickets";
 import { collectCustomFields, customDefs } from "@/lib/custom-fields";
 import { useFormDefinition } from "@/lib/queries/forms";
 import { CustomFieldInputs } from "./custom-fields";
+import { AttachmentPicker, useAttachmentLimits } from "./attachment-picker";
+import { attachmentProblem, encodeFile } from "@/lib/attachments";
 
 const field = "w-full rounded border border-slate-300 bg-white px-3 py-1.5 text-sm";
 
@@ -47,6 +49,9 @@ export function TicketNew() {
   const topics = useTopics();
   const priorities = usePriorities();
   const slas = useSlas();
+  const statuses = useTicketStatuses();
+  const limits = useAttachmentLimits().data ?? undefined;
+  const [files, setFiles] = useState<File[]>([]);
   const { data: me } = useMe();
   const users = useUserOptions();
   const agents = useAgentDirectory().data ?? [];
@@ -61,6 +66,7 @@ export function TicketNew() {
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    if (attachmentProblem(files, limits)) return;
     setBusy(true);
     const form = new FormData(event.currentTarget);
     const text = (name: string) => String(form.get(name) ?? "").trim();
@@ -83,6 +89,7 @@ export function TicketNew() {
       assign_agent_id: assign.startsWith("agent:") ? Number(assign.slice(6)) : undefined,
       assign_team_id: assign.startsWith("team:") ? Number(assign.slice(5)) : undefined,
       priority_id: number("priority_id"),
+      status_id: number("status_id"),
       subject: text("subject"),
       message: text("message"),
       response: response || undefined,
@@ -94,6 +101,7 @@ export function TicketNew() {
     const answers = collectCustomFields(form, custom);
     if (Object.keys(answers).length > 0) body.custom_fields = answers;
     try {
+      if (files.length) Object.assign(body, { attachments: await Promise.all(files.map(encodeFile)) });
       const result = await runCommand({ method: "POST", path: "/api/v1/tickets/", body, key: key.current() });
       key.renew();
       await queryClient.invalidateQueries({ queryKey: ticketKeys.all });
@@ -226,6 +234,18 @@ export function TicketNew() {
               </select>
             </Row>
           )}
+          {(statuses.data?.filter((x) => x.state === "open").length ?? 0) > 0 && (
+            <Row label="Ticket Status">
+              <select name="status_id" aria-label="Ticket status" className={field} defaultValue="">
+                <option value="">— Default —</option>
+                {statuses.data?.filter((x) => x.state === "open").map((x) => (
+                  <option key={x.id} value={x.id}>
+                    {x.name}
+                  </option>
+                ))}
+              </select>
+            </Row>
+          )}
           <Row label="Priority">
             <select name="priority_id" className={field} defaultValue="">
               <option value="">— Default —</option>
@@ -245,6 +265,7 @@ export function TicketNew() {
           <Row label="Issue Details" required>
             <textarea name="message" required rows={8} className={field} />
           </Row>
+          <AttachmentPicker files={files} onChange={setFiles} />
           <CustomFieldInputs defs={custom} />
         </Section>
 
@@ -278,8 +299,6 @@ export function TicketNew() {
             </select>
           </Row>
         </Section>
-
-        <p className="text-xs text-slate-500">Not available through the API yet, so not offered here: ticket status on create and attachments on create.</p>
 
         <div className="flex gap-2">
           <button type="submit" disabled={busy} className="rounded bg-sky-800 px-5 py-2 text-sm font-semibold text-white hover:bg-sky-900 disabled:opacity-60">

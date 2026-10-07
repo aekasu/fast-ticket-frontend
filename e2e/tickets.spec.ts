@@ -28,10 +28,8 @@ test.describe("ticket queues as the admin, compared with osTicket", () => {
     await os.dispose();
   });
 
-  // osTicket's default queue sort is priority, then most recently updated (its `lastupdate`, the API's `last_activity`).
-  // The API's priority sort now breaks ties by the row's `updated` instead, which also moves on a note or an edit, so a
-  // ticket touched after its last message sorts earlier than osTicket puts it (notes/BACKEND_REQUESTS.md).
-  test.fixme("the first page is in osTicket's default order", async ({ page }) => {
+  // osTicket's default queue sort: priority, then its `lastupdate` (the API's `last_activity`).
+  test("the first page is in osTicket's default order", async ({ page }) => {
     const os = await osticketAdmin();
     await page.goto("/tickets?queue=open");
     await expect(page.locator("tbody tr").first()).toBeVisible();

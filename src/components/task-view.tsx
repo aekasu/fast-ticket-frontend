@@ -47,8 +47,7 @@ export function TaskView({ id }: { id: number }) {
       <div className="mb-4 grid gap-4 lg:grid-cols-2">
         <Info
           rows={[
-            // osTicket calls a closed task "Completed"; the API names the status "Closed".
-            ["Status", task.status.state === "closed" ? "Completed" : task.status.name],
+            ["Status", task.status.name],
             ["Created", formatDateTime(task.created)],
             ["Due Date", formatDateTime(task.due_date)],
           ]}

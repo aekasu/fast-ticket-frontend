@@ -53,3 +53,16 @@ export function useSlas() {
     },
   });
 }
+
+/** The enabled ticket statuses in osTicket's order, with their state (open / closed). */
+export function useTicketStatuses() {
+  return useQuery({
+    queryKey: ["reference", "ticket-statuses"],
+    ...options,
+    queryFn: async () => {
+      const { data, error } = await api.GET("/api/v1/ticket-statuses");
+      if (!data) throw new Error(errorMessage(error));
+      return data.statuses;
+    },
+  });
+}
