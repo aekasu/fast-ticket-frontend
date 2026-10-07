@@ -21,6 +21,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/api-keys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List osTicket's API keys */
+        get: operations["list_api_keys_api_v1_api_keys_get"];
+        put?: never;
+        /** Create an API key */
+        post: operations["create_api_key_api_v1_api_keys_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api-keys/{key_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get an API key */
+        get: operations["get_api_key_api_v1_api_keys__key_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete an API key */
+        delete: operations["delete_api_key_api_v1_api_keys__key_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update an API key */
+        patch: operations["update_api_key_api_v1_api_keys__key_id__patch"];
+        trace?: never;
+    };
     "/api/v1/auth/login": {
         parameters: {
             query?: never;
@@ -159,6 +196,23 @@ export interface paths {
         patch: operations["update_canned_api_v1_canned__canned_id__patch"];
         trace?: never;
     };
+    "/api/v1/canned/{canned_id}/attachments/{attachment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download a file attached to a canned response */
+        get: operations["download_canned_attachment_api_v1_canned__canned_id__attachments__attachment_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/commands": {
         parameters: {
             query?: never;
@@ -185,6 +239,23 @@ export interface paths {
         };
         /** Get command detail */
         get: operations["get_command_api_v1_commands__command_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Activity report */
+        get: operations["activity_report_api_v1_dashboard_report_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -232,6 +303,152 @@ export interface paths {
         head?: never;
         /** Update department */
         patch: operations["update_department_api_v1_departments__dept_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/email-templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List email template sets */
+        get: operations["list_sets_api_v1_email_templates_get"];
+        put?: never;
+        /** Create a template set (optionally a copy) */
+        post: operations["create_set_api_v1_email_templates_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/email-templates/{set_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A template set and its messages */
+        get: operations["get_set_api_v1_email_templates__set_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete a template set (not while in use) */
+        delete: operations["delete_set_api_v1_email_templates__set_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update a template set */
+        patch: operations["update_set_api_v1_email_templates__set_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/email-templates/{set_id}/messages/{code_name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One message with its text */
+        get: operations["get_message_api_v1_email_templates__set_id__messages__code_name__get"];
+        /** Set a message's subject and body (adds the message to the set if it has no copy yet) */
+        put: operations["update_message_api_v1_email_templates__set_id__messages__code_name__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/emails": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The system's email addresses */
+        get: operations["list_emails_api_v1_emails_get"];
+        put?: never;
+        /** Add an email address */
+        post: operations["create_email_api_v1_emails_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/emails/{email_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** An email address with its mail accounts (no credentials) */
+        get: operations["get_email_api_v1_emails__email_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete an email address (not the default or alert one) */
+        delete: operations["delete_email_api_v1_emails__email_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update an email address */
+        patch: operations["update_email_api_v1_emails__email_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/filters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List ticket filters */
+        get: operations["list_filters_api_v1_filters_get"];
+        put?: never;
+        /** Create a ticket filter */
+        post: operations["create_filter_api_v1_filters_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/filters/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What a filter form offers */
+        get: operations["filter_options_api_v1_filters_options_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/filters/{filter_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A ticket filter with its rules and actions */
+        get: operations["get_filter_api_v1_filters__filter_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete a ticket filter */
+        delete: operations["delete_filter_api_v1_filters__filter_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update a ticket filter */
+        patch: operations["update_filter_api_v1_filters__filter_id__patch"];
         trace?: never;
     };
     "/api/v1/forms": {
@@ -400,6 +617,147 @@ export interface paths {
         patch: operations["update_faq_api_v1_kb_faqs__faq_id__patch"];
         trace?: never;
     };
+    "/api/v1/kb/faqs/{faq_id}/attachments/{attachment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download a file attached to a FAQ */
+        get: operations["download_faq_attachment_api_v1_kb_faqs__faq_id__attachments__attachment_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List custom lists */
+        get: operations["list_lists_api_v1_lists_get"];
+        put?: never;
+        /** Create a custom list */
+        post: operations["create_list_api_v1_lists_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lists/{list_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a custom list */
+        get: operations["get_list_api_v1_lists__list_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete a custom list (not while a field uses it) */
+        delete: operations["delete_list_api_v1_lists__list_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update a custom list */
+        patch: operations["update_list_api_v1_lists__list_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/lists/{list_id}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The items of a custom list */
+        get: operations["list_entries_api_v1_lists__list_id__items_get"];
+        put?: never;
+        /** Add an item to a custom list */
+        post: operations["create_entry_api_v1_lists__list_id__items_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lists/{list_id}/items/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a list item */
+        delete: operations["delete_entry_api_v1_lists__list_id__items__item_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update a list item */
+        patch: operations["update_entry_api_v1_lists__list_id__items__item_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** System logs */
+        get: operations["list_logs_api_v1_logs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/logs/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Delete log entries */
+        post: operations["delete_logs_api_v1_logs_delete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/logs/{log_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One system log entry */
+        get: operations["get_log_api_v1_logs__log_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/orgs": {
         parameters: {
             query?: never;
@@ -437,6 +795,43 @@ export interface paths {
         patch: operations["update_organization_api_v1_orgs__org_id__patch"];
         trace?: never;
     };
+    "/api/v1/pages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List site pages */
+        get: operations["list_pages_api_v1_pages_get"];
+        put?: never;
+        /** Create a site page */
+        post: operations["create_page_api_v1_pages_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pages/{page_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a site page */
+        get: operations["get_page_api_v1_pages__page_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete a site page (not while in use) */
+        delete: operations["delete_page_api_v1_pages__page_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update a site page */
+        patch: operations["update_page_api_v1_pages__page_id__patch"];
+        trace?: never;
+    };
     "/api/v1/permissions": {
         parameters: {
             query?: never;
@@ -446,6 +841,23 @@ export interface paths {
         };
         /** osTicket's permission keys and where each lives */
         get: operations["list_permission_keys_api_v1_permissions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plugins": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Installed osTicket plugins (read-only) */
+        get: operations["list_plugins_api_v1_plugins_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -494,6 +906,41 @@ export interface paths {
         patch: operations["update_priority_api_v1_priorities__priority_id__patch"];
         trace?: never;
     };
+    "/api/v1/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My profile */
+        get: operations["get_profile_api_v1_profile_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update my profile */
+        patch: operations["update_profile_api_v1_profile_patch"];
+        trace?: never;
+    };
+    "/api/v1/profile/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Change my password */
+        post: operations["change_password_api_v1_profile_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/roles": {
         parameters: {
             query?: never;
@@ -504,8 +951,100 @@ export interface paths {
         /** List roles */
         get: operations["list_roles_api_v1_roles_get"];
         put?: never;
-        post?: never;
+        /** Create a role */
+        post: operations["create_role_api_v1_roles_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roles/{role_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a role */
+        get: operations["get_role_api_v1_roles__role_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete a role (not while in use) */
+        delete: operations["delete_role_api_v1_roles__role_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update a role */
+        patch: operations["update_role_api_v1_roles__role_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/schedules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List schedules */
+        get: operations["list_schedules_api_v1_schedules_get"];
+        put?: never;
+        /** Create (or copy) a schedule */
+        post: operations["create_schedule_api_v1_schedules_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/schedules/{schedule_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A schedule with its entries */
+        get: operations["get_schedule_api_v1_schedules__schedule_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete a schedule */
+        delete: operations["delete_schedule_api_v1_schedules__schedule_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update a schedule */
+        patch: operations["update_schedule_api_v1_schedules__schedule_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/schedules/{schedule_id}/entries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add an entry */
+        post: operations["create_entry_api_v1_schedules__schedule_id__entries_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/schedules/{schedule_id}/entries/{entry_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace an entry */
+        put: operations["update_entry_api_v1_schedules__schedule_id__entries__entry_id__put"];
+        post?: never;
+        /** Delete an entry */
+        delete: operations["delete_entry_api_v1_schedules__schedule_id__entries__entry_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -531,6 +1070,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/settings/agents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin Panel settings: agents */
+        get: operations["get_agents_settings_api_v1_settings_agents_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update the agents settings (partial; osTicket validates) */
+        patch: operations["update_agents_settings_api_v1_settings_agents_patch"];
+        trace?: never;
+    };
     "/api/v1/settings/attachments": {
         parameters: {
             query?: never;
@@ -546,6 +1103,132 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/emails": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin Panel settings: emails */
+        get: operations["get_emails_settings_api_v1_settings_emails_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update the emails settings (partial; osTicket validates) */
+        patch: operations["update_emails_settings_api_v1_settings_emails_patch"];
+        trace?: never;
+    };
+    "/api/v1/settings/kb": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin Panel settings: kb */
+        get: operations["get_kb_settings_api_v1_settings_kb_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update the kb settings (partial; osTicket validates) */
+        patch: operations["update_kb_settings_api_v1_settings_kb_patch"];
+        trace?: never;
+    };
+    "/api/v1/settings/pages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin Panel settings: pages */
+        get: operations["get_pages_settings_api_v1_settings_pages_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update the pages settings (partial; osTicket validates) */
+        patch: operations["update_pages_settings_api_v1_settings_pages_patch"];
+        trace?: never;
+    };
+    "/api/v1/settings/system": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin Panel settings: system */
+        get: operations["get_system_settings_api_v1_settings_system_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update the system settings (partial; osTicket validates) */
+        patch: operations["update_system_settings_api_v1_settings_system_patch"];
+        trace?: never;
+    };
+    "/api/v1/settings/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin Panel settings: tasks */
+        get: operations["get_tasks_settings_api_v1_settings_tasks_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update the tasks settings (partial; osTicket validates) */
+        patch: operations["update_tasks_settings_api_v1_settings_tasks_patch"];
+        trace?: never;
+    };
+    "/api/v1/settings/tickets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin Panel settings: tickets */
+        get: operations["get_tickets_settings_api_v1_settings_tickets_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update the tickets settings (partial; osTicket validates) */
+        patch: operations["update_tickets_settings_api_v1_settings_tickets_patch"];
+        trace?: never;
+    };
+    "/api/v1/settings/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin Panel settings: users */
+        get: operations["get_users_settings_api_v1_settings_users_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update the users settings (partial; osTicket validates) */
+        patch: operations["update_users_settings_api_v1_settings_users_patch"];
         trace?: never;
     };
     "/api/v1/slas": {
@@ -620,6 +1303,23 @@ export interface paths {
         head?: never;
         /** Update staff */
         patch: operations["update_staff_api_v1_staff__staff_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/system/info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** About this osTicket installation */
+        get: operations["system_info_api_v1_system_info_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/tasks/": {
@@ -929,6 +1629,26 @@ export interface paths {
         patch: operations["update_team_api_v1_teams__team_id__patch"];
         trace?: never;
     };
+    "/api/v1/ticket-statuses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List ticket statuses
+         * @description The enabled ticket statuses, as osTicket offers them to every agent on its ticket forms.
+         */
+        get: operations["list_ticket_statuses_api_v1_ticket_statuses_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tickets/": {
         parameters: {
             query?: never;
@@ -1187,6 +1907,23 @@ export interface paths {
         patch: operations["update_collaborator_api_v1_tickets__ticket_id__collaborators__user_id__patch"];
         trace?: never;
     };
+    "/api/v1/tickets/{ticket_id}/link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Link tickets to this one (threads stay apart, nothing is closed) */
+        post: operations["link_tickets_api_v1_tickets__ticket_id__link_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tickets/{ticket_id}/merge": {
         parameters: {
             query?: never;
@@ -1267,6 +2004,23 @@ export interface paths {
         post?: never;
         /** Remove a referral */
         delete: operations["remove_referral_api_v1_tickets__ticket_id__referrals__referral_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/{ticket_id}/related": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The tickets linked to or merged with this one */
+        get: operations["get_related_api_v1_tickets__ticket_id__related_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1385,6 +2139,40 @@ export interface paths {
         put?: never;
         /** Mark a ticket as unanswered */
         post: operations["mark_unanswered_api_v1_tickets__ticket_id__unanswered_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/{ticket_id}/unlink": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Remove a link (from a parent: all children; from a child: itself) */
+        post: operations["unlink_ticket_api_v1_tickets__ticket_id__unlink_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/{ticket_id}/unmerge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Undo a merge (from a parent: all children; from a child: itself) */
+        post: operations["unmerge_ticket_api_v1_tickets__ticket_id__unmerge_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1566,6 +2354,20 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ActionTypeInfo */
+        ActionTypeInfo: {
+            /** Fields */
+            fields: string[];
+            /** Label */
+            label: string;
+            /** Multi Use */
+            multi_use: boolean;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "reject" | "replyto" | "noresp" | "canned" | "dept" | "pri" | "sla" | "team" | "agent" | "topic" | "status" | "email";
+        };
         /** AgentDirectoryItem */
         AgentDirectoryItem: {
             /** Dept Id */
@@ -1700,12 +2502,189 @@ export interface components {
             /** Forms */
             forms: components["schemas"]["AgentForm"][];
         };
+        /** AgentsSettings */
+        AgentsSettings: {
+            /**
+             * Agent Avatar
+             * @default
+             */
+            agent_avatar: string;
+            /**
+             * Agent Name Format
+             * @default
+             */
+            agent_name_format: string;
+            /**
+             * Agent Passwd Policy
+             * @default
+             */
+            agent_passwd_policy: string;
+            /**
+             * Allow Pw Reset
+             * @default false
+             */
+            allow_pw_reset: boolean;
+            /**
+             * Disable Agent Collabs
+             * @default false
+             */
+            disable_agent_collabs: boolean;
+            /**
+             * Hide Staff Name
+             * @default false
+             */
+            hide_staff_name: boolean;
+            /**
+             * Pw Reset Window
+             * @default 0
+             */
+            pw_reset_window: number;
+            /**
+             * Require Agent 2Fa
+             * @default false
+             */
+            require_agent_2fa: boolean;
+            /**
+             * Staff Ip Binding
+             * @default false
+             */
+            staff_ip_binding: boolean;
+            /**
+             * Staff Login Timeout
+             * @default 0
+             */
+            staff_login_timeout: number;
+            /**
+             * Staff Max Logins
+             * @default 0
+             */
+            staff_max_logins: number;
+            /**
+             * Staff Session Timeout
+             * @default 0
+             */
+            staff_session_timeout: number;
+        };
+        /** AgentsSettingsUpdate */
+        AgentsSettingsUpdate: {
+            /** Agent Avatar */
+            agent_avatar?: string | null;
+            /** Agent Name Format */
+            agent_name_format?: string | null;
+            /** Agent Passwd Policy */
+            agent_passwd_policy?: string | null;
+            /** Allow Pw Reset */
+            allow_pw_reset?: boolean | null;
+            /** Disable Agent Collabs */
+            disable_agent_collabs?: boolean | null;
+            /** Hide Staff Name */
+            hide_staff_name?: boolean | null;
+            /** Pw Reset Window */
+            pw_reset_window?: number | null;
+            /** Require Agent 2Fa */
+            require_agent_2fa?: boolean | null;
+            /** Staff Ip Binding */
+            staff_ip_binding?: boolean | null;
+            /** Staff Login Timeout */
+            staff_login_timeout?: number | null;
+            /** Staff Max Logins */
+            staff_max_logins?: number | null;
+            /** Staff Session Timeout */
+            staff_session_timeout?: number | null;
+        };
         /** AnswerChoice */
         AnswerChoice: {
             /** Key */
             key: string;
             /** Label */
             label: string;
+        };
+        /**
+         * ApiKey
+         * @description osTicket's own API keys (Admin Panel → Manage → API Keys) — the ones its HTTP API and email piping check, not
+         *     this API's login. The key itself is shown to administrators, as osTicket's page does.
+         */
+        ApiKey: {
+            /** Can Create Tickets */
+            can_create_tickets: boolean;
+            /** Can Exec Cron */
+            can_exec_cron: boolean;
+            /**
+             * Created
+             * Format: date-time
+             */
+            created: string;
+            /** Id */
+            id: number;
+            /** Ip Address */
+            ip_address: string;
+            /** Is Active */
+            is_active: boolean;
+            /** Key */
+            key: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /**
+             * Updated
+             * Format: date-time
+             */
+            updated: string;
+        };
+        /** ApiKeyCreate */
+        ApiKeyCreate: {
+            /**
+             * Can Create Tickets
+             * @default true
+             */
+            can_create_tickets: boolean;
+            /**
+             * Can Exec Cron
+             * @default false
+             */
+            can_exec_cron: boolean;
+            /**
+             * Ip Address
+             * @description The only address osTicket will accept the key from
+             */
+            ip_address: string;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+        };
+        /** ApiKeyList */
+        ApiKeyList: {
+            /** Items */
+            items: components["schemas"]["ApiKey"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
+        /**
+         * ApiKeyUpdate
+         * @description The address cannot change after the key is made (osTicket's page makes it read-only).
+         */
+        ApiKeyUpdate: {
+            /** Can Create Tickets */
+            can_create_tickets?: boolean | null;
+            /** Can Exec Cron */
+            can_exec_cron?: boolean | null;
+            /** Is Active */
+            is_active?: boolean | null;
+            /** Notes */
+            notes?: string | null;
         };
         /** Assignee */
         Assignee: {
@@ -1894,6 +2873,11 @@ export interface components {
         /** CannedCreate */
         CannedCreate: {
             /**
+             * Attachments
+             * @description Files to attach (size-capped, see GET /settings/attachments)
+             */
+            attachments?: components["schemas"]["AttachmentUpload"][];
+            /**
              * Dept Id
              * @default 0
              */
@@ -1915,6 +2899,12 @@ export interface components {
         };
         /** CannedDetail */
         CannedDetail: {
+            /**
+             * Attachments
+             * @description Download: GET /canned/{id}/attachments/{attachment id}
+             * @default []
+             */
+            attachments: components["schemas"]["Attachment"][];
             /**
              * Created
              * Format: date-time
@@ -2019,12 +3009,22 @@ export interface components {
         };
         /** CannedUpdate */
         CannedUpdate: {
+            /**
+             * Attachments
+             * @description Files to attach (size-capped, see GET /settings/attachments)
+             */
+            attachments?: components["schemas"]["AttachmentUpload"][];
             /** Dept Id */
             dept_id?: number | null;
             /** Is Enabled */
             is_enabled?: boolean | null;
             /** Notes */
             notes?: string | null;
+            /**
+             * Remove Attachment Ids
+             * @description Attachment ids (as listed on the response) to remove
+             */
+            remove_attachment_ids?: number[] | null;
             /** Response */
             response?: string | null;
             /** Title */
@@ -2290,6 +3290,86 @@ export interface components {
             /** Value Id */
             value_id?: number | null;
         };
+        /** CustomListItem */
+        CustomListItem: {
+            /** Allow Add */
+            allow_add: boolean;
+            /**
+             * Created
+             * Format: date-time
+             */
+            created: string;
+            /**
+             * Handled By
+             * @description Set for a list osTicket manages itself (ticket statuses): it is read-only here
+             */
+            handled_by?: string | null;
+            /** Id */
+            id: number;
+            /** Is Deletable */
+            is_deletable: boolean;
+            /** Is Editable */
+            is_editable: boolean;
+            /** Item Count */
+            item_count: number;
+            /** Name */
+            name: string;
+            /**
+             * Name Plural
+             * @default
+             */
+            name_plural: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /**
+             * Sort Mode
+             * @enum {string}
+             */
+            sort_mode: "Alpha" | "-Alpha" | "SortCol";
+            /**
+             * Updated
+             * Format: date-time
+             */
+            updated: string;
+        };
+        /** CustomListResponse */
+        CustomListResponse: {
+            /** Items */
+            items: components["schemas"]["CustomListItem"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
+        /**
+         * DashboardReport
+         * @description osTicket's Dashboard activity report (``scp/dashboard.php``) for the signed-in agent: osTicket decides which
+         *     departments, topics and agents the agent's rows may cover.
+         */
+        DashboardReport: {
+            /**
+             * Group
+             * @enum {string}
+             */
+            group: "department" | "topic" | "agent";
+            /**
+             * Period
+             * @enum {string}
+             */
+            period: "until_today" | "one_week" | "two_weeks" | "one_month" | "one_quarter";
+            plot: components["schemas"]["ReportPlot"];
+            /**
+             * Start
+             * @description First day of the report (default: a month ago)
+             */
+            start: string | null;
+            table: components["schemas"]["ReportTable"];
+        };
         /**
          * DepartmentAccess
          * @description Access to a department beyond the agent's primary one, with the role they hold there.
@@ -2355,6 +3435,8 @@ export interface components {
         };
         /** DepartmentDetail */
         DepartmentDetail: {
+            /** Agents Count */
+            agents_count?: number | null;
             /**
              * Alerts To
              * @default dept_only
@@ -2384,6 +3466,8 @@ export interface components {
              * @default false
              */
             disable_reopen_auto_assign: boolean;
+            /** Email Address */
+            email_address?: string | null;
             /** Email Id */
             email_id?: number | null;
             /** Id */
@@ -2392,6 +3476,8 @@ export interface components {
             is_public: boolean;
             /** Manager Id */
             manager_id?: number | null;
+            /** Manager Name */
+            manager_name?: string | null;
             /**
              * Members
              * @default []
@@ -2436,17 +3522,27 @@ export interface components {
         };
         /** DepartmentListItem */
         DepartmentListItem: {
+            /** Agents Count */
+            agents_count?: number | null;
             /**
              * Created
              * Format: date-time
              */
             created: string;
+            /** Email Address */
+            email_address?: string | null;
             /** Id */
             id: number;
             /** Is Public */
             is_public: boolean;
+            /** Manager Id */
+            manager_id?: number | null;
+            /** Manager Name */
+            manager_name?: string | null;
             /** Name */
             name: string;
+            /** Status */
+            status?: ("active" | "disabled" | "archived") | null;
             /**
              * Updated
              * Format: date-time
@@ -2524,10 +3620,338 @@ export interface components {
             /** Ticket Auto Response */
             ticket_auto_response?: boolean | null;
         };
+        /**
+         * EmailAccountInfo
+         * @description A mail account of an address (fetching mail, or sending through SMTP). Never carries credentials.
+         */
+        EmailAccountInfo: {
+            /**
+             * After Fetch
+             * @description archive | delete | nothing (mailbox)
+             */
+            after_fetch?: string | null;
+            /** Encryption */
+            encryption: string;
+            /**
+             * Fetch Frequency
+             * @description Minutes between fetches (mailbox)
+             */
+            fetch_frequency?: number | null;
+            /**
+             * Fetch Max
+             * @description Most messages per fetch (mailbox)
+             */
+            fetch_max?: number | null;
+            /** Folder */
+            folder?: string | null;
+            /** Host */
+            host: string;
+            /** Id */
+            id: number;
+            /** Is Active */
+            is_active: boolean;
+            /** Last Activity */
+            last_activity?: string | null;
+            /** Last Error */
+            last_error?: string | null;
+            /** Last Error At */
+            last_error_at?: string | null;
+            /**
+             * Num Errors
+             * @default 0
+             */
+            num_errors: number;
+            /** Port */
+            port: number;
+            /** Protocol */
+            protocol: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "mailbox" | "smtp";
+        };
+        /** EmailAddress */
+        EmailAddress: {
+            /**
+             * Created
+             * Format: date-time
+             */
+            created: string;
+            /** Dept Id */
+            dept_id?: number | null;
+            /** Dept Name */
+            dept_name?: string | null;
+            /** Email */
+            email: string;
+            /** Has Mailbox */
+            has_mailbox: boolean;
+            /** Has Smtp */
+            has_smtp: boolean;
+            /** Id */
+            id: number;
+            /**
+             * Is Default
+             * @description The system's default or alert address: it cannot be deleted
+             */
+            is_default: boolean;
+            /** Name */
+            name: string;
+            /** No Autoresponse */
+            no_autoresponse: boolean;
+            /** Priority Id */
+            priority_id?: number | null;
+            /** Priority Name */
+            priority_name?: string | null;
+            /** Topic Id */
+            topic_id?: number | null;
+            /** Topic Name */
+            topic_name?: string | null;
+            /**
+             * Updated
+             * Format: date-time
+             */
+            updated: string;
+        };
+        /** EmailAddressDetail */
+        EmailAddressDetail: {
+            /**
+             * Accounts
+             * @default []
+             */
+            accounts: components["schemas"]["EmailAccountInfo"][];
+            /**
+             * Created
+             * Format: date-time
+             */
+            created: string;
+            /** Dept Id */
+            dept_id?: number | null;
+            /** Dept Name */
+            dept_name?: string | null;
+            /** Email */
+            email: string;
+            /** Has Mailbox */
+            has_mailbox: boolean;
+            /** Has Smtp */
+            has_smtp: boolean;
+            /** Id */
+            id: number;
+            /**
+             * Is Default
+             * @description The system's default or alert address: it cannot be deleted
+             */
+            is_default: boolean;
+            /** Name */
+            name: string;
+            /** No Autoresponse */
+            no_autoresponse: boolean;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /** Priority Id */
+            priority_id?: number | null;
+            /** Priority Name */
+            priority_name?: string | null;
+            /** Topic Id */
+            topic_id?: number | null;
+            /** Topic Name */
+            topic_name?: string | null;
+            /**
+             * Updated
+             * Format: date-time
+             */
+            updated: string;
+        };
+        /** EmailAddressList */
+        EmailAddressList: {
+            /** Items */
+            items: components["schemas"]["EmailAddress"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
+        /** EmailCreate */
+        EmailCreate: {
+            /**
+             * Dept Id
+             * @description 0 = the system default department
+             * @default 0
+             */
+            dept_id: number;
+            /** Email */
+            email: string;
+            /** Name */
+            name: string;
+            /**
+             * No Autoresponse
+             * @default false
+             */
+            no_autoresponse: boolean;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /**
+             * Priority Id
+             * @description 0 = the system default priority
+             * @default 0
+             */
+            priority_id: number;
+            /**
+             * Topic Id
+             * @description 0 = the system default help topic
+             * @default 0
+             */
+            topic_id: number;
+        };
+        /** EmailUpdate */
+        EmailUpdate: {
+            /** Dept Id */
+            dept_id?: number | null;
+            /** Email */
+            email?: string | null;
+            /** Name */
+            name?: string | null;
+            /** No Autoresponse */
+            no_autoresponse?: boolean | null;
+            /** Notes */
+            notes?: string | null;
+            /** Priority Id */
+            priority_id?: number | null;
+            /** Topic Id */
+            topic_id?: number | null;
+        };
+        /** EmailsSettings */
+        EmailsSettings: {
+            /**
+             * Accept Unregistered Email
+             * @default false
+             */
+            accept_unregistered_email: boolean;
+            /**
+             * Add Email Collabs
+             * @default false
+             */
+            add_email_collabs: boolean;
+            /**
+             * Admin Email
+             * @default
+             */
+            admin_email: string;
+            /**
+             * Alert Email Id
+             * @default 0
+             */
+            alert_email_id: number;
+            /**
+             * Default Email Id
+             * @default 0
+             */
+            default_email_id: number;
+            /**
+             * Default Smtp Id
+             * @default 0
+             */
+            default_smtp_id: number;
+            /**
+             * Default Template Id
+             * @default 0
+             */
+            default_template_id: number;
+            /**
+             * Email Attachments
+             * @default false
+             */
+            email_attachments: boolean;
+            /**
+             * Enable Auto Cron
+             * @default false
+             */
+            enable_auto_cron: boolean;
+            /**
+             * Enable Mail Polling
+             * @default false
+             */
+            enable_mail_polling: boolean;
+            /**
+             * Reply Separator
+             * @default
+             */
+            reply_separator: string;
+            /**
+             * Strip Quoted Reply
+             * @default false
+             */
+            strip_quoted_reply: boolean;
+            /**
+             * Use Email Priority
+             * @default false
+             */
+            use_email_priority: boolean;
+            /**
+             * Verify Email Addrs
+             * @default false
+             */
+            verify_email_addrs: boolean;
+        };
+        /** EmailsSettingsUpdate */
+        EmailsSettingsUpdate: {
+            /** Accept Unregistered Email */
+            accept_unregistered_email?: boolean | null;
+            /** Add Email Collabs */
+            add_email_collabs?: boolean | null;
+            /** Admin Email */
+            admin_email?: string | null;
+            /** Alert Email Id */
+            alert_email_id?: number | null;
+            /** Default Email Id */
+            default_email_id?: number | null;
+            /** Default Smtp Id */
+            default_smtp_id?: number | null;
+            /** Default Template Id */
+            default_template_id?: number | null;
+            /** Email Attachments */
+            email_attachments?: boolean | null;
+            /** Enable Auto Cron */
+            enable_auto_cron?: boolean | null;
+            /** Enable Mail Polling */
+            enable_mail_polling?: boolean | null;
+            /** Reply Separator */
+            reply_separator?: string | null;
+            /** Strip Quoted Reply */
+            strip_quoted_reply?: boolean | null;
+            /** Use Email Priority */
+            use_email_priority?: boolean | null;
+            /** Verify Email Addrs */
+            verify_email_addrs?: boolean | null;
+        };
+        /** Extension */
+        Extension: {
+            /** Description */
+            description: string;
+            /** Key */
+            key: string;
+            /** Loaded */
+            loaded: boolean;
+            /** Name */
+            name: string;
+        };
         /** FAQCreate */
         FAQCreate: {
             /** Answer */
             answer: string;
+            /**
+             * Attachments
+             * @description Files to attach (size-capped, see GET /settings/attachments)
+             */
+            attachments?: components["schemas"]["AttachmentUpload"][];
             /** Category Id */
             category_id: number;
             /**
@@ -2555,6 +3979,12 @@ export interface components {
              * @default
              */
             answer: string;
+            /**
+             * Attachments
+             * @description Download: GET /kb/faqs/{id}/attachments/{attachment id}
+             * @default []
+             */
+            attachments: components["schemas"]["Attachment"][];
             /** Category Id */
             category_id: number;
             /**
@@ -2620,6 +4050,11 @@ export interface components {
         FAQUpdate: {
             /** Answer */
             answer?: string | null;
+            /**
+             * Attachments
+             * @description Files to attach (size-capped, see GET /settings/attachments)
+             */
+            attachments?: components["schemas"]["AttachmentUpload"][];
             /** Category Id */
             category_id?: number | null;
             /** Is Published */
@@ -2630,6 +4065,11 @@ export interface components {
             notes?: string | null;
             /** Question */
             question?: string | null;
+            /**
+             * Remove Attachment Ids
+             * @description Attachment ids (as listed on the FAQ) to remove
+             */
+            remove_attachment_ids?: number[] | null;
         };
         /**
          * FieldConfiguration
@@ -2687,6 +4127,304 @@ export interface components {
             /** Widget */
             widget?: ("dropdown" | "typeahead") | null;
         };
+        /**
+         * FilterAction
+         * @description One thing a filter does. Which fields apply depends on ``type`` (``ACTION_TYPES``).
+         */
+        FilterAction: {
+            /** Canned Id */
+            canned_id?: number | null;
+            /** Dept Id */
+            dept_id?: number | null;
+            /** From Email Id */
+            from_email_id?: number | null;
+            /** Message */
+            message?: string | null;
+            /** Priority Id */
+            priority_id?: number | null;
+            /**
+             * Recipients
+             * @description Send an Email: addresses, comma separated; %{user} is the requester
+             */
+            recipients?: string | null;
+            /** Sla Id */
+            sla_id?: number | null;
+            /** Staff Id */
+            staff_id?: number | null;
+            /** Status Id */
+            status_id?: number | null;
+            /** Subject */
+            subject?: string | null;
+            /** Team Id */
+            team_id?: number | null;
+            /** Topic Id */
+            topic_id?: number | null;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "reject" | "replyto" | "noresp" | "canned" | "dept" | "pri" | "sla" | "team" | "agent" | "topic" | "status" | "email";
+        };
+        /** FilterActionItem */
+        FilterActionItem: {
+            /** Canned Id */
+            canned_id?: number | null;
+            /** Dept Id */
+            dept_id?: number | null;
+            /** From Email Id */
+            from_email_id?: number | null;
+            /** Id */
+            id: number;
+            /** Message */
+            message?: string | null;
+            /** Priority Id */
+            priority_id?: number | null;
+            /**
+             * Recipients
+             * @description Send an Email: addresses, comma separated; %{user} is the requester
+             */
+            recipients?: string | null;
+            /** Sla Id */
+            sla_id?: number | null;
+            /** Sort */
+            sort: number;
+            /** Staff Id */
+            staff_id?: number | null;
+            /** Status Id */
+            status_id?: number | null;
+            /** Subject */
+            subject?: string | null;
+            /** Team Id */
+            team_id?: number | null;
+            /** Topic Id */
+            topic_id?: number | null;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "reject" | "replyto" | "noresp" | "canned" | "dept" | "pri" | "sla" | "team" | "agent" | "topic" | "status" | "email";
+        };
+        /** FilterCreate */
+        FilterCreate: {
+            /**
+             * Actions
+             * @default []
+             */
+            actions: components["schemas"]["FilterAction"][];
+            /**
+             * Email Id
+             * @description With target Email: match only mail to this system address
+             */
+            email_id?: number | null;
+            /**
+             * Execorder
+             * @description Lower runs first
+             * @default 99
+             */
+            execorder: number;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Match All Rules
+             * @description All rules must match (default: any one)
+             * @default false
+             */
+            match_all_rules: boolean;
+            /** Name */
+            name: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /** Rules */
+            rules: components["schemas"]["FilterRule"][];
+            /**
+             * Stop Onmatch
+             * @default false
+             */
+            stop_onmatch: boolean;
+            /**
+             * Target
+             * @default Any
+             * @enum {string}
+             */
+            target: "Any" | "Web" | "Email" | "API";
+        };
+        /** FilterDetail */
+        FilterDetail: {
+            /** Actions */
+            actions: components["schemas"]["FilterActionItem"][];
+            /**
+             * Created
+             * Format: date-time
+             */
+            created: string;
+            /** Email Address */
+            email_address?: string | null;
+            /**
+             * Email Id
+             * @description For target Email: only mail to this address (0/absent = all)
+             */
+            email_id?: number | null;
+            /** Execorder */
+            execorder: number;
+            /** Id */
+            id: number;
+            /** Is Active */
+            is_active: boolean;
+            /** Match All Rules */
+            match_all_rules: boolean;
+            /** Name */
+            name: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /** Rule Count */
+            rule_count: number;
+            /** Rules */
+            rules: components["schemas"]["FilterRuleItem"][];
+            /** Stop Onmatch */
+            stop_onmatch: boolean;
+            /**
+             * Target
+             * @enum {string}
+             */
+            target: "Any" | "Web" | "Email" | "API";
+            /**
+             * Updated
+             * Format: date-time
+             */
+            updated: string;
+        };
+        /** FilterItem */
+        FilterItem: {
+            /**
+             * Created
+             * Format: date-time
+             */
+            created: string;
+            /** Email Address */
+            email_address?: string | null;
+            /**
+             * Email Id
+             * @description For target Email: only mail to this address (0/absent = all)
+             */
+            email_id?: number | null;
+            /** Execorder */
+            execorder: number;
+            /** Id */
+            id: number;
+            /** Is Active */
+            is_active: boolean;
+            /** Match All Rules */
+            match_all_rules: boolean;
+            /** Name */
+            name: string;
+            /** Rule Count */
+            rule_count: number;
+            /** Stop Onmatch */
+            stop_onmatch: boolean;
+            /**
+             * Target
+             * @enum {string}
+             */
+            target: "Any" | "Web" | "Email" | "API";
+            /**
+             * Updated
+             * Format: date-time
+             */
+            updated: string;
+        };
+        /** FilterList */
+        FilterList: {
+            /** Items */
+            items: components["schemas"]["FilterItem"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
+        /**
+         * FilterOptions
+         * @description What a filter form offers: the fields rules can match (osTicket builds them from the ticket forms), the match
+         *     types, the targets and the action types.
+         */
+        FilterOptions: {
+            /** Actions */
+            actions: components["schemas"]["ActionTypeInfo"][];
+            /** Match Types */
+            match_types: components["schemas"]["MatchField"][];
+            /** Matches */
+            matches: components["schemas"]["MatchGroup"][];
+            /** Targets */
+            targets: string[];
+        };
+        /** FilterRule */
+        FilterRule: {
+            /**
+             * How
+             * @enum {string}
+             */
+            how: "equal" | "not_equal" | "contains" | "dn_contain" | "starts" | "ends" | "match" | "not_match";
+            /** Val */
+            val: string;
+            /**
+             * What
+             * @description The field matched; see GET /filters/options
+             */
+            what: string;
+        };
+        /** FilterRuleItem */
+        FilterRuleItem: {
+            /**
+             * How
+             * @enum {string}
+             */
+            how: "equal" | "not_equal" | "contains" | "dn_contain" | "starts" | "ends" | "match" | "not_match";
+            /** Id */
+            id: number;
+            /** Val */
+            val: string;
+            /**
+             * What
+             * @description The field matched; see GET /filters/options
+             */
+            what: string;
+        };
+        /**
+         * FilterUpdate
+         * @description Partial. ``rules`` and ``actions``, when sent, replace the whole list.
+         */
+        FilterUpdate: {
+            /** Actions */
+            actions?: components["schemas"]["FilterAction"][] | null;
+            /** Email Id */
+            email_id?: number | null;
+            /** Execorder */
+            execorder?: number | null;
+            /** Is Active */
+            is_active?: boolean | null;
+            /** Match All Rules */
+            match_all_rules?: boolean | null;
+            /** Name */
+            name?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Rules */
+            rules?: components["schemas"]["FilterRule"][] | null;
+            /** Stop Onmatch */
+            stop_onmatch?: boolean | null;
+            /** Target */
+            target?: ("Any" | "Web" | "Email" | "API") | null;
+        };
         /** FormCreate */
         FormCreate: {
             /**
@@ -2711,6 +4449,8 @@ export interface components {
              * Format: date-time
              */
             created: string;
+            /** Field Count */
+            field_count?: number | null;
             /**
              * Fields
              * @default []
@@ -2849,6 +4589,8 @@ export interface components {
              * Format: date-time
              */
             created: string;
+            /** Field Count */
+            field_count?: number | null;
             /** Id */
             id: number;
             /** Is Deletable */
@@ -2888,12 +4630,211 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** KbSettings */
+        KbSettings: {
+            /**
+             * Enable Kb
+             * @default false
+             */
+            enable_kb: boolean;
+            /**
+             * Enable Premade
+             * @default false
+             */
+            enable_premade: boolean;
+            /**
+             * Restrict Kb
+             * @default false
+             */
+            restrict_kb: boolean;
+        };
+        /** KbSettingsUpdate */
+        KbSettingsUpdate: {
+            /** Enable Kb */
+            enable_kb?: boolean | null;
+            /** Enable Premade */
+            enable_premade?: boolean | null;
+            /** Restrict Kb */
+            restrict_kb?: boolean | null;
+        };
+        /** LanguagePack */
+        LanguagePack: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** Version */
+            version?: string | null;
+        };
+        /** ListCreate */
+        ListCreate: {
+            /** Name */
+            name: string;
+            /**
+             * Name Plural
+             * @default
+             */
+            name_plural: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /**
+             * Sort Mode
+             * @default Alpha
+             * @enum {string}
+             */
+            sort_mode: "Alpha" | "-Alpha" | "SortCol";
+        };
+        /** ListEntry */
+        ListEntry: {
+            /**
+             * Abbrev
+             * @default
+             */
+            abbrev: string;
+            /** Id */
+            id: number;
+            /** Is Enabled */
+            is_enabled: boolean;
+            /**
+             * Is Internal
+             * @description Internal entries cannot be disabled or deleted
+             */
+            is_internal: boolean;
+            /** Sort */
+            sort: number;
+            /** Value */
+            value: string;
+        };
+        /** ListEntryResponse */
+        ListEntryResponse: {
+            /** Items */
+            items: components["schemas"]["ListEntry"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
         /** ListItem */
         ListItem: {
             /** Id */
             id: number;
             /** Value */
             value: string;
+        };
+        /** ListUpdate */
+        ListUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Name Plural */
+            name_plural?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Sort Mode */
+            sort_mode?: ("Alpha" | "-Alpha" | "SortCol") | null;
+        };
+        /** LogDelete */
+        LogDelete: {
+            /** Ids */
+            ids: number[];
+        };
+        /** LogDetail */
+        LogDetail: {
+            /**
+             * Created
+             * Format: date-time
+             */
+            created: string;
+            /** Id */
+            id: number;
+            /**
+             * Ip Address
+             * @default
+             */
+            ip_address: string;
+            /**
+             * Log
+             * @description The log text osTicket stored
+             */
+            log: string;
+            /**
+             * Logger
+             * @default
+             */
+            logger: string;
+            /** Title */
+            title: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "Debug" | "Warning" | "Error";
+            /**
+             * Updated
+             * Format: date-time
+             */
+            updated: string;
+        };
+        /** LogItem */
+        LogItem: {
+            /**
+             * Created
+             * Format: date-time
+             */
+            created: string;
+            /** Id */
+            id: number;
+            /**
+             * Ip Address
+             * @default
+             */
+            ip_address: string;
+            /**
+             * Logger
+             * @default
+             */
+            logger: string;
+            /** Title */
+            title: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "Debug" | "Warning" | "Error";
+            /**
+             * Updated
+             * Format: date-time
+             */
+            updated: string;
+        };
+        /** LogList */
+        LogList: {
+            /** Items */
+            items: components["schemas"]["LogItem"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
+        /** MatchField */
+        MatchField: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+        };
+        /** MatchGroup */
+        MatchGroup: {
+            /** Fields */
+            fields: components["schemas"]["MatchField"][];
+            /** Group */
+            group: string;
         };
         /**
          * Me
@@ -2931,6 +4872,85 @@ export interface components {
             team_ids: number[];
             /** Username */
             username: string;
+        };
+        /** MessageBody */
+        MessageBody: {
+            /**
+             * Body
+             * @default
+             */
+            body: string;
+            /** Code Name */
+            code_name: string;
+            /**
+             * Defined
+             * @description False: the set has no copy yet; osTicket falls back to its built-in text until one is saved
+             */
+            defined: boolean;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /**
+             * Group
+             * @description osTicket's group: a.ticket.user, b.ticket.staff, c.task, sys
+             */
+            group: string;
+            /**
+             * Name
+             * @description osTicket's title for the message, e.g. New Ticket Auto-response
+             */
+            name: string;
+            /**
+             * Subject
+             * @default
+             */
+            subject: string;
+            /** Updated */
+            updated?: string | null;
+        };
+        /**
+         * MessageTemplate
+         * @description One message of a set (osTicket's ``code_name``).
+         */
+        MessageTemplate: {
+            /** Code Name */
+            code_name: string;
+            /**
+             * Defined
+             * @description False: the set has no copy yet; osTicket falls back to its built-in text until one is saved
+             */
+            defined: boolean;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /**
+             * Group
+             * @description osTicket's group: a.ticket.user, b.ticket.staff, c.task, sys
+             */
+            group: string;
+            /**
+             * Name
+             * @description osTicket's title for the message, e.g. New Ticket Auto-response
+             */
+            name: string;
+            /**
+             * Subject
+             * @default
+             */
+            subject: string;
+            /** Updated */
+            updated?: string | null;
+        };
+        /** MessageUpdate */
+        MessageUpdate: {
+            /** Body */
+            body: string;
+            /** Subject */
+            subject: string;
         };
         /** OrganizationCreate */
         OrganizationCreate: {
@@ -3088,6 +5108,11 @@ export interface components {
              * Format: date-time
              */
             created: string;
+            /**
+             * Custom Fields
+             * @description Only when the request asks `?fields=name,...`
+             */
+            custom_fields?: components["schemas"]["CustomFieldAnswer"][] | null;
             /** Id */
             id: number;
             /** Name */
@@ -3175,6 +5200,157 @@ export interface components {
             /** Website */
             website?: string | null;
         };
+        /** PageCreate */
+        PageCreate: {
+            /** Body */
+            body: string;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /** Name */
+            name: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "landing" | "offline" | "thank-you" | "other";
+        };
+        /** PageDetail */
+        PageDetail: {
+            /**
+             * Body
+             * @default
+             */
+            body: string;
+            /**
+             * Created
+             * Format: date-time
+             */
+            created: string;
+            /** Id */
+            id: number;
+            /**
+             * In Use
+             * @description A default page (landing, offline, thank-you) or a help topic's: it cannot be disabled or deleted
+             */
+            in_use: boolean;
+            /** Is Active */
+            is_active: boolean;
+            /** Name */
+            name: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "landing" | "offline" | "thank-you" | "other";
+            /**
+             * Updated
+             * Format: date-time
+             */
+            updated: string;
+        };
+        /** PageItem */
+        PageItem: {
+            /**
+             * Created
+             * Format: date-time
+             */
+            created: string;
+            /** Id */
+            id: number;
+            /**
+             * In Use
+             * @description A default page (landing, offline, thank-you) or a help topic's: it cannot be disabled or deleted
+             */
+            in_use: boolean;
+            /** Is Active */
+            is_active: boolean;
+            /** Name */
+            name: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "landing" | "offline" | "thank-you" | "other";
+            /**
+             * Updated
+             * Format: date-time
+             */
+            updated: string;
+        };
+        /** PageList */
+        PageList: {
+            /** Items */
+            items: components["schemas"]["PageItem"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
+        /** PageUpdate */
+        PageUpdate: {
+            /** Body */
+            body?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
+            /** Name */
+            name?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Type */
+            type?: ("landing" | "offline" | "thank-you" | "other") | null;
+        };
+        /** PagesSettings */
+        PagesSettings: {
+            /**
+             * Landing Page Id
+             * @default 0
+             */
+            landing_page_id: number;
+            /**
+             * Offline Page Id
+             * @default 0
+             */
+            offline_page_id: number;
+            /**
+             * Thank You Page Id
+             * @default 0
+             */
+            thank_you_page_id: number;
+        };
+        /** PagesSettingsUpdate */
+        PagesSettingsUpdate: {
+            /** Landing Page Id */
+            landing_page_id?: number | null;
+            /** Offline Page Id */
+            offline_page_id?: number | null;
+            /** Thank You Page Id */
+            thank_you_page_id?: number | null;
+        };
+        /** PasswordChange */
+        PasswordChange: {
+            /** Current Password */
+            current_password: string;
+            /**
+             * New Password
+             * @description osTicket's password policy decides what is acceptable
+             */
+            new_password: string;
+        };
         /** PermissionKey */
         PermissionKey: {
             /** Key */
@@ -3190,6 +5366,51 @@ export interface components {
         PermissionKeyList: {
             /** Permissions */
             permissions: components["schemas"]["PermissionKey"][];
+        };
+        /** PhpSetting */
+        PhpSetting: {
+            /** Name */
+            name: string;
+            /** Ok */
+            ok: boolean;
+            /** Value */
+            value: string;
+        };
+        /** Plugin */
+        Plugin: {
+            /** Id */
+            id: number;
+            /** Install Path */
+            install_path: string;
+            /**
+             * Installed
+             * Format: date-time
+             */
+            installed: string;
+            /** Instances */
+            instances: components["schemas"]["PluginInstance"][];
+            /** Is Active */
+            is_active: boolean;
+            /** Is Phar */
+            is_phar: boolean;
+            /** Name */
+            name: string;
+            /** Version */
+            version?: string | null;
+        };
+        /** PluginInstance */
+        PluginInstance: {
+            /** Id */
+            id: number;
+            /** Is Enabled */
+            is_enabled: boolean;
+            /** Name */
+            name: string;
+        };
+        /** PluginList */
+        PluginList: {
+            /** Plugins */
+            plugins: components["schemas"]["Plugin"][];
         };
         /** PriorityCreate */
         PriorityCreate: {
@@ -3259,6 +5480,163 @@ export interface components {
             /** Urgency */
             urgency?: number | null;
         };
+        /**
+         * Profile
+         * @description What osTicket's "My Profile" page (``scp/profile.php``) holds for the signed-in agent.
+         */
+        Profile: {
+            /**
+             * Auto Refresh Rate
+             * @description minutes; 0 = disabled
+             */
+            auto_refresh_rate: number;
+            /**
+             * Datetime Format
+             * @description relative | empty
+             * @default
+             */
+            datetime_format: string;
+            /**
+             * Default From Name
+             * @description email | dept | mine | empty
+             * @default
+             */
+            default_from_name: string;
+            /**
+             * Default Paper Size
+             * @enum {string}
+             */
+            default_paper_size: "Letter" | "Legal" | "Ledger" | "A4" | "A3";
+            /**
+             * Default Signature Type
+             * @enum {string}
+             */
+            default_signature_type: "none" | "mine" | "dept";
+            /**
+             * Default Ticket Queue Id
+             * @default 0
+             */
+            default_ticket_queue_id: number;
+            /**
+             * Editor Spacing
+             * @description single | double
+             * @default single
+             */
+            editor_spacing: string;
+            /** Email */
+            email: string;
+            /** Firstname */
+            firstname: string;
+            /**
+             * Img Att View
+             * @description inline | download
+             * @default download
+             */
+            img_att_view: string;
+            /**
+             * Lang
+             * @description empty = the system's
+             * @default
+             */
+            lang: string;
+            /** Lastname */
+            lastname: string;
+            /**
+             * Max Page Size
+             * @description 0 = the system's
+             */
+            max_page_size: number;
+            /**
+             * Mobile
+             * @default
+             */
+            mobile: string;
+            /** Onvacation */
+            onvacation: boolean;
+            /**
+             * Phone
+             * @default
+             */
+            phone: string;
+            /**
+             * Phone Ext
+             * @default
+             */
+            phone_ext: string;
+            /**
+             * Reply Redirect
+             * @description Queue | Ticket
+             * @default Ticket
+             */
+            reply_redirect: string;
+            /**
+             * Signature
+             * @default
+             */
+            signature: string;
+            /**
+             * Thread View Order
+             * @description desc | asc | empty
+             * @default
+             */
+            thread_view_order: string;
+            /**
+             * Timezone
+             * @description empty = the system's
+             * @default
+             */
+            timezone: string;
+            /** Username */
+            username: string;
+        };
+        /**
+         * ProfileUpdate
+         * @description Partial: what is absent keeps its stored value (osTicket's page rewrites every field).
+         */
+        ProfileUpdate: {
+            /** Auto Refresh Rate */
+            auto_refresh_rate?: number | null;
+            /** Datetime Format */
+            datetime_format?: ("relative" | "") | null;
+            /** Default From Name */
+            default_from_name?: ("email" | "dept" | "mine" | "") | null;
+            /** Default Paper Size */
+            default_paper_size?: ("Letter" | "Legal" | "Ledger" | "A4" | "A3") | null;
+            /** Default Signature Type */
+            default_signature_type?: ("none" | "mine" | "dept") | null;
+            /** Default Ticket Queue Id */
+            default_ticket_queue_id?: number | null;
+            /** Editor Spacing */
+            editor_spacing?: ("single" | "double") | null;
+            /** Email */
+            email?: string | null;
+            /** Firstname */
+            firstname?: string | null;
+            /** Img Att View */
+            img_att_view?: ("inline" | "download") | null;
+            /** Lang */
+            lang?: string | null;
+            /** Lastname */
+            lastname?: string | null;
+            /** Max Page Size */
+            max_page_size?: number | null;
+            /** Mobile */
+            mobile?: string | null;
+            /** Onvacation */
+            onvacation?: boolean | null;
+            /** Phone */
+            phone?: string | null;
+            /** Phone Ext */
+            phone_ext?: string | null;
+            /** Reply Redirect */
+            reply_redirect?: ("Queue" | "Ticket") | null;
+            /** Signature */
+            signature?: string | null;
+            /** Thread View Order */
+            thread_view_order?: ("desc" | "asc" | "") | null;
+            /** Timezone */
+            timezone?: string | null;
+        };
         /** QueueCount */
         QueueCount: {
             /** Count */
@@ -3305,12 +5683,50 @@ export interface components {
             /** Referrals */
             referrals: components["schemas"]["Referral"][];
         };
+        /** RelatedTicket */
+        RelatedTicket: {
+            /** Number */
+            number: string;
+            /** Status Name */
+            status_name: string;
+            /** Subject */
+            subject: string;
+            /** Ticket Id */
+            ticket_id: number;
+        };
+        /** ReportPlot */
+        ReportPlot: {
+            /** Days */
+            days: string[];
+            /** Series */
+            series: components["schemas"]["Series"][];
+        };
+        /** ReportTable */
+        ReportTable: {
+            /**
+             * Columns
+             * @description The group's name column, then Opened, Assigned, Overdue, Closed, Reopened, Deleted, Service Time, Response Time
+             */
+            columns: string[];
+            /**
+             * Rows
+             * @description Cells as osTicket shows them (counts and hours with one decimal)
+             */
+            rows: string[][];
+        };
         /** Role */
         Role: {
+            /** Created */
+            created?: string | null;
             /** Enabled */
             enabled: boolean;
             /** Id */
             id: number;
+            /**
+             * In Use
+             * @description Agents and department-access entries using the role; a role in use cannot be deleted
+             */
+            in_use?: number | null;
             /** Name */
             name: string;
             /**
@@ -3323,6 +5739,28 @@ export interface components {
              * @description Role permission keys switched on for this role
              */
             permissions: string[];
+            /** Updated */
+            updated?: string | null;
+        };
+        /** RoleCreate */
+        RoleCreate: {
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
+            /** Name */
+            name: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /**
+             * Permissions
+             * @description osTicket requires at least one permission
+             */
+            permissions: string[];
         };
         /** RoleListResponse */
         RoleListResponse: {
@@ -3332,6 +5770,20 @@ export interface components {
             page: number;
             /** Page Size */
             page_size: number;
+        };
+        /**
+         * RoleUpdate
+         * @description Partial: what is absent stays as stored (osTicket's page rewrites everything, so the bridge overlays).
+         */
+        RoleUpdate: {
+            /** Enabled */
+            enabled?: boolean | null;
+            /** Name */
+            name?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Permissions */
+            permissions?: string[] | null;
         };
         /** SLACreate */
         SLACreate: {
@@ -3460,6 +5912,187 @@ export interface components {
             /** Transient */
             transient?: boolean | null;
         };
+        /** ScheduleCreate */
+        ScheduleCreate: {
+            /**
+             * Copy From Id
+             * @description Start from a copy of this schedule's entries (same type)
+             */
+            copy_from_id?: number | null;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /**
+             * Holiday Schedule Ids
+             * @default []
+             */
+            holiday_schedule_ids: number[];
+            /** Name */
+            name: string;
+            /** Timezone */
+            timezone?: string | null;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "business_hours" | "holidays";
+        };
+        /** ScheduleDetail */
+        ScheduleDetail: {
+            /**
+             * Created
+             * Format: date-time
+             */
+            created: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** Entries */
+            entries: components["schemas"]["ScheduleEntry"][];
+            /** Entry Count */
+            entry_count: number;
+            /**
+             * Holiday Schedule Ids
+             * @description Business hours only: the holiday schedules that apply
+             * @default []
+             */
+            holiday_schedule_ids: number[];
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /**
+             * Timezone
+             * @description Empty: the schedule floats with the viewer's timezone
+             */
+            timezone?: string | null;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "business_hours" | "holidays";
+            /**
+             * Updated
+             * Format: date-time
+             */
+            updated: string;
+        };
+        /**
+         * ScheduleEntry
+         * @description One line of a schedule, stored as osTicket stores it: ``repeats`` says how the others read.
+         *
+         *     * never: the day ``starts_on``.   * daily / weekdays / weekends: every such day.
+         *     * weekly: ``day`` 1-7 (Monday-Sunday).
+         *     * monthly: the day of the month of ``starts_on`` (``week`` empty; ``day`` is then optional and must match), or ``week``
+         *       1-5 / -1 (last) with ``day`` 1-7 (that weekday).
+         *     * yearly: the date of ``starts_on`` (``week`` empty; ``day`` and ``month`` optional and must match), or ``week``
+         *       1-5 / -1 with ``day`` 1-7 in ``month`` 1-12.
+         */
+        ScheduleEntry: {
+            /** All Day */
+            all_day: boolean;
+            /** Day */
+            day?: number | null;
+            /**
+             * Description
+             * @description osTicket's own sentence for the entry, e.g. 'Weekly on Monday (08:00 am - 05:00 pm)'
+             * @default
+             */
+            description: string;
+            /**
+             * Ends At
+             * @description HH:MM:SS
+             */
+            ends_at: string;
+            /** Id */
+            id: number;
+            /** Month */
+            month?: number | null;
+            /** Name */
+            name: string;
+            /**
+             * Repeats
+             * @enum {string}
+             */
+            repeats: "never" | "daily" | "weekly" | "weekdays" | "weekends" | "monthly" | "yearly";
+            /**
+             * Starts At
+             * @description HH:MM:SS
+             */
+            starts_at: string;
+            /**
+             * Starts On
+             * Format: date
+             */
+            starts_on: string;
+            /** Stops On */
+            stops_on?: string | null;
+            /** Week */
+            week?: number | null;
+        };
+        /** ScheduleItem */
+        ScheduleItem: {
+            /**
+             * Created
+             * Format: date-time
+             */
+            created: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** Entry Count */
+            entry_count: number;
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /**
+             * Timezone
+             * @description Empty: the schedule floats with the viewer's timezone
+             */
+            timezone?: string | null;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "business_hours" | "holidays";
+            /**
+             * Updated
+             * Format: date-time
+             */
+            updated: string;
+        };
+        /** ScheduleList */
+        ScheduleList: {
+            /** Items */
+            items: components["schemas"]["ScheduleItem"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
+        /**
+         * ScheduleUpdate
+         * @description The type cannot change.
+         */
+        ScheduleUpdate: {
+            /** Description */
+            description?: string | null;
+            /** Holiday Schedule Ids */
+            holiday_schedule_ids?: number[] | null;
+            /** Name */
+            name?: string | null;
+            /** Timezone */
+            timezone?: string | null;
+        };
         /** SearchResponse */
         SearchResponse: {
             /** Query */
@@ -3481,6 +6114,19 @@ export interface components {
             type: string;
             /** Url Path */
             url_path: string;
+        };
+        /** Series */
+        Series: {
+            /**
+             * Counts
+             * @description One count per entry of `days`
+             */
+            counts: number[];
+            /**
+             * Event
+             * @description osTicket's event name, translated (Created, Closed, ...)
+             */
+            event: string;
         };
         /** StaffCreate */
         StaffCreate: {
@@ -3588,6 +6234,8 @@ export interface components {
              * @default true
              */
             is_visible: boolean;
+            /** Last Login */
+            last_login?: string | null;
             /** Lastname */
             lastname: string;
             /**
@@ -3655,6 +6303,8 @@ export interface components {
             is_active: boolean;
             /** Is Admin */
             is_admin: boolean;
+            /** Last Login */
+            last_login?: string | null;
             /** Lastname */
             lastname: string;
             /** Role Id */
@@ -3735,6 +6385,226 @@ export interface components {
             teams?: number[] | null;
             /** Username */
             username?: string | null;
+        };
+        /**
+         * SystemInfo
+         * @description What osTicket's Admin Panel "System Information" page shows.
+         */
+        SystemInfo: {
+            /** Attachment Space Mib */
+            attachment_space_mib: number;
+            /** Database Timezone */
+            database_timezone: string;
+            /** Extensions */
+            extensions: components["schemas"]["Extension"][];
+            /** Interpreted Timezone */
+            interpreted_timezone: string;
+            /** Language Packs */
+            language_packs: components["schemas"]["LanguagePack"][];
+            /** Mysql Version */
+            mysql_version: string;
+            /** Osticket Version */
+            osticket_version: string;
+            /** Php Settings */
+            php_settings: components["schemas"]["PhpSetting"][];
+            /** Php Version */
+            php_version: string;
+            /** Schema Name */
+            schema_name: string;
+            /** Schema Signature */
+            schema_signature: string;
+            /** Space Used Mib */
+            space_used_mib: number;
+            /** Web Server */
+            web_server: string;
+        };
+        /** SystemSettings */
+        SystemSettings: {
+            /**
+             * Acl
+             * @default
+             */
+            acl: string;
+            /**
+             * Acl Backend
+             * @default 0
+             */
+            acl_backend: number;
+            /**
+             * Allow Iframes
+             * @default
+             */
+            allow_iframes: string;
+            /**
+             * Autolock Minutes
+             * @default 0
+             */
+            autolock_minutes: number;
+            /**
+             * Date Format
+             * @default
+             */
+            date_format: string;
+            /**
+             * Datetime Format
+             * @default
+             */
+            datetime_format: string;
+            /**
+             * Daydatetime Format
+             * @default
+             */
+            daydatetime_format: string;
+            /**
+             * Default Dept Id
+             * @default 0
+             */
+            default_dept_id: number;
+            /**
+             * Default Locale
+             * @default
+             */
+            default_locale: string;
+            /**
+             * Default Timezone
+             * @default
+             */
+            default_timezone: string;
+            /**
+             * Embedded Domain Whitelist
+             * @default
+             */
+            embedded_domain_whitelist: string;
+            /**
+             * Enable Avatars
+             * @default false
+             */
+            enable_avatars: boolean;
+            /**
+             * Enable Richtext
+             * @default false
+             */
+            enable_richtext: boolean;
+            /**
+             * Files Req Auth
+             * @default false
+             */
+            files_req_auth: boolean;
+            /**
+             * Force Https
+             * @default false
+             */
+            force_https: boolean;
+            /**
+             * Helpdesk Title
+             * @default
+             */
+            helpdesk_title: string;
+            /**
+             * Helpdesk Url
+             * @default
+             */
+            helpdesk_url: string;
+            /**
+             * Isonline
+             * @default false
+             */
+            isonline: boolean;
+            /**
+             * Log Graceperiod
+             * @default 0
+             */
+            log_graceperiod: number;
+            /**
+             * Log Level
+             * @default 0
+             */
+            log_level: number;
+            /**
+             * Max File Size
+             * @default 0
+             */
+            max_file_size: number;
+            /**
+             * Max Page Size
+             * @default 0
+             */
+            max_page_size: number;
+            /**
+             * Schedule Id
+             * @default 0
+             */
+            schedule_id: number;
+            /**
+             * Secondary Langs
+             * @default []
+             */
+            secondary_langs: string[];
+            /**
+             * System Language
+             * @default
+             */
+            system_language: string;
+            /**
+             * Time Format
+             * @default
+             */
+            time_format: string;
+        };
+        /** SystemSettingsUpdate */
+        SystemSettingsUpdate: {
+            /** Acl */
+            acl?: string | null;
+            /** Acl Backend */
+            acl_backend?: number | null;
+            /** Allow Iframes */
+            allow_iframes?: string | null;
+            /** Autolock Minutes */
+            autolock_minutes?: number | null;
+            /** Date Format */
+            date_format?: string | null;
+            /** Datetime Format */
+            datetime_format?: string | null;
+            /** Daydatetime Format */
+            daydatetime_format?: string | null;
+            /** Default Dept Id */
+            default_dept_id?: number | null;
+            /** Default Locale */
+            default_locale?: string | null;
+            /** Default Timezone */
+            default_timezone?: string | null;
+            /** Embedded Domain Whitelist */
+            embedded_domain_whitelist?: string | null;
+            /** Enable Avatars */
+            enable_avatars?: boolean | null;
+            /** Enable Richtext */
+            enable_richtext?: boolean | null;
+            /** Files Req Auth */
+            files_req_auth?: boolean | null;
+            /** Force Https */
+            force_https?: boolean | null;
+            /** Helpdesk Title */
+            helpdesk_title?: string | null;
+            /** Helpdesk Url */
+            helpdesk_url?: string | null;
+            /** Isonline */
+            isonline?: boolean | null;
+            /** Log Graceperiod */
+            log_graceperiod?: number | null;
+            /** Log Level */
+            log_level?: number | null;
+            /** Max File Size */
+            max_file_size?: number | null;
+            /** Max Page Size */
+            max_page_size?: number | null;
+            /** Schedule Id */
+            schedule_id?: number | null;
+            /** Secondary Langs */
+            secondary_langs?: string[] | null;
+            /** System Language */
+            system_language?: string | null;
+            /** Time Format */
+            time_format?: string | null;
         };
         /**
          * TaskAssign
@@ -3890,6 +6760,11 @@ export interface components {
              * Format: date-time
              */
             created: string;
+            /**
+             * Custom Fields
+             * @description Only when the request asks `?fields=name,...`
+             */
+            custom_fields?: components["schemas"]["CustomFieldAnswer"][] | null;
             /** Dept Id */
             dept_id?: number | null;
             /** Dept Name */
@@ -4012,6 +6887,180 @@ export interface components {
              */
             note: string;
         };
+        /** TasksSettings */
+        TasksSettings: {
+            /**
+             * Default Task Priority Id
+             * @default 0
+             */
+            default_task_priority_id: number;
+            /**
+             * Default Task Sla Id
+             * @default 0
+             */
+            default_task_sla_id: number;
+            /**
+             * Task Activity Alert Active
+             * @default false
+             */
+            task_activity_alert_active: boolean;
+            /**
+             * Task Activity Alert Assigned
+             * @default false
+             */
+            task_activity_alert_assigned: boolean;
+            /**
+             * Task Activity Alert Dept Manager
+             * @default false
+             */
+            task_activity_alert_dept_manager: boolean;
+            /**
+             * Task Activity Alert Laststaff
+             * @default false
+             */
+            task_activity_alert_laststaff: boolean;
+            /**
+             * Task Alert Active
+             * @default false
+             */
+            task_alert_active: boolean;
+            /**
+             * Task Alert Admin
+             * @default false
+             */
+            task_alert_admin: boolean;
+            /**
+             * Task Alert Dept Manager
+             * @default false
+             */
+            task_alert_dept_manager: boolean;
+            /**
+             * Task Alert Dept Members
+             * @default false
+             */
+            task_alert_dept_members: boolean;
+            /**
+             * Task Assignment Alert Active
+             * @default false
+             */
+            task_assignment_alert_active: boolean;
+            /**
+             * Task Assignment Alert Staff
+             * @default false
+             */
+            task_assignment_alert_staff: boolean;
+            /**
+             * Task Assignment Alert Team Lead
+             * @default false
+             */
+            task_assignment_alert_team_lead: boolean;
+            /**
+             * Task Assignment Alert Team Members
+             * @default false
+             */
+            task_assignment_alert_team_members: boolean;
+            /**
+             * Task Number Format
+             * @default
+             */
+            task_number_format: string;
+            /**
+             * Task Overdue Alert Active
+             * @default false
+             */
+            task_overdue_alert_active: boolean;
+            /**
+             * Task Overdue Alert Assigned
+             * @default false
+             */
+            task_overdue_alert_assigned: boolean;
+            /**
+             * Task Overdue Alert Dept Manager
+             * @default false
+             */
+            task_overdue_alert_dept_manager: boolean;
+            /**
+             * Task Overdue Alert Dept Members
+             * @default false
+             */
+            task_overdue_alert_dept_members: boolean;
+            /**
+             * Task Sequence Id
+             * @default 0
+             */
+            task_sequence_id: number;
+            /**
+             * Task Transfer Alert Active
+             * @default false
+             */
+            task_transfer_alert_active: boolean;
+            /**
+             * Task Transfer Alert Assigned
+             * @default false
+             */
+            task_transfer_alert_assigned: boolean;
+            /**
+             * Task Transfer Alert Dept Manager
+             * @default false
+             */
+            task_transfer_alert_dept_manager: boolean;
+            /**
+             * Task Transfer Alert Dept Members
+             * @default false
+             */
+            task_transfer_alert_dept_members: boolean;
+        };
+        /** TasksSettingsUpdate */
+        TasksSettingsUpdate: {
+            /** Default Task Priority Id */
+            default_task_priority_id?: number | null;
+            /** Default Task Sla Id */
+            default_task_sla_id?: number | null;
+            /** Task Activity Alert Active */
+            task_activity_alert_active?: boolean | null;
+            /** Task Activity Alert Assigned */
+            task_activity_alert_assigned?: boolean | null;
+            /** Task Activity Alert Dept Manager */
+            task_activity_alert_dept_manager?: boolean | null;
+            /** Task Activity Alert Laststaff */
+            task_activity_alert_laststaff?: boolean | null;
+            /** Task Alert Active */
+            task_alert_active?: boolean | null;
+            /** Task Alert Admin */
+            task_alert_admin?: boolean | null;
+            /** Task Alert Dept Manager */
+            task_alert_dept_manager?: boolean | null;
+            /** Task Alert Dept Members */
+            task_alert_dept_members?: boolean | null;
+            /** Task Assignment Alert Active */
+            task_assignment_alert_active?: boolean | null;
+            /** Task Assignment Alert Staff */
+            task_assignment_alert_staff?: boolean | null;
+            /** Task Assignment Alert Team Lead */
+            task_assignment_alert_team_lead?: boolean | null;
+            /** Task Assignment Alert Team Members */
+            task_assignment_alert_team_members?: boolean | null;
+            /** Task Number Format */
+            task_number_format?: string | null;
+            /** Task Overdue Alert Active */
+            task_overdue_alert_active?: boolean | null;
+            /** Task Overdue Alert Assigned */
+            task_overdue_alert_assigned?: boolean | null;
+            /** Task Overdue Alert Dept Manager */
+            task_overdue_alert_dept_manager?: boolean | null;
+            /** Task Overdue Alert Dept Members */
+            task_overdue_alert_dept_members?: boolean | null;
+            /** Task Sequence Id */
+            task_sequence_id?: number | null;
+            /** Task Transfer Alert Active */
+            task_transfer_alert_active?: boolean | null;
+            /** Task Transfer Alert Assigned */
+            task_transfer_alert_assigned?: boolean | null;
+            /** Task Transfer Alert Dept Manager */
+            task_transfer_alert_dept_manager?: boolean | null;
+            /** Task Transfer Alert Dept Members */
+            task_transfer_alert_dept_members?: boolean | null;
+        };
         /** TeamCreate */
         TeamCreate: {
             /**
@@ -4059,6 +7108,8 @@ export interface components {
             is_enabled: boolean;
             /** Lead Id */
             lead_id?: number | null;
+            /** Lead Name */
+            lead_name?: string | null;
             /**
              * Member Alerts
              * @default {}
@@ -4071,6 +7122,8 @@ export interface components {
              * @default []
              */
             members: number[];
+            /** Members Count */
+            members_count?: number | null;
             /** Name */
             name: string;
             /**
@@ -4100,6 +7153,12 @@ export interface components {
             id: number;
             /** Is Enabled */
             is_enabled: boolean;
+            /** Lead Id */
+            lead_id?: number | null;
+            /** Lead Name */
+            lead_name?: string | null;
+            /** Members Count */
+            members_count?: number | null;
             /** Name */
             name: string;
             /**
@@ -4138,6 +7197,124 @@ export interface components {
             name?: string | null;
             /** No Alerts */
             no_alerts?: boolean | null;
+            /** Notes */
+            notes?: string | null;
+        };
+        /** TemplateSet */
+        TemplateSet: {
+            /**
+             * Created
+             * Format: date-time
+             */
+            created: string;
+            /** Id */
+            id: number;
+            /**
+             * In Use
+             * @description The default set, or a department's: it cannot be disabled or deleted
+             */
+            in_use: boolean;
+            /** Is Active */
+            is_active: boolean;
+            /**
+             * Lang
+             * @default en_US
+             */
+            lang: string;
+            /** Message Count */
+            message_count: number;
+            /** Name */
+            name: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /**
+             * Updated
+             * Format: date-time
+             */
+            updated: string;
+        };
+        /** TemplateSetCreate */
+        TemplateSetCreate: {
+            /**
+             * Copy From Id
+             * @description Start from a copy of this set's messages
+             */
+            copy_from_id?: number | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /** Lang */
+            lang?: string | null;
+            /** Name */
+            name: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+        };
+        /** TemplateSetDetail */
+        TemplateSetDetail: {
+            /**
+             * Created
+             * Format: date-time
+             */
+            created: string;
+            /** Id */
+            id: number;
+            /**
+             * In Use
+             * @description The default set, or a department's: it cannot be disabled or deleted
+             */
+            in_use: boolean;
+            /** Is Active */
+            is_active: boolean;
+            /**
+             * Lang
+             * @default en_US
+             */
+            lang: string;
+            /** Message Count */
+            message_count: number;
+            /** Messages */
+            messages: components["schemas"]["MessageTemplate"][];
+            /** Name */
+            name: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /**
+             * Updated
+             * Format: date-time
+             */
+            updated: string;
+        };
+        /** TemplateSetList */
+        TemplateSetList: {
+            /** Items */
+            items: components["schemas"]["TemplateSet"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
+        /** TemplateSetUpdate */
+        TemplateSetUpdate: {
+            /** Is Active */
+            is_active?: boolean | null;
+            /** Lang */
+            lang?: string | null;
+            /** Name */
+            name?: string | null;
             /** Notes */
             notes?: string | null;
         };
@@ -4257,6 +7434,11 @@ export interface components {
              * @description Assign to this team (needs ticket.assign)
              */
             assign_team_id?: number | null;
+            /**
+             * Attachments
+             * @description Files to attach (size-capped, see GET /settings/attachments)
+             */
+            attachments?: components["schemas"]["AttachmentUpload"][];
             /**
              * Cc User Ids
              * @description Users added as collaborators (Cc)
@@ -4462,6 +7644,11 @@ export interface components {
              */
             signature: "none" | "mine" | "theirs" | "dept";
         };
+        /** TicketLink */
+        TicketLink: {
+            /** Child Ids */
+            child_ids: number[];
+        };
         /**
          * TicketListItem
          * @description Lightweight ticket row returned in list responses.
@@ -4478,6 +7665,11 @@ export interface components {
              * Format: date-time
              */
             created: string;
+            /**
+             * Custom Fields
+             * @description Only when the request asks `?fields=name,...`
+             */
+            custom_fields?: components["schemas"]["CustomFieldAnswer"][] | null;
             /** Dept Id */
             dept_id?: number | null;
             /** Dept Name */
@@ -4569,6 +7761,11 @@ export interface components {
             /** Message */
             message: string;
             /**
+             * Status Id
+             * @description Also set the ticket's status (osTicket's Ticket Status select); closing needs ticket.close
+             */
+            status_id?: number | null;
+            /**
              * Title
              * @default
              */
@@ -4590,6 +7787,30 @@ export interface components {
             note: string;
             /** Team Id */
             team_id?: number | null;
+        };
+        /**
+         * TicketRelations
+         * @description osTicket's linked / merged tickets. Tickets the agent may not open are left out.
+         */
+        TicketRelations: {
+            /**
+             * Children
+             * @default []
+             */
+            children: components["schemas"]["RelatedTicket"][];
+            /** Is Parent */
+            is_parent: boolean;
+            /**
+             * Merge Type
+             * @description visual = linked; combine / separate = merged (threads shown together / apart)
+             */
+            merge_type?: ("visual" | "combine" | "separate") | null;
+            parent?: components["schemas"]["RelatedTicket"] | null;
+            /**
+             * Relation
+             * @enum {string}
+             */
+            relation: "none" | "linked" | "merged";
         };
         /**
          * TicketRelease
@@ -4636,6 +7857,28 @@ export interface components {
              * @enum {string}
              */
             signature: "none" | "mine" | "dept";
+            /**
+             * Status Id
+             * @description Also set the ticket's status (osTicket's Ticket Status select); closing needs ticket.close
+             */
+            status_id?: number | null;
+        };
+        /** TicketStatusItem */
+        TicketStatusItem: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /**
+             * State
+             * @description open | closed | archived | deleted; the New Ticket form offers the open ones
+             */
+            state: string;
+        };
+        /** TicketStatusListResponse */
+        TicketStatusListResponse: {
+            /** Statuses */
+            statuses: components["schemas"]["TicketStatusItem"][];
         };
         /** TicketStatusSchema */
         TicketStatusSchema: {
@@ -4691,6 +7934,376 @@ export interface components {
             subject?: string | null;
             /** Topic Id */
             topic_id?: number | null;
+        };
+        /** TicketsSettings */
+        TicketsSettings: {
+            /**
+             * Allow Client Updates
+             * @default false
+             */
+            allow_client_updates: boolean;
+            /**
+             * Allow External Images
+             * @default false
+             */
+            allow_external_images: boolean;
+            /**
+             * Assigned Alert Active
+             * @default false
+             */
+            assigned_alert_active: boolean;
+            /**
+             * Assigned Alert Staff
+             * @default false
+             */
+            assigned_alert_staff: boolean;
+            /**
+             * Assigned Alert Team Lead
+             * @default false
+             */
+            assigned_alert_team_lead: boolean;
+            /**
+             * Assigned Alert Team Members
+             * @default false
+             */
+            assigned_alert_team_members: boolean;
+            /**
+             * Auto Claim Tickets
+             * @default false
+             */
+            auto_claim_tickets: boolean;
+            /**
+             * Auto Refer Closed
+             * @default false
+             */
+            auto_refer_closed: boolean;
+            /**
+             * Collaborator Ticket Visibility
+             * @default false
+             */
+            collaborator_ticket_visibility: boolean;
+            /**
+             * Default Help Topic
+             * @default 0
+             */
+            default_help_topic: number;
+            /**
+             * Default Priority Id
+             * @default 0
+             */
+            default_priority_id: number;
+            /**
+             * Default Sla Id
+             * @default 0
+             */
+            default_sla_id: number;
+            /**
+             * Default Ticket Queue
+             * @default 0
+             */
+            default_ticket_queue: number;
+            /**
+             * Default Ticket Status Id
+             * @default 0
+             */
+            default_ticket_status_id: number;
+            /**
+             * Enable Captcha
+             * @default false
+             */
+            enable_captcha: boolean;
+            /**
+             * Max Open Tickets
+             * @default 0
+             */
+            max_open_tickets: number;
+            /**
+             * Message Alert Acct Manager
+             * @default false
+             */
+            message_alert_acct_manager: boolean;
+            /**
+             * Message Alert Active
+             * @default false
+             */
+            message_alert_active: boolean;
+            /**
+             * Message Alert Assigned
+             * @default false
+             */
+            message_alert_assigned: boolean;
+            /**
+             * Message Alert Dept Manager
+             * @default false
+             */
+            message_alert_dept_manager: boolean;
+            /**
+             * Message Alert Laststaff
+             * @default false
+             */
+            message_alert_laststaff: boolean;
+            /**
+             * Message Autoresponder
+             * @default false
+             */
+            message_autoresponder: boolean;
+            /**
+             * Message Autoresponder Collabs
+             * @default false
+             */
+            message_autoresponder_collabs: boolean;
+            /**
+             * Note Alert Active
+             * @default false
+             */
+            note_alert_active: boolean;
+            /**
+             * Note Alert Assigned
+             * @default false
+             */
+            note_alert_assigned: boolean;
+            /**
+             * Note Alert Dept Manager
+             * @default false
+             */
+            note_alert_dept_manager: boolean;
+            /**
+             * Note Alert Laststaff
+             * @default false
+             */
+            note_alert_laststaff: boolean;
+            /**
+             * Overdue Alert Active
+             * @default false
+             */
+            overdue_alert_active: boolean;
+            /**
+             * Overdue Alert Assigned
+             * @default false
+             */
+            overdue_alert_assigned: boolean;
+            /**
+             * Overdue Alert Dept Manager
+             * @default false
+             */
+            overdue_alert_dept_manager: boolean;
+            /**
+             * Overdue Alert Dept Members
+             * @default false
+             */
+            overdue_alert_dept_members: boolean;
+            /**
+             * Overlimit Notice Active
+             * @default false
+             */
+            overlimit_notice_active: boolean;
+            /**
+             * Queue Bucket Counts
+             * @default false
+             */
+            queue_bucket_counts: boolean;
+            /**
+             * Require Topic To Close
+             * @default false
+             */
+            require_topic_to_close: boolean;
+            /**
+             * Send Login Errors
+             * @default false
+             */
+            send_login_errors: boolean;
+            /**
+             * Send Sql Errors
+             * @default false
+             */
+            send_sql_errors: boolean;
+            /**
+             * Send Sys Errors
+             * @default false
+             */
+            send_sys_errors: boolean;
+            /**
+             * Show Related Tickets
+             * @default false
+             */
+            show_related_tickets: boolean;
+            /**
+             * Ticket Alert Acct Manager
+             * @default false
+             */
+            ticket_alert_acct_manager: boolean;
+            /**
+             * Ticket Alert Active
+             * @default false
+             */
+            ticket_alert_active: boolean;
+            /**
+             * Ticket Alert Admin
+             * @default false
+             */
+            ticket_alert_admin: boolean;
+            /**
+             * Ticket Alert Dept Manager
+             * @default false
+             */
+            ticket_alert_dept_manager: boolean;
+            /**
+             * Ticket Alert Dept Members
+             * @default false
+             */
+            ticket_alert_dept_members: boolean;
+            /**
+             * Ticket Autoresponder
+             * @default false
+             */
+            ticket_autoresponder: boolean;
+            /**
+             * Ticket Lock
+             * @default 0
+             */
+            ticket_lock: number;
+            /**
+             * Ticket Notice Active
+             * @default false
+             */
+            ticket_notice_active: boolean;
+            /**
+             * Ticket Number Format
+             * @default
+             */
+            ticket_number_format: string;
+            /**
+             * Ticket Sequence Id
+             * @default 0
+             */
+            ticket_sequence_id: number;
+            /**
+             * Transfer Alert Active
+             * @default false
+             */
+            transfer_alert_active: boolean;
+            /**
+             * Transfer Alert Assigned
+             * @default false
+             */
+            transfer_alert_assigned: boolean;
+            /**
+             * Transfer Alert Dept Manager
+             * @default false
+             */
+            transfer_alert_dept_manager: boolean;
+            /**
+             * Transfer Alert Dept Members
+             * @default false
+             */
+            transfer_alert_dept_members: boolean;
+        };
+        /** TicketsSettingsUpdate */
+        TicketsSettingsUpdate: {
+            /** Allow Client Updates */
+            allow_client_updates?: boolean | null;
+            /** Allow External Images */
+            allow_external_images?: boolean | null;
+            /** Assigned Alert Active */
+            assigned_alert_active?: boolean | null;
+            /** Assigned Alert Staff */
+            assigned_alert_staff?: boolean | null;
+            /** Assigned Alert Team Lead */
+            assigned_alert_team_lead?: boolean | null;
+            /** Assigned Alert Team Members */
+            assigned_alert_team_members?: boolean | null;
+            /** Auto Claim Tickets */
+            auto_claim_tickets?: boolean | null;
+            /** Auto Refer Closed */
+            auto_refer_closed?: boolean | null;
+            /** Collaborator Ticket Visibility */
+            collaborator_ticket_visibility?: boolean | null;
+            /** Default Help Topic */
+            default_help_topic?: number | null;
+            /** Default Priority Id */
+            default_priority_id?: number | null;
+            /** Default Sla Id */
+            default_sla_id?: number | null;
+            /** Default Ticket Queue */
+            default_ticket_queue?: number | null;
+            /** Default Ticket Status Id */
+            default_ticket_status_id?: number | null;
+            /** Enable Captcha */
+            enable_captcha?: boolean | null;
+            /** Max Open Tickets */
+            max_open_tickets?: number | null;
+            /** Message Alert Acct Manager */
+            message_alert_acct_manager?: boolean | null;
+            /** Message Alert Active */
+            message_alert_active?: boolean | null;
+            /** Message Alert Assigned */
+            message_alert_assigned?: boolean | null;
+            /** Message Alert Dept Manager */
+            message_alert_dept_manager?: boolean | null;
+            /** Message Alert Laststaff */
+            message_alert_laststaff?: boolean | null;
+            /** Message Autoresponder */
+            message_autoresponder?: boolean | null;
+            /** Message Autoresponder Collabs */
+            message_autoresponder_collabs?: boolean | null;
+            /** Note Alert Active */
+            note_alert_active?: boolean | null;
+            /** Note Alert Assigned */
+            note_alert_assigned?: boolean | null;
+            /** Note Alert Dept Manager */
+            note_alert_dept_manager?: boolean | null;
+            /** Note Alert Laststaff */
+            note_alert_laststaff?: boolean | null;
+            /** Overdue Alert Active */
+            overdue_alert_active?: boolean | null;
+            /** Overdue Alert Assigned */
+            overdue_alert_assigned?: boolean | null;
+            /** Overdue Alert Dept Manager */
+            overdue_alert_dept_manager?: boolean | null;
+            /** Overdue Alert Dept Members */
+            overdue_alert_dept_members?: boolean | null;
+            /** Overlimit Notice Active */
+            overlimit_notice_active?: boolean | null;
+            /** Queue Bucket Counts */
+            queue_bucket_counts?: boolean | null;
+            /** Require Topic To Close */
+            require_topic_to_close?: boolean | null;
+            /** Send Login Errors */
+            send_login_errors?: boolean | null;
+            /** Send Sql Errors */
+            send_sql_errors?: boolean | null;
+            /** Send Sys Errors */
+            send_sys_errors?: boolean | null;
+            /** Show Related Tickets */
+            show_related_tickets?: boolean | null;
+            /** Ticket Alert Acct Manager */
+            ticket_alert_acct_manager?: boolean | null;
+            /** Ticket Alert Active */
+            ticket_alert_active?: boolean | null;
+            /** Ticket Alert Admin */
+            ticket_alert_admin?: boolean | null;
+            /** Ticket Alert Dept Manager */
+            ticket_alert_dept_manager?: boolean | null;
+            /** Ticket Alert Dept Members */
+            ticket_alert_dept_members?: boolean | null;
+            /** Ticket Autoresponder */
+            ticket_autoresponder?: boolean | null;
+            /** Ticket Lock */
+            ticket_lock?: number | null;
+            /** Ticket Notice Active */
+            ticket_notice_active?: boolean | null;
+            /** Ticket Number Format */
+            ticket_number_format?: string | null;
+            /** Ticket Sequence Id */
+            ticket_sequence_id?: number | null;
+            /** Transfer Alert Active */
+            transfer_alert_active?: boolean | null;
+            /** Transfer Alert Assigned */
+            transfer_alert_assigned?: boolean | null;
+            /** Transfer Alert Dept Manager */
+            transfer_alert_dept_manager?: boolean | null;
+            /** Transfer Alert Dept Members */
+            transfer_alert_dept_members?: boolean | null;
         };
         /** TokenResponse */
         TokenResponse: {
@@ -4782,6 +8395,8 @@ export interface components {
              * @default 0
              */
             dept_id: number;
+            /** Dept Name */
+            dept_name?: string | null;
             /**
              * Form Ids
              * @description Forms attached, in order (the ticket form included).
@@ -4820,10 +8435,17 @@ export interface components {
              */
             parent_id: number;
             /**
+             * Path
+             * @description Parent / Child, as osTicket's Help Topics page shows it (admin list)
+             */
+            path?: string | null;
+            /**
              * Priority Id
              * @default 0
              */
             priority_id: number;
+            /** Priority Name */
+            priority_name?: string | null;
             /**
              * Sequence Id
              * @default 0
@@ -4861,12 +8483,21 @@ export interface components {
              * Format: date-time
              */
             created: string;
+            /** Dept Name */
+            dept_name?: string | null;
             /** Id */
             id: number;
             /** Is Active */
             is_active: boolean;
             /** Is Public */
             is_public: boolean;
+            /**
+             * Path
+             * @description Parent / Child, as osTicket's Help Topics page shows it (admin list)
+             */
+            path?: string | null;
+            /** Priority Name */
+            priority_name?: string | null;
             /** Topic */
             topic: string;
             /**
@@ -5133,6 +8764,11 @@ export interface components {
              * Format: date-time
              */
             created: string;
+            /**
+             * Custom Fields
+             * @description Only when the request asks `?fields=name,...`
+             */
+            custom_fields?: components["schemas"]["CustomFieldAnswer"][] | null;
             /** Email */
             email: string;
             /** Id */
@@ -5193,6 +8829,82 @@ export interface components {
             /** Phone */
             phone?: string | null;
         };
+        /** UsersSettings */
+        UsersSettings: {
+            /**
+             * Allow Auth Tokens
+             * @default false
+             */
+            allow_auth_tokens: boolean;
+            /**
+             * Client Avatar
+             * @default
+             */
+            client_avatar: string;
+            /**
+             * Client Login Timeout
+             * @default 0
+             */
+            client_login_timeout: number;
+            /**
+             * Client Max Logins
+             * @default 0
+             */
+            client_max_logins: number;
+            /**
+             * Client Name Format
+             * @default
+             */
+            client_name_format: string;
+            /**
+             * Client Passwd Policy
+             * @default
+             */
+            client_passwd_policy: string;
+            /**
+             * Client Registration
+             * @default
+             */
+            client_registration: string;
+            /**
+             * Client Session Timeout
+             * @default 0
+             */
+            client_session_timeout: number;
+            /**
+             * Client Verify Email
+             * @default false
+             */
+            client_verify_email: boolean;
+            /**
+             * Clients Only
+             * @default false
+             */
+            clients_only: boolean;
+        };
+        /** UsersSettingsUpdate */
+        UsersSettingsUpdate: {
+            /** Allow Auth Tokens */
+            allow_auth_tokens?: boolean | null;
+            /** Client Avatar */
+            client_avatar?: string | null;
+            /** Client Login Timeout */
+            client_login_timeout?: number | null;
+            /** Client Max Logins */
+            client_max_logins?: number | null;
+            /** Client Name Format */
+            client_name_format?: string | null;
+            /** Client Passwd Policy */
+            client_passwd_policy?: string | null;
+            /** Client Registration */
+            client_registration?: string | null;
+            /** Client Session Timeout */
+            client_session_timeout?: number | null;
+            /** Client Verify Email */
+            client_verify_email?: boolean | null;
+            /** Clients Only */
+            clients_only?: boolean | null;
+        };
         /** ValidationError */
         ValidationError: {
             /** Context */
@@ -5205,6 +8917,122 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /** EntryCreate */
+        app__modules__lists__models__EntryCreate: {
+            /**
+             * Abbrev
+             * @default
+             */
+            abbrev: string;
+            /**
+             * Is Enabled
+             * @default true
+             */
+            is_enabled: boolean;
+            /**
+             * Sort
+             * @default 1
+             */
+            sort: number;
+            /** Value */
+            value: string;
+        };
+        /** EntryUpdate */
+        app__modules__lists__models__EntryUpdate: {
+            /** Abbrev */
+            abbrev?: string | null;
+            /** Is Enabled */
+            is_enabled?: boolean | null;
+            /** Sort */
+            sort?: number | null;
+            /** Value */
+            value?: string | null;
+        };
+        /** EntryCreate */
+        app__modules__schedules__models__EntryCreate: {
+            /**
+             * All Day
+             * @default false
+             */
+            all_day: boolean;
+            /** Day */
+            day?: number | null;
+            /**
+             * Ends At
+             * @description Needed unless all_day
+             */
+            ends_at?: string | null;
+            /** Month */
+            month?: number | null;
+            /** Name */
+            name: string;
+            /**
+             * Repeats
+             * @enum {string}
+             */
+            repeats: "never" | "daily" | "weekly" | "weekdays" | "weekends" | "monthly" | "yearly";
+            /**
+             * Starts At
+             * @description Needed unless all_day
+             */
+            starts_at?: string | null;
+            /**
+             * Starts On
+             * Format: date
+             */
+            starts_on: string;
+            /**
+             * Stops On
+             * @description Repeats until this day (empty: forever)
+             */
+            stops_on?: string | null;
+            /** Week */
+            week?: number | null;
+        };
+        /**
+         * EntryUpdate
+         * @description An entry is replaced as a whole (osTicket's entry form posts every field).
+         */
+        app__modules__schedules__models__EntryUpdate: {
+            /**
+             * All Day
+             * @default false
+             */
+            all_day: boolean;
+            /** Day */
+            day?: number | null;
+            /**
+             * Ends At
+             * @description Needed unless all_day
+             */
+            ends_at?: string | null;
+            /** Month */
+            month?: number | null;
+            /** Name */
+            name: string;
+            /**
+             * Repeats
+             * @enum {string}
+             */
+            repeats: "never" | "daily" | "weekly" | "weekdays" | "weekends" | "monthly" | "yearly";
+            /**
+             * Starts At
+             * @description Needed unless all_day
+             */
+            starts_at?: string | null;
+            /**
+             * Starts On
+             * Format: date
+             */
+            starts_on: string;
+            /**
+             * Stops On
+             * @description Repeats until this day (empty: forever)
+             */
+            stops_on?: string | null;
+            /** Week */
+            week?: number | null;
         };
     };
     responses: never;
@@ -5240,6 +9068,174 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AgentDirectoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_api_keys_api_v1_api_keys_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiKeyList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_api_key_api_v1_api_keys_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApiKeyCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_api_key_api_v1_api_keys__key_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiKey"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_api_key_api_v1_api_keys__key_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                key_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_api_key_api_v1_api_keys__key_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                key_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApiKeyUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
                 };
             };
             /** @description Validation Error */
@@ -5642,6 +9638,39 @@ export interface operations {
             };
         };
     };
+    download_canned_attachment_api_v1_canned__canned_id__attachments__attachment_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                canned_id: number;
+                attachment_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                    "application/octet-stream": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_commands_api_v1_commands_get: {
         parameters: {
             query?: {
@@ -5695,6 +9724,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CommandDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    activity_report_api_v1_dashboard_report_get: {
+        parameters: {
+            query?: {
+                /** @description First day (default: a month ago) */
+                start?: string | null;
+                /** @description How far past `start` the report runs */
+                period?: "until_today" | "one_week" | "two_weeks" | "one_month" | "one_quarter";
+                group?: "department" | "topic" | "agent";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardReport"];
                 };
             };
             /** @description Validation Error */
@@ -5853,6 +9917,600 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["DepartmentUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_sets_api_v1_email_templates_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemplateSetList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_set_api_v1_email_templates_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TemplateSetCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_set_api_v1_email_templates__set_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                set_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemplateSetDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_set_api_v1_email_templates__set_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                set_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_set_api_v1_email_templates__set_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                set_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TemplateSetUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_message_api_v1_email_templates__set_id__messages__code_name__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                set_id: number;
+                code_name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageBody"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_message_api_v1_email_templates__set_id__messages__code_name__put: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                set_id: number;
+                code_name: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MessageUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_emails_api_v1_emails_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmailAddressList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_email_api_v1_emails_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_email_api_v1_emails__email_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                email_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmailAddressDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_email_api_v1_emails__email_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                email_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_email_api_v1_emails__email_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                email_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_filters_api_v1_filters_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilterList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_filter_api_v1_filters_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FilterCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    filter_options_api_v1_filters_options_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilterOptions"];
+                };
+            };
+        };
+    };
+    get_filter_api_v1_filters__filter_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                filter_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilterDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_filter_api_v1_filters__filter_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                filter_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_filter_api_v1_filters__filter_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                filter_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FilterUpdate"];
             };
         };
         responses: {
@@ -6530,6 +11188,456 @@ export interface operations {
             };
         };
     };
+    download_faq_attachment_api_v1_kb_faqs__faq_id__attachments__attachment_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                faq_id: number;
+                attachment_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                    "application/octet-stream": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_lists_api_v1_lists_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_list_api_v1_lists_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ListCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_list_api_v1_lists__list_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                list_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomListItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_list_api_v1_lists__list_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                list_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_list_api_v1_lists__list_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                list_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ListUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_entries_api_v1_lists__list_id__items_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                list_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListEntryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_entry_api_v1_lists__list_id__items_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                list_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__modules__lists__models__EntryCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_entry_api_v1_lists__list_id__items__item_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                list_id: number;
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_entry_api_v1_lists__list_id__items__item_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                list_id: number;
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__modules__lists__models__EntryUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_logs_api_v1_logs_get: {
+        parameters: {
+            query?: {
+                /** @description Debug, Warning or Error */
+                type?: ("Debug" | "Warning" | "Error") | null;
+                /** @description Entries created at or after this instant */
+                since?: string | null;
+                /** @description Entries created at or before this instant */
+                until?: string | null;
+                sort?: "id" | "title" | "type" | "ip" | "created" | "updated";
+                descending?: boolean;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LogList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_logs_api_v1_logs_delete_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LogDelete"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_log_api_v1_logs__log_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                log_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LogDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_organizations_api_v1_orgs_get: {
         parameters: {
             query?: {
@@ -6539,6 +11647,8 @@ export interface operations {
                 descending?: boolean;
                 page?: number;
                 page_size?: number;
+                /** @description Comma-separated custom-field variable names to include on every row as `custom_fields` (at most 20); see GET /forms/for/{kind} for the names */
+                fields?: string | null;
             };
             header?: never;
             path?: never;
@@ -6702,6 +11812,174 @@ export interface operations {
             };
         };
     };
+    list_pages_api_v1_pages_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_page_api_v1_pages_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PageCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_page_api_v1_pages__page_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                page_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_page_api_v1_pages__page_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                page_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_page_api_v1_pages__page_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                page_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PageUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_permission_keys_api_v1_permissions_get: {
         parameters: {
             query?: never;
@@ -6718,6 +11996,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PermissionKeyList"];
+                };
+            };
+        };
+    };
+    list_plugins_api_v1_plugins_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PluginList"];
                 };
             };
         };
@@ -6890,6 +12188,96 @@ export interface operations {
             };
         };
     };
+    get_profile_api_v1_profile_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Profile"];
+                };
+            };
+        };
+    };
+    update_profile_api_v1_profile_patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfileUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    change_password_api_v1_profile_password_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordChange"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_roles_api_v1_roles_get: {
         parameters: {
             query?: {
@@ -6909,6 +12297,419 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RoleListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_role_api_v1_roles_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoleCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_role_api_v1_roles__role_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                role_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Role"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_role_api_v1_roles__role_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                role_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_role_api_v1_roles__role_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                role_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoleUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_schedules_api_v1_schedules_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduleList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_schedule_api_v1_schedules_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScheduleCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_schedule_api_v1_schedules__schedule_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                schedule_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduleDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_schedule_api_v1_schedules__schedule_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                schedule_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_schedule_api_v1_schedules__schedule_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                schedule_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScheduleUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_entry_api_v1_schedules__schedule_id__entries_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                schedule_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__modules__schedules__models__EntryCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_entry_api_v1_schedules__schedule_id__entries__entry_id__put: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                schedule_id: number;
+                entry_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__modules__schedules__models__EntryUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_entry_api_v1_schedules__schedule_id__entries__entry_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                schedule_id: number;
+                entry_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
                 };
             };
             /** @description Validation Error */
@@ -6955,6 +12756,61 @@ export interface operations {
             };
         };
     };
+    get_agents_settings_api_v1_settings_agents_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentsSettings"];
+                };
+            };
+        };
+    };
+    update_agents_settings_api_v1_settings_agents_patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AgentsSettingsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     attachment_limits_api_v1_settings_attachments_get: {
         parameters: {
             query?: never;
@@ -6971,6 +12827,391 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AttachmentLimits"];
+                };
+            };
+        };
+    };
+    get_emails_settings_api_v1_settings_emails_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmailsSettings"];
+                };
+            };
+        };
+    };
+    update_emails_settings_api_v1_settings_emails_patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailsSettingsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_kb_settings_api_v1_settings_kb_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KbSettings"];
+                };
+            };
+        };
+    };
+    update_kb_settings_api_v1_settings_kb_patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KbSettingsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_pages_settings_api_v1_settings_pages_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagesSettings"];
+                };
+            };
+        };
+    };
+    update_pages_settings_api_v1_settings_pages_patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PagesSettingsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_system_settings_api_v1_settings_system_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SystemSettings"];
+                };
+            };
+        };
+    };
+    update_system_settings_api_v1_settings_system_patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SystemSettingsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_tasks_settings_api_v1_settings_tasks_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TasksSettings"];
+                };
+            };
+        };
+    };
+    update_tasks_settings_api_v1_settings_tasks_patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TasksSettingsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_tickets_settings_api_v1_settings_tickets_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketsSettings"];
+                };
+            };
+        };
+    };
+    update_tickets_settings_api_v1_settings_tickets_patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TicketsSettingsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_users_settings_api_v1_settings_users_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsersSettings"];
+                };
+            };
+        };
+    };
+    update_users_settings_api_v1_settings_users_patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UsersSettingsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -7311,6 +13552,26 @@ export interface operations {
             };
         };
     };
+    system_info_api_v1_system_info_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SystemInfo"];
+                };
+            };
+        };
+    };
     list_tasks_api_v1_tasks__get: {
         parameters: {
             query?: {
@@ -7330,6 +13591,8 @@ export interface operations {
                 descending?: boolean;
                 page?: number;
                 page_size?: number;
+                /** @description Comma-separated custom-field variable names to include on every row as `custom_fields` (at most 20); see GET /forms/for/{kind} for the names */
+                fields?: string | null;
             };
             header?: never;
             path?: never;
@@ -8148,6 +14411,26 @@ export interface operations {
             };
         };
     };
+    list_ticket_statuses_api_v1_ticket_statuses_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketStatusListResponse"];
+                };
+            };
+        };
+    };
     list_tickets_api_v1_tickets__get: {
         parameters: {
             query?: {
@@ -8177,6 +14460,8 @@ export interface operations {
                 page?: number;
                 /** @description Rows per page */
                 page_size?: number;
+                /** @description Comma-separated custom-field variable names to include on every row as `custom_fields` (at most 20); see GET /forms/for/{kind} for the names */
+                fields?: string | null;
             };
             header?: never;
             path?: never;
@@ -8820,6 +15105,43 @@ export interface operations {
             };
         };
     };
+    link_tickets_api_v1_tickets__ticket_id__link_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                ticket_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TicketLink"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     merge_tickets_api_v1_tickets__ticket_id__merge_post: {
         parameters: {
             query?: never;
@@ -8983,6 +15305,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_related_api_v1_tickets__ticket_id__related_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticket_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketRelations"];
                 };
             };
             /** @description Validation Error */
@@ -9253,6 +15606,72 @@ export interface operations {
             };
         };
     };
+    unlink_ticket_api_v1_tickets__ticket_id__unlink_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                ticket_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unmerge_ticket_api_v1_tickets__ticket_id__unmerge_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                ticket_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_topics_api_v1_topics_get: {
         parameters: {
             query?: {
@@ -9432,6 +15851,8 @@ export interface operations {
                 descending?: boolean;
                 page?: number;
                 page_size?: number;
+                /** @description Comma-separated custom-field variable names to include on every row as `custom_fields` (at most 20); see GET /forms/for/{kind} for the names */
+                fields?: string | null;
             };
             header?: never;
             path?: never;
