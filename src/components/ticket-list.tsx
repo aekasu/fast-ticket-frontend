@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ColumnsPicker, useCustomColumns } from "./custom-columns";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { formatDateTime } from "@/lib/format";
@@ -38,7 +39,8 @@ export function TicketList() {
   const descending = dirParam ? dirParam === "desc" : sort !== "priority";
   const page = Math.max(1, Number(params.get("page")) || 1);
 
-  const { data, error, isFetching } = useTicketList({
+  const custom = useCustomColumns("T");
+  const { data, error, isFetching } = useTicketList({ fields: custom.fields,
     queue,
     q: q || undefined,
     sort,
@@ -101,6 +103,7 @@ export function TicketList() {
           </button>
         )}
         <span className="ml-auto text-xs text-slate-500">{isFetching ? "Loading…" : `${total} ticket${total === 1 ? "" : "s"}`}</span>
+        <ColumnsPicker defs={custom.defs} selected={custom.selected} onChange={(names) => go({ cols: names.join(",") || null, page: null })} />
       </form>
 
       {error && <p role="alert" className="mb-3 text-sm text-red-700">{error.message}</p>}
@@ -143,6 +146,11 @@ export function TicketList() {
                   )}
                 </th>
               ))}
+              {custom.headers.map((h) => (
+                <th key={h} className="px-3 py-2 font-semibold">
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -163,11 +171,16 @@ export function TicketList() {
                 <td className="px-3 py-2">{t.user_name}</td>
                 <td className="px-3 py-2">{t.priority_name}</td>
                 <td className="px-3 py-2">{t.assignee_name ?? t.team_name ?? ""}</td>
+              {custom.cells(t.custom_fields).map((c, i) => (
+                <td key={i} className="px-3 py-2">
+                  {c}
+                </td>
+              ))}
               </tr>
             ))}
             {data && data.items.length === 0 && (
               <tr>
-                <td colSpan={COLUMNS.length} className="px-3 py-6 text-center text-slate-500">
+                <td colSpan={COLUMNS.length + custom.headers.length} className="px-3 py-6 text-center text-slate-500">
                   {q ? "No tickets match your search." : "Query returned 0 results."}
                 </td>
               </tr>

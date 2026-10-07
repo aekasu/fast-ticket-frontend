@@ -130,6 +130,49 @@ test.describe("a custom-list field", () => {
   });
 });
 
+test.describe("custom answers as list columns", () => {
+  test.use({ storageState: AUTH.admin });
+
+  test("a chosen custom field becomes a column of the user and ticket lists, from one request per page", async ({ page, request }) => {
+    const stamp = Date.now();
+    const USER_FORM = 1;
+    let fieldId: number | undefined;
+    let userId: number | undefined;
+    let ticketId: number | undefined;
+    try {
+      fieldId = await addFormField(request, USER_FORM, { label: "E2E CF Badge", type: "text", name: "e2e_cf_badge" });
+      const made = await command(request, "POST", "/api/v1/users", { name: `E2E Column ${stamp}`, email: `e2e.column.${stamp}@example.com`, custom_fields: { e2e_cf_badge: "gold" } });
+      expect(made.status, made.error_message ?? "").toBe("done");
+      userId = Object.values(made.result).find((v): v is number => typeof v === "number")!;
+
+      const lists: string[] = [];
+      page.on("request", (r) => {
+        if (/\/api\/v1\/users\?/.test(r.url())) lists.push(r.url());
+      });
+      await page.goto(`/users?q=${encodeURIComponent(`E2E Column ${stamp}`)}`);
+      await expect(page.locator("tbody tr", { hasText: `E2E Column ${stamp}` })).toBeVisible();
+      await expect(page.getByRole("columnheader", { name: "E2E CF Badge" })).toHaveCount(0);
+      await page.getByText("Columns", { exact: false }).first().click();
+      await page.getByLabel("E2E CF Badge").click();
+      await expect(page).toHaveURL(/cols=e2e_cf_badge/);
+      await expect(page.getByRole("columnheader", { name: "E2E CF Badge" })).toBeVisible();
+      await expect(page.locator("tbody tr", { hasText: `E2E Column ${stamp}` })).toContainText("gold");
+      // The answers ride along on the list request: no request per row.
+      expect(lists.some((u) => u.includes("fields=e2e_cf_badge"))).toBe(true);
+      expect(lists.filter((u) => /users\/\d+/.test(u))).toHaveLength(0);
+
+      // The same menu is on the ticket list, offering the ticket form's fields.
+      ticketId = (await (await import("./api")).createTicket(request, { subject: `[e2e] columns ${stamp}`, message: "x" })).id;
+      await page.goto("/tickets?queue=open");
+      await expect(page.getByText("Columns", { exact: false }).first()).toBeVisible();
+    } finally {
+      if (ticketId) await command(request, "DELETE", `/api/v1/tickets/${ticketId}`).catch(() => undefined);
+      if (userId) await command(request, "DELETE", `/api/v1/users/${userId}`).catch(() => undefined);
+      if (fieldId) await removeFormField(request, USER_FORM, fieldId);
+    }
+  });
+});
+
 test.describe("custom fields on users, organizations and tasks", () => {
   test.use({ storageState: AUTH.admin });
 

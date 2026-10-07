@@ -8,6 +8,7 @@ import { hasGlobal } from "@/lib/nav";
 import { type OrgSort, useOrgs } from "@/lib/queries/directory";
 import { useMe } from "@/lib/queries/me";
 import { DirectoryTabs } from "./directory-tabs";
+import { ColumnsPicker, useCustomColumns } from "./custom-columns";
 import { Pager } from "./pager";
 
 const PAGE_SIZE = 25;
@@ -31,7 +32,8 @@ export function OrgList() {
   const descending = params.get("dir") === "desc";
   const page = Math.max(1, Number(params.get("page")) || 1);
   const [search, setSearch] = useState(q);
-  const { data, error, isFetching } = useOrgs({ q: q || undefined, sort, descending, page, page_size: PAGE_SIZE });
+  const custom = useCustomColumns("O");
+  const { data, error, isFetching } = useOrgs({ fields: custom.fields, q: q || undefined, sort, descending, page, page_size: PAGE_SIZE });
   const total = data?.total ?? 0;
 
   function go(changes: Record<string, string | null>) {
@@ -78,6 +80,7 @@ export function OrgList() {
           </button>
         )}
         <span className="text-xs text-slate-500">{isFetching ? "Loading…" : `${total} organization${total === 1 ? "" : "s"}`}</span>
+        <ColumnsPicker defs={custom.defs} selected={custom.selected} onChange={(names) => go({ cols: names.join(",") || null, page: null })} />
         {me && hasGlobal(me, "org.create") && (
           <Link href="/orgs/new" className="ml-auto rounded bg-sky-800 px-3 py-1.5 text-sm font-semibold text-white hover:bg-sky-900">
             Add Organization
@@ -97,6 +100,11 @@ export function OrgList() {
                   </button>
                 </th>
               ))}
+              {custom.headers.map((h) => (
+                <th key={h} className="px-3 py-2 font-semibold">
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -110,11 +118,16 @@ export function OrgList() {
                 <td className="px-3 py-2">{o.user_count}</td>
                 <td className="whitespace-nowrap px-3 py-2">{formatDateTime(o.created)}</td>
                 <td className="whitespace-nowrap px-3 py-2">{formatDateTime(o.updated)}</td>
+              {custom.cells(o.custom_fields).map((c, i) => (
+                <td key={i} className="px-3 py-2">
+                  {c}
+                </td>
+              ))}
               </tr>
             ))}
             {data && data.items.length === 0 && (
               <tr>
-                <td colSpan={COLUMNS.length} className="px-3 py-6 text-center text-slate-500">
+                <td colSpan={COLUMNS.length + custom.headers.length} className="px-3 py-6 text-center text-slate-500">
                   {q ? "No organizations match your search." : "Query returned 0 results."}
                 </td>
               </tr>

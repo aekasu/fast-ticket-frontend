@@ -8,6 +8,7 @@ import { hasGlobal } from "@/lib/nav";
 import { ACCOUNT_STATUS_LABEL, type UserSort, useAllOrgs, useUsers } from "@/lib/queries/directory";
 import { useMe } from "@/lib/queries/me";
 import { DirectoryTabs } from "./directory-tabs";
+import { ColumnsPicker, useCustomColumns } from "./custom-columns";
 import { Pager } from "./pager";
 import { UserImport } from "./user-import";
 
@@ -38,7 +39,8 @@ export function UserList() {
   const page = Math.max(1, Number(params.get("page")) || 1);
   const [search, setSearch] = useState(q);
 
-  const { data, error, isFetching } = useUsers({ org_id: orgId, q: q || undefined, sort, descending, page, page_size: PAGE_SIZE });
+  const custom = useCustomColumns("U");
+  const { data, error, isFetching } = useUsers({ fields: custom.fields, org_id: orgId, q: q || undefined, sort, descending, page, page_size: PAGE_SIZE });
   const orgs = useAllOrgs();
   const total = data?.total ?? 0;
 
@@ -97,6 +99,7 @@ export function UserList() {
           </select>
         </label>
         <span className="text-xs text-slate-500">{isFetching ? "Loading…" : `${total} user${total === 1 ? "" : "s"}`}</span>
+        <ColumnsPicker defs={custom.defs} selected={custom.selected} onChange={(names) => go({ cols: names.join(",") || null, page: null })} />
         {me && hasGlobal(me, "user.create") && (
           <Link href="/users/new" className="ml-auto rounded bg-sky-800 px-3 py-1.5 text-sm font-semibold text-white hover:bg-sky-900">
             Add User
@@ -128,6 +131,11 @@ export function UserList() {
                   )}
                 </th>
               ))}
+              {custom.headers.map((h) => (
+                <th key={h} className="px-3 py-2 font-semibold">
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -151,11 +159,16 @@ export function UserList() {
                 </td>
                 <td className="whitespace-nowrap px-3 py-2">{formatDateTime(u.created)}</td>
                 <td className="whitespace-nowrap px-3 py-2">{formatDateTime(u.updated)}</td>
+              {custom.cells(u.custom_fields).map((c, i) => (
+                <td key={i} className="px-3 py-2">
+                  {c}
+                </td>
+              ))}
               </tr>
             ))}
             {data && data.items.length === 0 && (
               <tr>
-                <td colSpan={COLUMNS.length} className="px-3 py-6 text-center text-slate-500">
+                <td colSpan={COLUMNS.length + custom.headers.length} className="px-3 py-6 text-center text-slate-500">
                   {q ? "No users match your search." : "Query returned 0 results."}
                 </td>
               </tr>
