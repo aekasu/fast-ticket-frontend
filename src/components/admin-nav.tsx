@@ -9,7 +9,7 @@ export function AdminNav() {
   const pathname = usePathname();
   const slug = pathname.split("/")[2] ?? "";
   const current = ADMIN_MENU.find((g) => g.items.some((i) => i.slug === slug)) ?? ADMIN_MENU[0];
-  const firstUsable = (g: (typeof ADMIN_MENU)[number]) => g.items.find((i) => i.resource) ?? g.items[0];
+  const firstUsable = (g: (typeof ADMIN_MENU)[number]) => g.items.find((i) => i.resource || i.screen) ?? g.items[0];
 
   return (
     <div className="mb-4">
@@ -17,7 +17,7 @@ export function AdminNav() {
         {ADMIN_MENU.map((g) => (
           <li key={g.key}>
             <Link
-              href={g.key === "dashboard" ? "/admin" : `/admin/${firstUsable(g).slug}`}
+              href={`/admin/${firstUsable(g).slug}`}
               className={`-mb-px block border border-b-0 px-4 py-2 text-sm font-medium ${
                 g.key === current.key ? "border-slate-300 bg-white text-slate-900" : "border-transparent text-sky-800 hover:bg-slate-200"
               }`}
@@ -29,7 +29,7 @@ export function AdminNav() {
       </ul>
       <ul className="flex flex-wrap gap-x-4 gap-y-1 border-b border-slate-200 bg-white px-3 py-2 text-sm" aria-label={`${current.label} pages`}>
         {current.items.map((i) =>
-          i.resource ? (
+          i.resource || i.screen ? (
             <li key={i.slug}>
               <Link href={`/admin/${i.slug}`} className={i.slug === slug ? "font-bold text-slate-900" : "text-sky-800 hover:underline"}>
                 {i.label}

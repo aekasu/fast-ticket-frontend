@@ -1,0 +1,180 @@
+import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
+import { command } from "./api";
+import { AUTH } from "./global-setup";
+import { osticketAdmin, osticketPageText, osticketRows } from "./osticket";
+
+const stamp = () => Date.now();
+const idFromUrl = (page: Page) => Number(page.url().split("/").filter((p) => /^\d+$/.test(p)).pop());
+const cellOf = (page: Page, label: string) => page.locator("th", { hasText: new RegExp(`^${label}:$`) }).locator("xpath=following-sibling::td[1]");
+const remove = (request: APIRequestContext, path: string, id?: number) => (id ? command(request, "DELETE", `${path}/${id}`).catch(() => undefined) : undefined);
+const rowsOf = async (os: APIRequestContext, p: string) => (await osticketRows(os, p)).map((c) => c.join(" | ")).join("\n");
+
+test.describe("more Admin Panel pages as the admin, confirmed on osTicket's pages", () => {
+  test.use({ storageState: AUTH.admin });
+
+  test("an API key: add, update, delete", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const ip = `10.${stamp() % 250}.${stamp() % 200}.7`;
+    let id: number | undefined;
+    try {
+      await page.goto("/admin/apikeys/new");
+      await page.getByLabel("IP Address").fill(ip);
+      await page.getByLabel("Admin Notes").fill("made by e2e");
+      await page.getByRole("button", { name: "Add API key" }).click();
+      await expect(page).toHaveURL(/\/admin\/apikeys\/\d+$/);
+      id = idFromUrl(page);
+      await expect(cellOf(page, "IP Address")).toHaveText(ip);
+      const key = (await cellOf(page, "API Key").innerText()).trim();
+      expect(key.length).toBeGreaterThan(8);
+      expect(await rowsOf(os, "apikeys.php")).toContain(ip);
+
+      await page.getByRole("link", { name: "Update" }).click();
+      await page.getByLabel("Key is active").uncheck();
+      await page.getByRole("button", { name: "Save Changes" }).click();
+      await expect(cellOf(page, "Status")).toHaveText("Disabled");
+
+      await page.getByRole("button", { name: "Delete", exact: true }).click();
+      await page.getByRole("button", { name: "Delete API key" }).click();
+      await expect(page).toHaveURL(/\/admin\/apikeys$/);
+      expect(await rowsOf(os, "apikeys.php")).not.toContain(ip);
+      id = undefined;
+    } finally {
+      await remove(request, "/api/v1/api-keys", id);
+      await os.dispose();
+    }
+  });
+
+  test("a site page: add, update, delete; the default pages cannot be deleted", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const name = `E2E Page ${stamp()}`;
+    let id: number | undefined;
+    try {
+      await page.goto("/admin/pages/new");
+      await page.getByLabel("Name", { exact: true }).fill(name);
+      await page.getByLabel("Type", { exact: true }).selectOption("other");
+      await page.getByLabel("Body").fill("<p>e2e body</p>");
+      await page.getByRole("button", { name: "Add Page" }).click();
+      await expect(page).toHaveURL(/\/admin\/pages\/\d+$/);
+      id = idFromUrl(page);
+      expect(await rowsOf(os, "pages.php")).toContain(name);
+
+      await page.getByRole("link", { name: "Update" }).click();
+      await page.getByLabel("Admin Notes").fill("noted");
+      await page.getByRole("button", { name: "Save Changes" }).click();
+      await expect(cellOf(page, "Notes")).toHaveText("noted");
+
+      await page.getByRole("button", { name: "Delete", exact: true }).click();
+      await page.getByRole("button", { name: "Delete page" }).click();
+      await expect(page).toHaveURL(/\/admin\/pages$/);
+      expect(await rowsOf(os, "pages.php")).not.toContain(name);
+      id = undefined;
+
+      // A page in use has no Delete button.
+      await page.goto("/admin/pages");
+      const inUse = (await (await request.get("/api/v1/pages?page_size=100")).json()) as { items: { id: number; in_use: boolean }[] };
+      const used = inUse.items.find((p) => p.in_use);
+      if (used) {
+        await page.goto(`/admin/pages/${used.id}`);
+        await expect(page.getByRole("button", { name: "Delete", exact: true })).toHaveCount(0);
+      }
+    } finally {
+      await remove(request, "/api/v1/pages", id);
+      await os.dispose();
+    }
+  });
+
+  test("an email address: add, update, delete", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const email = `e2e-${stamp()}@example.com`;
+    let id: number | undefined;
+    try {
+      await page.goto("/admin/emails/new");
+      await page.getByLabel("Email Address").fill(email);
+      await page.getByLabel("Email Name").fill("E2E Mailbox");
+      await page.getByRole("button", { name: "Add Email address" }).click();
+      await expect(page).toHaveURL(/\/admin\/emails\/\d+$/);
+      id = idFromUrl(page);
+      expect(await rowsOf(os, "emails.php")).toContain(email);
+
+      await page.getByRole("link", { name: "Update" }).click();
+      await page.getByLabel("Email Name").fill("E2E Mailbox Renamed");
+      await page.getByRole("button", { name: "Save Changes" }).click();
+      await expect(cellOf(page, "Name")).toHaveText("E2E Mailbox Renamed");
+
+      await page.getByRole("button", { name: "Delete", exact: true }).click();
+      await page.getByRole("button", { name: "Delete email address" }).click();
+      await expect(page).toHaveURL(/\/admin\/emails$/);
+      expect(await rowsOf(os, "emails.php")).not.toContain(email);
+      id = undefined;
+    } finally {
+      await remove(request, "/api/v1/emails", id);
+      await os.dispose();
+    }
+  });
+
+  test("a custom list with items: add the list, add and disable an item, delete both", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const name = `E2E List ${stamp()}`;
+    let id: number | undefined;
+    try {
+      await page.goto("/admin/lists/new");
+      await page.getByLabel("Name", { exact: true }).fill(name);
+      await page.getByLabel("Plural Name").fill(`${name}s`);
+      await page.getByRole("button", { name: "Add List" }).click();
+      await expect(page).toHaveURL(/\/admin\/lists\/\d+$/);
+      id = idFromUrl(page);
+      expect(await rowsOf(os, "lists.php")).toContain(name);
+      await expect(page.getByText("This list has no items.")).toBeVisible();
+
+      await page.getByLabel("Item value").fill("Alpha");
+      await page.getByLabel("Abbreviation").fill("A");
+      await page.getByRole("button", { name: "Add Item" }).click();
+      await expect(page.getByText("Alpha added.")).toBeVisible();
+      await expect(page.getByRole("cell", { name: "Alpha", exact: true })).toBeVisible();
+      await page.getByLabel("Alpha is enabled").click();
+      await expect(page.getByText("Alpha disabled.")).toBeVisible();
+      const items = (await (await request.get(`/api/v1/lists/${id}/items`)).json()) as { items: { value: string; is_enabled: boolean }[] };
+      expect(items.items.find((i) => i.value === "Alpha")?.is_enabled).toBe(false);
+
+      await page.getByRole("button", { name: "Remove Alpha" }).click();
+      await expect(page.getByText("Alpha removed.")).toBeVisible();
+      await expect(page.getByText("This list has no items.")).toBeVisible();
+
+      await page.getByRole("button", { name: "Delete", exact: true }).click();
+      await page.getByRole("button", { name: "Delete list" }).click();
+      await expect(page).toHaveURL(/\/admin\/lists$/);
+      expect(await rowsOf(os, "lists.php")).not.toContain(name);
+      id = undefined;
+    } finally {
+      await remove(request, "/api/v1/lists", id);
+      await os.dispose();
+    }
+  });
+
+  test("system logs, system information and plugins show what osTicket shows", async ({ page }) => {
+    const os = await osticketAdmin();
+    await page.goto("/admin/logs");
+    await expect(page.getByRole("heading", { name: "System Logs" })).toBeVisible();
+    await expect(page.getByLabel("Log type")).toBeVisible();
+    await expect(page.getByText("entries", { exact: false }).first()).toBeVisible();
+    const first = page.locator("tbody tr td:nth-child(2) button").first();
+    if (await first.count()) {
+      const title = (await first.innerText()).trim();
+      expect(await rowsOf(os, "logs.php")).toContain(title.slice(0, 20));
+      await first.click();
+      await expect(page.locator("tbody pre")).toBeVisible();
+    }
+
+    await page.goto("/admin/system");
+    await expect(page.getByRole("heading", { name: "System Information" })).toBeVisible();
+    const version = (await cellOf(page, "osTicket Version").innerText()).trim();
+    expect(await osticketPageText(os, "system.php")).toContain(version);
+
+    await page.goto("/admin/plugins");
+    await expect(page.getByRole("heading", { name: "Plugins" })).toBeVisible();
+    for (const name of await page.locator("tbody tr td:first-child").allTextContents()) {
+      if (name.trim() && !/No plugins/.test(name)) expect(await osticketPageText(os, "plugins.php")).toContain(name.trim());
+    }
+    await os.dispose();
+  });
+});

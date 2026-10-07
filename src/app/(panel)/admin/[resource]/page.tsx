@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { AdminLogs, AdminPlugins, AdminSystemInfo } from "@/components/admin-system";
 import { AdminList, Unavailable } from "@/components/admin-screens";
 import { findAdminItem } from "@/lib/admin/menu";
 import { RESOURCES } from "@/lib/admin/resources";
@@ -10,6 +11,9 @@ export default async function AdminResourcePage({ params }: { params: Promise<{ 
   const { resource: slug } = await params;
   const found = findAdminItem(slug);
   if (!found) notFound();
+  if (found.item.screen === "logs") return <AdminLogs />;
+  if (found.item.screen === "system") return <AdminSystemInfo />;
+  if (found.item.screen === "plugins") return <AdminPlugins />;
   // Only the key crosses to the client component: the config holds functions.
   if (!found.item.resource || !RESOURCES[found.item.resource]) return <Unavailable item={found.item} />;
   return (

@@ -5,6 +5,8 @@ export interface AdminItem {
   slug: string;
   /** The resource config key in `resources.ts`, when the API serves it. */
   resource?: string;
+  /** A hand-built screen (not the generic resource list) the API serves for this entry. */
+  screen?: "logs" | "system" | "plugins" | "settings" | "schedules" | "templates" | "filters";
   /** osTicket's page, for reference in the unavailable notice. */
   page: string;
 }
@@ -20,8 +22,8 @@ export const ADMIN_MENU: AdminGroup[] = [
     key: "dashboard",
     label: "Dashboard",
     items: [
-      { label: "System Logs", slug: "logs", page: "logs.php" },
-      { label: "Information", slug: "system", page: "system.php" },
+      { label: "System Logs", slug: "logs", screen: "logs", page: "logs.php" },
+      { label: "Information", slug: "system", screen: "system", page: "system.php" },
     ],
   },
   {
@@ -45,11 +47,11 @@ export const ADMIN_MENU: AdminGroup[] = [
       { label: "Filters", slug: "filters", page: "filters.php" },
       { label: "SLA", slug: "slas", resource: "slas", page: "slas.php" },
       { label: "Schedules", slug: "schedules", page: "schedules.php" },
-      { label: "API", slug: "apikeys", page: "apikeys.php" },
-      { label: "Pages", slug: "pages", page: "pages.php" },
+      { label: "API", slug: "apikeys", resource: "apikeys", page: "apikeys.php" },
+      { label: "Pages", slug: "pages", resource: "pages", page: "pages.php" },
       { label: "Forms", slug: "forms", resource: "forms", page: "forms.php" },
-      { label: "Lists", slug: "lists", page: "lists.php" },
-      { label: "Plugins", slug: "plugins", page: "plugins.php" },
+      { label: "Lists", slug: "lists", resource: "lists", page: "lists.php" },
+      { label: "Plugins", slug: "plugins", screen: "plugins", page: "plugins.php" },
       // Not in osTicket's menu; the API manages ticket priorities.
       { label: "Priorities", slug: "priorities", resource: "priorities", page: "" },
     ],
@@ -58,7 +60,7 @@ export const ADMIN_MENU: AdminGroup[] = [
     key: "emails",
     label: "Emails",
     items: [
-      { label: "Emails", slug: "emails", page: "emails.php" },
+      { label: "Emails", slug: "emails", resource: "emails", page: "emails.php" },
       { label: "Settings", slug: "emailsettings", page: "emailsettings.php" },
       { label: "Banlist", slug: "banlist", resource: "banlist", page: "banlist.php" },
       { label: "Templates", slug: "templates", page: "templates.php" },

@@ -1,6 +1,8 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { getJson } from "@/lib/api/raw";
 import { type Row } from "@/lib/admin/resources";
 import { useAdminLookups, useFormsList, usePermissionKeys, useStaffList, useTeamsList } from "@/lib/queries/admin-lookups";
 import { NoticeBar, button, field, primary, useRunner } from "./action-ui";
@@ -355,6 +357,92 @@ export function TopicFormsEditor({ id, data }: { id: number; data: Row }) {
           {busy ? "Saving…" : "Save Forms"}
         </button>
       </form>
+    </Card>
+  );
+}
+
+type ListEntry = { id: number; value: string; abbrev: string | null; sort: number; is_enabled: boolean; is_internal: boolean };
+
+/** The items of a custom list: add, rename, enable or disable, remove. A list osTicket manages itself is shown read-only. */
+export function ListItemsEditor({ id, data }: { id: number; data: Row }) {
+  const editable = data.is_editable === true;
+  const items = useQuery({
+    queryKey: ["admin", "lists", "items", id],
+    queryFn: () => getJson<{ items: ListEntry[] }>(`/api/v1/lists/${id}/items?page_size=200`),
+  });
+  const { run, busy, notice, clear } = useRunner(`/api/v1/lists/${id}/items`, ["admin", "lists"]);
+  const [version, setVersion] = useState(0);
+
+  async function add(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const value = String(form.get("value") ?? "").trim();
+    const abbrev = String(form.get("abbrev") ?? "").trim();
+    const sort = String(form.get("sort") ?? "").trim();
+    if (!value) return;
+    if (await run("", { value, ...(abbrev ? { abbrev } : {}), ...(sort ? { sort: Number(sort) } : {}) }, `${value} added.`, "POST")) setVersion((v) => v + 1);
+  }
+
+  return (
+    <Card title="List items" note={editable ? undefined : "osTicket manages this list itself; its items are not edited here."}>
+      <NoticeBar notice={notice} />
+      {items.error && <p role="alert" className="text-sm text-red-700">{items.error.message}</p>}
+      <table className="w-full text-left text-sm">
+        <thead className="text-xs uppercase tracking-wide text-slate-600">
+          <tr>
+            <th className="py-1 pr-3 font-semibold">Value</th>
+            <th className="py-1 pr-3 font-semibold">Abbreviation</th>
+            <th className="py-1 pr-3 font-semibold">Sort</th>
+            <th className="py-1 pr-3 font-semibold">Enabled</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {items.data?.items.map((i) => (
+            <tr key={i.id} className="border-t border-slate-200">
+              <td className="py-1.5 pr-3">
+                {i.value}
+                {i.is_internal && <span className="ml-1 text-xs text-slate-500">(internal)</span>}
+              </td>
+              <td className="py-1.5 pr-3">{i.abbrev}</td>
+              <td className="py-1.5 pr-3">{i.sort}</td>
+              <td className="py-1.5 pr-3">
+                <input
+                  type="checkbox"
+                  aria-label={`${i.value} is enabled`}
+                  checked={i.is_enabled}
+                  disabled={busy || !editable}
+                  onChange={(e) => run(String(i.id), { is_enabled: e.target.checked }, `${i.value} ${e.target.checked ? "enabled" : "disabled"}.`, "PATCH")}
+                />
+              </td>
+              <td className="py-1.5 text-right">
+                {editable && (
+                  <button type="button" disabled={busy} className="text-red-800 underline disabled:opacity-50" onClick={() => run(String(i.id), {}, `${i.value} removed.`, "DELETE")}>
+                    Remove {i.value}
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+          {items.data?.items.length === 0 && (
+            <tr>
+              <td colSpan={5} className="py-3 text-center text-slate-500">
+                This list has no items.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+      {editable && (
+        <form key={version} onSubmit={add} className="flex flex-wrap items-center gap-2 border-t border-slate-200 pt-3" aria-label="Add item">
+          <input name="value" aria-label="Item value" required placeholder="Value" className={`${field} max-w-xs`} />
+          <input name="abbrev" aria-label="Abbreviation" placeholder="Abbreviation" className={`${field} max-w-40`} />
+          <input name="sort" aria-label="Sort number" type="number" placeholder="Sort" className={`${field} max-w-28`} />
+          <button type="submit" disabled={busy} className={primary} onClick={clear}>
+            Add Item
+          </button>
+        </form>
+      )}
     </Card>
   );
 }
