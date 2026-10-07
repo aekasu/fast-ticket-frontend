@@ -45,6 +45,13 @@ stack, not a mock.
   awaits `connection()`). React's `style={{}}` attributes need `style-src-attr 'unsafe-inline'`; the dev server also needs
   `'unsafe-inline'` styles and `'unsafe-eval'`. `e2e/csp.spec.ts` checks the header and that nothing is blocked; the
   whole suite was also run against `next build && next start`.
+- **Admin Panel generic screens (2026-10-07):** a resource is a config entry (`src/lib/admin/resources.ts`) plus a menu item;
+  anything that needs more is a hand-built `screen` in the menu (logs, system information, plugins, settings) or an
+  editor under the generic view (`admin-relations.tsx`, `admin-filters.tsx`). The eight settings pages are one generic
+  editor that renders each key by its value type and sends only what changed; osTicket's field-by-field refusal is shown
+  as worded.
+- **Custom columns (2026-10-07):** the Columns menu on the ticket, task, user and organization lists keeps its choice in
+  the URL (`cols=`) and sends the names as the API's `?fields=`, so answers arrive on the list request.
 - **Tailwind CSS** for styling (no component kit): osTicket's look is utilitarian, and recreating it is easier with
   utility classes than by fighting a kit's defaults.
 - **npm** as the package manager (already installed here; Node 24).
