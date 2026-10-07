@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { FilterNew } from "@/components/admin-filters";
 import { AdminNew } from "@/components/admin-screens";
 import { RESOURCES } from "@/lib/admin/resources";
 
@@ -8,5 +9,6 @@ export default async function AdminNewPage({ params }: { params: Promise<{ resou
   const { resource: slug } = await params;
   const resource = RESOURCES[slug];
   if (!resource || resource.canCreate === false) notFound();
+  if (slug === "filters") return <FilterNew />;
   return <AdminNew resourceKey={slug} />;
 }

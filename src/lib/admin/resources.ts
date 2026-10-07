@@ -634,4 +634,42 @@ export const RESOURCES: Record<string, ResourceDef> = {
     canDelete: (d) => d.in_use !== true,
     // The messages are edited by TemplateMessagesEditor.
   },
+
+  filters: {
+    key: "filters",
+    title: "Ticket Filters",
+    singular: "filter",
+    path: "/api/v1/filters",
+    osticketPage: "filters.php",
+    name: (r) => s(r.name),
+    columns: [
+      { label: "Name", value: (r) => s(r.name) },
+      { label: "Status", value: (r) => active(r.is_active) },
+      { label: "Order", value: (r) => s(r.execorder) },
+      { label: "Target", value: (r) => s(r.target) },
+      { label: "Rules", value: (r) => s(r.rule_count) },
+      { label: "Last Updated", value: (r) => date(r.updated) },
+    ],
+    info: [
+      ["Name", (r) => s(r.name)],
+      ["Status", (r) => active(r.is_active)],
+      ["Execution Order", (r) => s(r.execorder)],
+      ["Target", (r) => s(r.target) + (r.email_address ? ` (${s(r.email_address)})` : "")],
+      ["Rules match", (r) => (r.match_all_rules ? "All rules" : "Any rule")],
+      ["Stops further filters", (r) => yes(r.stop_onmatch)],
+      ["Created", (r) => date(r.created)],
+      ["Last Updated", (r) => date(r.updated)],
+      ["Notes", (r) => s(r.notes)],
+    ],
+    fields: [
+      { name: "name", label: "Filter Name", kind: "text", required: true },
+      { name: "execorder", label: "Execution Order", kind: "number" },
+      { name: "target", label: "Filter Target", kind: "select", options: ["Any", "Web", "Email", "API"].map((v) => ({ value: v, label: v })) },
+      { name: "is_active", label: "Filter is active", kind: "bool", defaultChecked: true },
+      { name: "match_all_rules", label: "All rules must match (otherwise any one)", kind: "bool" },
+      { name: "stop_onmatch", label: "Stop processing further filters on a match", kind: "bool" },
+      { name: "notes", label: "Admin Notes", kind: "textarea" },
+    ],
+    // Rules and actions are edited by FilterRulesActionsEditor; a new filter has its own form (FilterNew).
+  },
 };

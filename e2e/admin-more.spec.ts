@@ -261,4 +261,48 @@ test.describe("more Admin Panel pages as the admin, confirmed on osTicket's page
       await os.dispose();
     }
   });
+
+  test("a ticket filter: add with a rule and an action, change its rules, delete", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const name = `E2E Filter ${String(stamp()).slice(-8)}`;
+    let id: number | undefined;
+    try {
+      await page.goto("/admin/filters/new");
+      await page.getByLabel("Filter Name").fill(name);
+      const rule = page.getByRole("group", { name: "Rule 1" });
+      await rule.getByLabel("Rule value").fill("e2e-filter-test");
+      await page.getByRole("button", { name: "Add Action" }).click();
+      const action = page.getByRole("group", { name: "Action 1" });
+      await action.getByLabel("Action type").selectOption("dept");
+      await action.getByLabel("Department", { exact: true }).selectOption({ index: 1 });
+      await page.getByRole("button", { name: "Add Filter" }).click();
+      await expect(page).toHaveURL(/\/admin\/filters\/\d+$/);
+      id = idFromUrl(page);
+      await expect(page.getByRole("heading", { name })).toBeVisible();
+      expect(await rowsOf(os, "filters.php")).toContain(name);
+
+      const editor = page.getByRole("region", { name: "Rules and actions" });
+      await expect(editor.getByLabel("Rule value")).toHaveValue("e2e-filter-test");
+      await editor.getByLabel("Rule value").fill("changed-value");
+      await editor.getByRole("button", { name: "Save Rules and Actions" }).click();
+      await expect(page.getByText("Rules and actions saved.")).toBeVisible();
+      const detail = (await (await request.get(`/api/v1/filters/${id}`)).json()) as { rules: { val: string }[]; actions: { type: string }[] };
+      expect(detail.rules.map((r) => r.val)).toEqual(["changed-value"]);
+      expect(detail.actions.map((a) => a.type)).toEqual(["dept"]);
+
+      // osTicket needs at least one rule: its refusal is shown.
+      await editor.getByRole("button", { name: "Remove rule 1" }).click();
+      await editor.getByRole("button", { name: "Save Rules and Actions" }).click();
+      await expect(editor.getByRole("alert")).toBeVisible();
+
+      await page.getByRole("button", { name: "Delete", exact: true }).click();
+      await page.getByRole("button", { name: "Delete filter" }).click();
+      await expect(page).toHaveURL(/\/admin\/filters$/);
+      expect(await rowsOf(os, "filters.php")).not.toContain(name);
+      id = undefined;
+    } finally {
+      await remove(request, "/api/v1/filters", id);
+      await os.dispose();
+    }
+  });
 });

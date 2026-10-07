@@ -46,7 +46,7 @@ export const ADMIN_MENU: AdminGroup[] = [
     label: "Manage",
     items: [
       { label: "Help Topics", slug: "topics", resource: "topics", page: "helptopics.php" },
-      { label: "Filters", slug: "filters", page: "filters.php" },
+      { label: "Filters", slug: "filters", resource: "filters", page: "filters.php" },
       { label: "SLA", slug: "slas", resource: "slas", page: "slas.php" },
       { label: "Schedules", slug: "schedules", resource: "schedules", page: "schedules.php" },
       { label: "API", slug: "apikeys", resource: "apikeys", page: "apikeys.php" },
