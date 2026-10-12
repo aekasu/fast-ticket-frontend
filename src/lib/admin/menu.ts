@@ -53,6 +53,8 @@ export const ADMIN_MENU: AdminGroup[] = [
       { label: "Pages", slug: "pages", resource: "pages", page: "pages.php" },
       { label: "Forms", slug: "forms", resource: "forms", page: "forms.php" },
       { label: "Lists", slug: "lists", resource: "lists", page: "lists.php" },
+      // osTicket keeps the statuses as the items of its built-in "Ticket Statuses" list.
+      { label: "Ticket Statuses", slug: "statuses", resource: "statuses", page: "lists.php?id=1" },
       { label: "Plugins", slug: "plugins", screen: "plugins", page: "plugins.php" },
       // Not in osTicket's menu; the API manages ticket priorities.
       { label: "Priorities", slug: "priorities", resource: "priorities", page: "" },

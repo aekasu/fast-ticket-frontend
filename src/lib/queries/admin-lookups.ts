@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
-import { useDepartments, usePriorities, useSlas, useTopics } from "./reference";
+import { useDepartments, usePriorities, useSlas, useTicketStatuses, useTopics } from "./reference";
 
 export interface Option {
   value: number;
@@ -51,6 +51,7 @@ export function useAdminLookups() {
   const agents = useAgentDirectory();
   const topics = useTopics();
   const roles = useRoles();
+  const statuses = useTicketStatuses();
 
   const options = {
     departments: (departments.data ?? []).map((d): Option => ({ value: d.id, label: d.name })),
@@ -59,6 +60,8 @@ export function useAdminLookups() {
     agents: (agents.data ?? []).map((a): Option => ({ value: a.id, label: a.name })),
     topics: (topics.data ?? []).map((t): Option => ({ value: t.id, label: t.topic })),
     roles: (roles.data ?? []).map((r): Option => ({ value: r.id, label: r.name })),
+    /** Enabled open statuses: what a closed status may reopen a ticket as. */
+    reopenStatuses: (statuses.data ?? []).filter((x) => x.state === "open").map((x): Option => ({ value: x.id, label: x.name })),
   };
   const names = Object.fromEntries(Object.entries(options).map(([k, list]) => [k, new Map(list.map((o) => [o.value, o.label]))])) as Record<keyof typeof options, Map<number, string>>;
   return { options, names, loading: departments.isLoading || priorities.isLoading || slas.isLoading || agents.isLoading || topics.isLoading || roles.isLoading };

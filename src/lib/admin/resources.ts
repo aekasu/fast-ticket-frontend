@@ -26,6 +26,8 @@ export interface FieldDef {
   help?: string;
   /** The value of a boolean on a new record. */
   defaultChecked?: boolean;
+  /** The control is disabled (and not sent) on a record for which this is true: osTicket keeps it fixed. */
+  lockedWhen?: (d: Row) => boolean;
 }
 
 export interface Section {
@@ -39,6 +41,8 @@ export interface ResourceDef {
   title: string;
   singular: string;
   path: string;
+  /** Where the list is read from, when it differs from `path` (the records are written at `path`). */
+  listPath?: string;
   name: (d: Row) => string;
   columns: Column[];
   /** What osTicket's list shows that the list endpoint does not carry. */
@@ -57,6 +61,7 @@ export interface ResourceDef {
 }
 
 const s = (v: unknown) => (v == null ? "" : String(v));
+const cap = (v: unknown) => s(v).replace(/^./, (c) => c.toUpperCase());
 const yes = (v: unknown) => (v ? "Yes" : "No");
 const date = (v: unknown) => (typeof v === "string" ? formatDateTime(v) : "");
 const fullName = (r: Row) => `${s(r.firstname)} ${s(r.lastname)}`.trim();
@@ -360,6 +365,57 @@ export const RESOURCES: Record<string, ResourceDef> = {
       { name: "urgency", label: "Urgency", kind: "number", help: "1 is the most urgent." },
       { name: "is_public", label: "Public priority", kind: "bool", defaultChecked: true },
     ],
+  },
+
+  statuses: {
+    key: "statuses",
+    title: "Ticket Statuses",
+    singular: "status",
+    path: "/api/v1/ticket-statuses",
+    listPath: "/api/v1/ticket-statuses/manage",
+    osticketPage: "lists.php?id=1",
+    name: (r) => s(r.name),
+    columns: [
+      { label: "Name", value: (r) => s(r.name) },
+      { label: "State", value: (r) => cap(r.state) },
+      { label: "Status", value: (r) => active(r.is_enabled) },
+      { label: "Tickets", value: (r) => s(r.ticket_count) },
+      { label: "Order", value: (r) => s(r.sort) },
+    ],
+    info: [
+      ["Name", (r) => s(r.name)],
+      ["State", (r) => cap(r.state)],
+      ["Status", (r) => active(r.is_enabled)],
+      ["Description", (r) => s(r.description)],
+      ["Sort order", (r) => s(r.sort)],
+      ["Tickets", (r) => s(r.ticket_count)],
+      ["Built in", (r) => yes(r.is_internal)],
+      ["Default", (r) => yes(r.is_default)],
+      ["End users may reopen", (r) => (r.state === "closed" ? yes(r.allow_reopen) : "")],
+      ["Reopens as", (r, lk) => (r.state === "closed" && r.allow_reopen ? lookup(lk.names.reopenStatuses, r.reopen_status_id) || "System default" : "")],
+    ],
+    fields: [
+      { name: "name", label: "Name", kind: "text", required: true, lockedWhen: (d) => d.is_internal === true, help: "A built-in status keeps its name and state." },
+      {
+        name: "state",
+        label: "State",
+        kind: "select",
+        required: true,
+        options: [
+          { value: "open", label: "Open" },
+          { value: "closed", label: "Closed" },
+          { value: "archived", label: "Archived" },
+          { value: "deleted", label: "Deleted" },
+        ],
+        lockedWhen: (d) => d.is_internal === true,
+      },
+      { name: "description", label: "Description", kind: "textarea" },
+      { name: "sort", label: "Sort Order", kind: "number" },
+      { name: "is_enabled", label: "Enabled", kind: "bool", defaultChecked: true, lockedWhen: (d) => d.is_internal === true },
+      { name: "allow_reopen", label: "End users may reopen a ticket in this status (closed states only)", kind: "bool" },
+      { name: "reopen_status_id", label: "Reopened tickets get status", kind: "select", optionsFrom: "reopenStatuses", none: 0, help: "An enabled open status; empty is the system default." },
+    ],
+    canDelete: (d) => d.is_deletable === true,
   },
 
   forms: {

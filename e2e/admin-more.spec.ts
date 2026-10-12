@@ -112,6 +112,59 @@ test.describe("more Admin Panel pages as the admin, confirmed on osTicket's page
     }
   });
 
+  test("ticket statuses: the list matches osTicket's, a status is added, disabled and deleted, a built-in one is fixed", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const name = `E2E Status ${stamp()}`;
+    let id: number | undefined;
+    try {
+      await page.goto("/admin/statuses");
+      await expect(page.getByRole("heading", { name: "Ticket Statuses" })).toBeVisible();
+      await expect(page.getByRole("link", { name: "Closed", exact: true })).toBeVisible();
+      const ours = await page.locator("tbody tr td:first-child").allTextContents();
+      const theirs = await osticketPageText(os, "lists.php?id=1");
+      expect(ours.length).toBeGreaterThanOrEqual(5);
+      for (const n of ours) expect(theirs, n).toContain(n.trim());
+
+      // A built-in status keeps its name and state, and cannot be deleted.
+      await page.getByRole("link", { name: "Open", exact: true }).first().click();
+      await expect(page.getByRole("button", { name: "Delete", exact: true })).toHaveCount(0);
+      await page.getByRole("link", { name: "Update" }).click();
+      await expect(page.getByLabel("Name", { exact: true })).toBeDisabled();
+      await expect(page.getByLabel("State", { exact: true })).toBeDisabled();
+
+      await page.goto("/admin/statuses/new");
+      await page.getByLabel("Name", { exact: true }).fill(name);
+      await page.getByLabel("State", { exact: true }).selectOption("open");
+      await page.getByRole("button", { name: "Add Status" }).click();
+      await expect(page).toHaveURL(/\/admin\/statuses\/\d+$/);
+      id = idFromUrl(page);
+      expect(await osticketPageText(os, "lists.php?id=1")).toContain(name);
+      await expect(cellOf(page, "Tickets")).toHaveText("0");
+
+      await page.getByRole("link", { name: "Update" }).click();
+      await page.getByLabel("Enabled").uncheck();
+      await page.getByRole("button", { name: "Save Changes" }).click();
+      await expect(cellOf(page, "Status")).toHaveText("Disabled");
+      expect(((await (await request.get(`/api/v1/ticket-statuses/${id}`)).json()) as { is_enabled: boolean }).is_enabled).toBe(false);
+
+      // osTicket refuses a name that is taken, and the refusal is shown.
+      await page.getByRole("link", { name: "Update" }).click();
+      await page.getByLabel("Name", { exact: true }).fill("Closed");
+      await page.getByRole("button", { name: "Save Changes" }).click();
+      await expect(page.getByRole("alert")).toBeVisible();
+
+      await page.goto(`/admin/statuses/${id}`);
+      await page.getByRole("button", { name: "Delete", exact: true }).click();
+      await page.getByRole("button", { name: "Delete status" }).click();
+      await expect(page).toHaveURL(/\/admin\/statuses$/);
+      expect(await osticketPageText(os, "lists.php?id=1")).not.toContain(name);
+      id = undefined;
+    } finally {
+      await remove(request, "/api/v1/ticket-statuses", id);
+      await os.dispose();
+    }
+  });
+
   test("a custom list with items: add the list, add and disable an item, delete both", async ({ page, request }) => {
     const os = await osticketAdmin();
     const name = `E2E List ${stamp()}`;

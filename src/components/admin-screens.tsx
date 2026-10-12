@@ -71,7 +71,7 @@ export function AdminList({ resourceKey }: { resourceKey: string }) {
   const page = Math.max(1, Number(params.get("page")) || 1);
   const { data, error, isFetching } = useQuery({
     queryKey: ["admin", resource.key, "list", page],
-    queryFn: () => getJson<{ items: Row[] }>(`${resource.path}?page=${page}&page_size=${PAGE_SIZE}`),
+    queryFn: () => getJson<{ items: Row[] }>(`${resource.listPath ?? resource.path}?page=${page}&page_size=${PAGE_SIZE}`),
     placeholderData: keepPreviousData,
   });
 
@@ -252,10 +252,11 @@ function PermissionChecks({ name, held }: { name: string; held: string[] }) {
 
 function FieldInput({ f, data, lk }: { f: FieldDef; data?: Row; lk: ReturnType<typeof useAdminLookups> }) {
   const current = data?.[f.name];
+  const locked = Boolean(data && f.lockedWhen?.(data));
   if (f.kind === "bool") {
     return (
       <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" name={f.name} defaultChecked={data ? Boolean(current) : Boolean(f.defaultChecked)} />
+        <input type="checkbox" name={f.name} disabled={locked} defaultChecked={data ? Boolean(current) : Boolean(f.defaultChecked)} />
         {f.label}
       </label>
     );
@@ -268,7 +269,7 @@ function FieldInput({ f, data, lk }: { f: FieldDef; data?: Row; lk: ReturnType<t
       </div>
     );
   }
-  const common = { name: f.name, required: f.required, "aria-label": f.label, className: field };
+  const common = { name: f.name, required: f.required && !locked, disabled: locked, "aria-label": f.label, className: field };
   let input: React.ReactNode;
   if (f.kind === "textarea") input = <textarea {...common} rows={4} defaultValue={s(current)} />;
   else if (f.kind === "select") {
@@ -308,6 +309,7 @@ function AdminFormBody({ resource, data }: { resource: ResourceDef; data?: Row }
     const form = new FormData(event.currentTarget);
     const body: Record<string, unknown> = {};
     for (const f of fields) {
+      if (data && f.lockedWhen?.(data)) continue;
       if (f.kind === "permissions") {
         const chosen = [...form.keys()].filter((k) => k.startsWith(`${f.name}:`)).map((k) => k.slice(f.name.length + 1)).sort();
         const cur = [...(((data?.[f.name] as string[]) ?? []))].sort();
