@@ -5,6 +5,7 @@ import { ApiError } from "@/lib/api/errors";
 import { formatDateTime } from "@/lib/format";
 import { useTask } from "@/lib/queries/tasks";
 import { TaskEntryActions } from "./entry-actions";
+import { FileExports } from "./file-exports";
 import { TaskCollaborators } from "./task-collaborators";
 import { TaskReplyBox, TaskToolbar } from "./task-actions";
 import { CustomFieldsView } from "./custom-fields";
@@ -43,6 +44,7 @@ export function TaskView({ id }: { id: number }) {
       </h1>
 
       <TaskToolbar task={task} />
+      <FileExports kind="task" id={task.task_id} number={task.number} />
 
       <div className="mb-4 grid gap-4 lg:grid-cols-2">
         <Info

@@ -5,6 +5,7 @@ import { ApiError } from "@/lib/api/errors";
 import { formatDateTime } from "@/lib/format";
 import { useTicket, useTicketOwner } from "@/lib/queries/tickets";
 import { TicketReplyBox, TicketToolbar } from "./ticket-actions";
+import { FileExports } from "./file-exports";
 import { TicketPeopleTools } from "./ticket-people";
 import { TicketRelated } from "./ticket-related";
 import { CustomFieldsView } from "./custom-fields";
@@ -51,6 +52,7 @@ export function TicketView({ id }: { id: number }) {
 
       <TicketToolbar ticket={ticket} />
       <TicketPeopleTools ticket={ticket} />
+      <FileExports kind="ticket" id={ticket.ticket_id} number={ticket.number} />
       <TicketRelated ticketId={ticket.ticket_id} />
 
       <div className="mb-4 grid gap-4 lg:grid-cols-2">
