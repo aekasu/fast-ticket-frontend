@@ -204,6 +204,30 @@ test.describe("more Admin Panel pages as the admin, confirmed on osTicket's page
     }
   });
 
+  test("settings: select-like keys are drop-downs with osTicket's own choices, and a choice is saved", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const before = (await (await request.get("/api/v1/settings/users")).json()) as { client_registration: string };
+    try {
+      await page.goto("/admin/settings-users");
+      const form = page.getByRole("form", { name: "Users settings" });
+      const select = form.getByLabel("Client registration");
+      await expect(select).toHaveJSProperty("tagName", "SELECT");
+      const osPage = await osticketPageText(os, "settings.php?t=users");
+      const labels = await select.locator("option").allTextContents();
+      expect(labels.length).toBeGreaterThan(1);
+      for (const label of labels) expect(osPage).toContain(label.trim());
+
+      const other = before.client_registration === "disabled" ? "public" : "disabled";
+      await select.selectOption(other);
+      await form.getByRole("button", { name: "Save Changes" }).click();
+      await expect(page.getByText("Successfully updated settings.")).toBeVisible();
+      expect(((await (await request.get("/api/v1/settings/users")).json()) as { client_registration: string }).client_registration).toBe(other);
+    } finally {
+      await command(request, "PATCH", "/api/v1/settings/users", { client_registration: before.client_registration }).catch(() => undefined);
+      await os.dispose();
+    }
+  });
+
   test("a schedule with an entry, and an email template set with an edited message", async ({ page, request }) => {
     const os = await osticketAdmin();
     const stamp1 = stamp();
