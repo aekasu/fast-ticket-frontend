@@ -1,38 +1,16 @@
 # Handoff — the frontend is closed out
 
-Last updated 2026-10-07. A fresh session starts here (see `CLAUDE.md` → "Starting a session"). The frontend has adopted
-everything in `../fast-ticket/notes/CHANGES_FOR_FRONTEND.md` as of 2026-10-07 (the backend answered all eleven requests
-and added the Admin Panel pages; adopted in the commits after `chore(api): pull the schema: statuses, link/unlink, ...`).
-What is left on the backend side is in `notes/BACKEND_REQUESTS.md` (short: company profile, email diagnostic, enumerated
-setting options, mailbox accounts).
+Last updated 2026-10-12. A fresh session starts here (see `CLAUDE.md` → "Starting a session"). The frontend has adopted
+everything in `../fast-ticket/notes/CHANGES_FOR_FRONTEND.md` as of 2026-10-08 (the settings drop-down choices, canned
+files on a reply, print and ZIP, CSV export, the ticket statuses admin page, files on a new task and fields with no
+answer). What is left on the backend side is in `notes/BACKEND_REQUESTS.md` (short: company profile, email diagnostic,
+mailbox accounts, and `?plain=true` dropping a canned response's `files`).
 
-## Do first: adopt the backend's 2026-10-08 changes
+## Do first
 
-The schema snapshot and types are already pulled (138 paths). Read `../fast-ticket/notes/CHANGES_FOR_FRONTEND.md` (entries
-dated 2026-10-07 `settings drop-down choices` and 2026-10-08), then, in this order, as atomic commits with an e2e test
-compared against osTicket's own page each:
-
-1. **Settings selects:** `GET /settings/options` (admin) gives `{options: {key: [{value, label}]}}` for
-   `agent_name_format`, `client_name_format`, `agent_avatar`, `client_avatar`, `agent_passwd_policy`,
-   `client_passwd_policy` (a blank policy has the value `" "`, one space), `client_registration`, `log_level`,
-   `ticket_lock`, `acl_backend`, `default_ticket_queue`. Turn those inputs in `admin-settings.tsx` into selects. The default
-   priority/status/department/SLA/topic ids come from the existing lookups.
-2. **Canned files on a reply:** `POST /tickets/{id}/reply` takes `canned_id` and `canned_attachment_ids` (ids of `files` in
-   `GET /tickets/{id}/canned/{canned_id}`); show the files with a tick each in the reply box and send only the ticked ids.
-   Replies only.
-3. **Print and ZIP:** `GET /tickets/{id}/print?paper_size=&notes=&events=`, `GET /tasks/{id}/print?paper_size=`,
-   `GET /tickets/{id}/zip?notes=&tasks=`: files, fetched through the same-origin proxy and saved as a blob.
-4. **CSV export:** `GET /tickets|tasks|users|orgs/export` with the list's current filters, `?columns=`, `?fields=`
-   (the Columns menu's choice); at most 10000 rows.
-5. **Ticket statuses admin page:** `GET /ticket-statuses/manage`, `POST /ticket-statuses`, `PATCH` and `DELETE
-   /ticket-statuses/{id}`; use `is_internal`, `is_deletable` and `ticket_count` to disable controls; osTicket's refusals are
-   shown as worded.
-6. **Files on a new task:** `attachments` on `POST /tasks/` (the picker from `attachment-picker.tsx`).
-7. **Fields with no answer:** `custom_fields` now lists every enabled field with `value: null`; check the views and the
-   edit forms render those, and drop any workaround.
-
-Afterwards delete the met entries from `notes/BACKEND_REQUESTS.md` (Print, select-like settings values, canned files on
-a reply, the field-added-later leftover) and update this file.
+Nothing is pending from the backend's change log. Read `../fast-ticket/notes/CHANGES_FOR_FRONTEND.md` for entries
+newer than 2026-10-08, pull the schema (`npm run api:pull`, `npm run api:types`) if the backend changed, and otherwise
+pick from "What is left" below.
 
 ## State
 
@@ -42,14 +20,16 @@ Every screen of osTicket's staff panel exists, each compared with osTicket's own
   per-day chart, table, CSV), **Agent Directory**, **My Profile** (osTicket's profile form: details, preferences,
   signature, vacation mode, password change that ends the session), a header **search** (tickets, users, organizations).
 - **Lists** (tickets, tasks, users, organizations): a Columns menu adds custom form fields as columns (`?cols=`, sent as
-  `?fields=`).
+  `?fields=`), and Export CSV sends the list's filters, sort and that choice to `/export` (`export-csv.tsx`).
 - **Tickets**: queues with counts, list (search, sort, paging, all in the URL), view with a sanitised thread, New Ticket
   (osTicket's whole staff form: existing or new requester, Cc, source, status, SLA, due date, assign, response with signature,
-  note, notice, attachments), reply and note with attachments, a signature choice and a ticket status, canned responses filled in by the API,
+  note, notice, attachments), reply and note with attachments, a signature choice and a ticket status, canned responses filled in by the API
+  (their files ticked in the reply box and sent as `canned_attachment_ids`), Print as PDF and Export to ZIP (`file-exports.tsx`,
+  saved as a blob by `lib/download.ts`),
   Edit, Reply, Internal Note (with canned responses), Claim, Assign (agent or team), Release, Transfer, Close, Reopen,
   Mass actions (assign, transfer, close, reopen, delete on ticked rows), an "N new tickets" bar from the live stream, Mark Answered/Unanswered, Link/Unlink/Un-merge with a Related Tickets panel, Change Owner, Collaborators, Merge, Refer (with the referral list and remove), Delete, Add Task, edit and resend thread entries,
   custom form fields.
-- **Tasks**: queues with counts (Open, Overdue, My Tasks, Completed, from `/tasks/queues`), view, collaborators, create (also from a ticket), edit (title, description, due date), claim, assign,
+- **Tasks**: queues with counts (Open, Overdue, My Tasks, Completed, from `/tasks/queues`), view, collaborators, create (also from a ticket, with files), edit (title, description, due date), claim, assign,
   transfer, close, reopen, update, note, edit and resend of thread entries, attachments, delete, custom fields.
 - **Users and Organizations**: directory (search, sort, status, ticket and user counts, CSV/paste import), add, edit, delete, login accounts (register, lock, reset and activation mail),
   custom fields; organizations also: account manager, auto-assignment, primary contacts, ticket sharing, automated
@@ -60,7 +40,8 @@ Every screen of osTicket's staff panel exists, each compared with osTicket's own
   priorities, forms (fields and custom forms), **roles (create, edit, delete with a permission picker)**, API keys, site
   pages, emails, custom lists with items, schedules with entries, email template sets with their messages, ticket filters
   with rules and actions (`admin-filters.tsx`), the eight settings pages (`admin-settings.tsx`, generic by value type),
-  system logs, system information and plugins (`admin-system.tsx`), plus editors for team members, extended access, an
+  system logs, system information and plugins (`admin-system.tsx`), **ticket statuses** (`/admin/statuses`: add, edit,
+  enable/disable, delete; built-in ones are locked), plus editors for team members, extended access, an
   agent's teams and permissions, and a topic's forms. Only Email Diagnostic is dimmed (no endpoint). Custom-list form
   fields are picked from the list's items.
 - **Live updates**: the backend's WebSocket relayed as Server-Sent Events (`/api/events`); screens refetch what changed.
@@ -69,12 +50,12 @@ Every screen of osTicket's staff panel exists, each compared with osTicket's own
 2026-10-07 have screens (not re-measured). The five with no UI by nature: `POST /auth/login` (the session route), `GET /commands`,
 `GET /health`, and `GET /tickets/{id}/collaborators` and `GET /tasks/{id}/collaborators` (the details carry them).
 
-**Verification** (2026-10-07): `npm run test:unit` (40 Vitest tests), `npm run test:e2e` (about 156 Playwright tests against
-the dev server; in the last full run 153 passed, 2 failed transiently and passed on rerun, 1 failed for data reasons: the
-Overdue queue test, see below), `npm run lint`, `npx tsc --noEmit`, `npm run build`. Run the suite with the backend's `.env`
-sourced (`set -a; . ../fast-ticket/.env; set +a`). Which tests fail transiently changes from run to run (custom-list field, mass actions, New Ticket in
-three full runs; each passes alone): a full run is slow on the shared dev backend, so look at the command's `error_message`
-and rerun the file before suspecting code.
+**Verification** (2026-10-12): `npm run test:unit` (43 Vitest tests), `npm run test:e2e` (166 Playwright tests against the
+dev server; in the last full run 164 passed, 1 failed for data reasons (the Overdue queue test, below) and 1 failed
+transiently (mass actions) and passed on rerun), `npm run lint`, `npx tsc --noEmit`, `npm run build`. Run the suite with the
+backend's `.env` sourced (`set -a; . ../fast-ticket/.env; set +a`). Which tests fail transiently changes from run to run
+(custom-list field, mass actions, New Ticket; each passes alone): a full run is slow on the shared dev backend, so look at
+the command's `error_message` and rerun the file before suspecting code.
 
 ## Running it
 
@@ -96,6 +77,10 @@ can leave records named `E2E ...` or `[e2e] ...`; `e2e/sweep.ts` removes those a
 - **Compare with osTicket's own page, not with what you expect.** Most real findings came from that: its wording
   ("Completed", "Internal", "Guest"), its date format, its default order, its refusals, what its pages do not print.
   `e2e/osticket.ts` has the helpers. The reference is the Docker stack's osTicket on :8080, never `/osticket` on :80.
+- **osTicket dedupes uploaded files by content**: two canned responses (or tickets) given the same bytes share one file
+  object and its first name. A test that checks a file's name must give it content unique to the run.
+- **The Docker stack's database can be stopped**: `fast-ticket-db-1` exited and osTicket on :8080 then loops "MySQL not
+  ready" while the API (:8000) looks healthy. `docker start fast-ticket-db-1`, then restart `fast-ticket-osticket-1`.
 - **A refusal is a feature.** Show `error_message` as osTicket words it (`CommandFailed` unpacks its JSON field errors).
 - **A test that needs a stale page must cut the event stream**: `page.route("**/api/events", (r) => r.abort())`.
 - **A permission-dependent control appears only after `/auth/me` loads**: assert one is absent only after `settled(page)`.
@@ -115,8 +100,8 @@ osTicket's Overdue queue lists": the API marks a ticket overdue that osTicket's 
 its `isoverdue` flag from cron). Also, a seed ticket ("[seed] Seed ticket 26") is assigned to the admin, so the dashboard
 test only checks the empty state when nothing is assigned.
 
-**Needs the backend** — `notes/BACKEND_REQUESTS.md`: company profile and logos, email diagnostic, the options behind the
-settings' select-like keys, mailbox/SMTP accounts, print, canned-response files on a reply.
+**Needs the backend** — `notes/BACKEND_REQUESTS.md`: company profile and logos, email diagnostic, mailbox/SMTP accounts,
+and `files` on `GET /tickets/{id}/canned/{id}?plain=true` (the reply box reads them from the HTML form meanwhile).
 
 **Small and optional on the frontend side:** a business-hours schedule's holiday links (accepted by the API, not offered in
 the form), editing a schedule entry in place (the API replaces it whole; the UI removes and adds), a list's items in a manual

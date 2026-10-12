@@ -50,6 +50,12 @@ stack, not a mock.
   editor under the generic view (`admin-relations.tsx`, `admin-filters.tsx`). The eight settings pages are one generic
   editor that renders each key by its value type and sends only what changed; osTicket's field-by-field refusal is shown
   as worded.
+- **Downloads (2026-10-12):** Print, ZIP and CSV export are fetched through the same-origin proxy and saved as a blob
+  (`src/lib/download.ts`), not linked, so the API's refusal (404, 501 without osTicket's PDF/ZIP extension, a missing
+  permission) is shown as worded instead of a page of JSON. The proxy passes `Content-Disposition` for the file name.
+- **Settings drop-downs (2026-10-12):** a settings key with a fixed set of values is a select fed by
+  `GET /settings/options`; the default priority/SLA/department/topic/status ids are selects over the existing lookups.
+  A stored value osTicket does not list is kept as an extra option rather than changed on save.
 - **Custom columns (2026-10-07):** the Columns menu on the ticket, task, user and organization lists keeps its choice in
   the URL (`cols=`) and sends the names as the API's `?fields=`, so answers arrive on the list request.
 - **Tailwind CSS** for styling (no component kit): osTicket's look is utilitarian, and recreating it is easier with
