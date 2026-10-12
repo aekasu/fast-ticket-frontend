@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { createTask, createTicket } from "./api";
+import { command, createTask, createTicket } from "./api";
 import { AUTH } from "./global-setup";
 import { osticketAdmin, osticketTask, osticketTicket } from "./osticket";
 
@@ -85,6 +85,29 @@ test.describe("attachments on replies and notes, as the admin", () => {
       expect(await (await request.get((await link.getAttribute("href"))!)).text()).toBe("task attachment bytes");
     } finally {
       await task.remove();
+      await os.dispose();
+    }
+  });
+
+  test("a new task carries files on its description, and osTicket lists them", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const stamp = Date.now();
+    const name = `new-task-${stamp}.txt`;
+    let id: number | undefined;
+    try {
+      await page.goto("/tasks/new");
+      await page.getByLabel("Title").fill(`[e2e] task with a file ${stamp}`);
+      await page.getByLabel("Description").fill("A task with a file.");
+      await page.getByLabel("Attach files").setInputFiles({ name, mimeType: "text/plain", buffer: Buffer.from(`new task bytes ${stamp}`) });
+      await page.getByRole("button", { name: "Create Task" }).click();
+      await expect(page).toHaveURL(/\/tasks\/\d+$/);
+      id = Number(page.url().split("/").pop());
+      const link = page.getByRole("link", { name });
+      await expect(link).toBeVisible();
+      expect((await osticketTask(os, id)).html).toContain(name);
+      expect(await (await request.get((await link.getAttribute("href"))!)).text()).toBe(`new task bytes ${stamp}`);
+    } finally {
+      if (id) await command(request, "DELETE", `/api/v1/tasks/${id}`).catch(() => undefined);
       await os.dispose();
     }
   });

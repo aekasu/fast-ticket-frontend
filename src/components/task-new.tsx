@@ -10,7 +10,9 @@ import { taskKeys } from "@/lib/queries/tasks";
 import { useTicket } from "@/lib/queries/tickets";
 import { collectCustomFields, customDefs } from "@/lib/custom-fields";
 import { useFormDefinition } from "@/lib/queries/forms";
+import { attachmentProblem, encodeFile } from "@/lib/attachments";
 import { field } from "./action-ui";
+import { AttachmentPicker, useAttachmentLimits } from "./attachment-picker";
 import { CustomFieldInputs } from "./custom-fields";
 
 function Row({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
@@ -38,10 +40,14 @@ export function TaskNew() {
   const custom = customDefs(formDefs.data ?? [], "A");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
+  const limits = useAttachmentLimits().data ?? undefined;
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    const problem = attachmentProblem(files, limits);
+    if (problem) return setError(problem);
     setBusy(true);
     const form = new FormData(event.currentTarget);
     const text = (name: string) => String(form.get(name) ?? "").trim();
@@ -52,7 +58,9 @@ export function TaskNew() {
       due_date: text("due_date") ? new Date(text("due_date")).toISOString() : undefined,
       ticket_id: ticketId,
       custom_fields: undefined as Record<string, unknown> | undefined,
+      attachments: undefined as Awaited<ReturnType<typeof encodeFile>>[] | undefined,
     };
+    if (files.length) body.attachments = await Promise.all(files.map(encodeFile));
     const answers = collectCustomFields(form, custom);
     if (Object.keys(answers).length > 0) body.custom_fields = answers;
     try {
@@ -106,7 +114,8 @@ export function TaskNew() {
         <Row label="Due Date">
           <input name="due_date" type="datetime-local" className={field} />
         </Row>
-        <p className="text-xs text-slate-500">Entered in your browser&apos;s timezone. Attachments cannot be uploaded yet.</p>
+        <AttachmentPicker files={files} onChange={setFiles} />
+        <p className="text-xs text-slate-500">Due date is entered in your browser&apos;s timezone.</p>
         <div className="flex gap-2">
           <button type="submit" disabled={busy} className="rounded bg-sky-800 px-5 py-2 text-sm font-semibold text-white hover:bg-sky-900 disabled:opacity-60">
             {busy ? "Creating…" : "Create Task"}
