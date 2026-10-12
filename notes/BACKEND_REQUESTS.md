@@ -13,10 +13,6 @@ pull the schema: statuses, link/unlink, profile, ...`). What is left:
 - **Email Diagnostic** (`emailtest.php`) has no endpoint (it needs a live mail connection).
 - **Mailbox and SMTP accounts** of an email address are listed (status only, never credentials); creating or editing
   one stays in osTicket (`KNOWN_LIMITS.md`).
-- **Select-like values in the settings pages** (`client_registration`, `agent_name_format`, password policies, the
-  default queue/status ids, ...) are osTicket's own strings and numbers, and the API does not enumerate them. The settings
-  screens therefore show them as plain text/number inputs; a refused value comes back with osTicket's wording. Ask: the
-  allowed options per key.
 - **A business-hours schedule's holiday links** (`holiday_schedule_ids`) are accepted on create/update but the UI does
   not offer them yet (frontend side, not a backend gap).
 - **Forms:** field types beyond the common ones (files), `min`/`max` of date fields, a custom list's per-item
@@ -24,12 +20,10 @@ pull the schema: statuses, link/unlink, profile, ...`). What is left:
 
 ## Ticket pages
 
-- **Print** (the ticket's "More" menu) has no endpoint; the user's browser can print the page.
 - **The default queue's "Closed today / this week" sub-queues and custom queues** are not exposed (`KNOWN_LIMITS.md`).
-- **A canned response's files** are named on `GET /tickets/{id}/canned/{canned_id}` (`files`), but there is no way to
-  attach them to the reply they fill: the reply box lists their names and says they are not added.
-- **A field added to a form after a ticket existed** is missing from that ticket's `custom_fields` until the ticket first
-  gets an answer for it.
+- **`GET /tickets/{id}/canned/{canned_id}?plain=true` returns `files: []`** for a response that has files; the same
+  call without `plain` lists them (seen 2026-10-12, canned response with two attachments). The reply box asks for both
+  and takes the files from the HTML form. Ask: `files` regardless of `plain`.
 
 ## For reference (not requests)
 

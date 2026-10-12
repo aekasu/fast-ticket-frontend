@@ -9,7 +9,7 @@ import { AttachmentPicker, useAttachmentLimits } from "./attachment-picker";
 import { can, useMe } from "@/lib/queries/me";
 import { useDepartments, useTicketStatuses } from "@/lib/queries/reference";
 import { NoticeBar, button, field, primary, useRunner } from "./action-ui";
-import { attachmentProblem, encodeFile } from "@/lib/attachments";
+import { attachmentProblem, encodeFile, formatBytes } from "@/lib/attachments";
 import { ticketKeys, useAssignees } from "@/lib/queries/tickets";
 
 type Ticket = components["schemas"]["TicketDetail"];
@@ -197,6 +197,8 @@ export function TicketReplyBox({ ticket }: { ticket: Ticket }) {
   const [title, setTitle] = useState("");
   const [cannedNote, setCannedNote] = useState<string | null>(null);
   const [append, setAppend] = useState(false);
+  // The files of the canned response last picked, each with a tick: only the ticked ones go with the reply.
+  const [cannedPick, setCannedPick] = useState<{ id: number; files: { id: number; name: string; size: number }[]; ticked: Set<number> } | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [signature, setSignature] = useState("none");
   const [statusId, setStatusId] = useState("");
@@ -211,14 +213,20 @@ export function TicketReplyBox({ ticket }: { ticket: Ticket }) {
   async function insertCanned(id: number) {
     setCannedNote(null);
     if (!id) return;
+    setCannedPick(null);
     // osTicket fills in the ticket's variables itself; the plain form is what the reply box holds.
-    const { data, error } = await api.GET("/api/v1/tickets/{ticket_id}/canned/{canned_id}", {
-      params: { path: { ticket_id: ticket.ticket_id, canned_id: id }, query: { plain: true } },
-    });
+    const path = { ticket_id: ticket.ticket_id, canned_id: id };
+    // `?plain=true` comes back with `files: []` (notes/BACKEND_REQUESTS.md), so the files are read from the HTML form.
+    const [plain, html] = await Promise.all([
+      api.GET("/api/v1/tickets/{ticket_id}/canned/{canned_id}", { params: { path, query: { plain: true } } }),
+      api.GET("/api/v1/tickets/{ticket_id}/canned/{canned_id}", { params: { path } }),
+    ]);
+    const { data, error } = plain;
     if (!data) return setCannedNote(error ? "Could not load the canned response." : null);
     const text = data.response ?? "";
     setMessage((current) => (append && current.trim() ? `${current.trimEnd()}\n\n${text}` : text));
-    if (data.files?.length) setCannedNote(`This response has files in osTicket (not added to this reply): ${data.files.map((f) => f.name).join(", ")}`);
+    const files = data.files?.length ? data.files : (html.data?.files ?? []);
+    if (files.length) setCannedPick({ id, files, ticked: new Set(files.map((f) => f.id)) });
   }
   // Notes follow the agent's access to the ticket; the server decides, so the tab is always offered.
   async function submit(e: React.FormEvent) {
@@ -228,15 +236,18 @@ export function TicketReplyBox({ ticket }: { ticket: Ticket }) {
       ...(files.length ? { attachments: await Promise.all(files.map(encodeFile)) } : {}),
       ...(statusId ? { status_id: Number(statusId) } : {}),
     };
+    // Only a reply carries the response's files, and only the ticked ones.
+    const cannedFiles = tab === "reply" && cannedPick && cannedPick.ticked.size > 0 ? { canned_id: cannedPick.id, canned_attachment_ids: [...cannedPick.ticked] } : {};
     const ok =
       tab === "reply"
-        ? await run("reply", { message, signature, ...attachments }, "Reply posted.")
+        ? await run("reply", { message, signature, ...attachments, ...cannedFiles }, "Reply posted.")
         : await run("note", { message, ...(title.trim() ? { title: title.trim() } : {}), ...attachments }, "Internal note posted.");
     if (ok) {
       setMessage("");
       setTitle("");
       setFiles([]);
       setStatusId("");
+      if (tab === "reply") setCannedPick(null);
     }
   }
 
@@ -296,6 +307,26 @@ export function TicketReplyBox({ ticket }: { ticket: Ticket }) {
           <p role="status" className="text-xs text-amber-800">
             {cannedNote}
           </p>
+        )}
+        {tab === "reply" && canReply && cannedPick && (
+          <fieldset className="text-sm">
+            <legend className="font-semibold text-slate-700">Files of the canned response</legend>
+            {cannedPick.files.map((f) => (
+              <label key={f.id} className="mr-4 inline-flex items-center gap-1">
+                <input
+                  type="checkbox"
+                  checked={cannedPick.ticked.has(f.id)}
+                  onChange={(e) => {
+                    const ticked = new Set(cannedPick.ticked);
+                    if (e.target.checked) ticked.add(f.id);
+                    else ticked.delete(f.id);
+                    setCannedPick({ ...cannedPick, ticked });
+                  }}
+                />
+                {f.name} <span className="text-xs text-slate-500">({formatBytes(f.size)})</span>
+              </label>
+            ))}
+          </fieldset>
         )}
         {(tab === "note" || !canReply) && (
           <input aria-label="Note title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title (optional)" maxLength={255} className={field} />

@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { createTicket, settled } from "./api";
+import { command, createTicket, settled } from "./api";
 import { AUTH } from "./global-setup";
 import { osticketAdmin, osticketCannedText, osticketTicket } from "./osticket";
 
@@ -64,6 +64,55 @@ test.describe("canned responses in the reply box", () => {
       await expect(box).toHaveValue(/Hi Ada,/);
       expect(await box.inputValue()).not.toContain("typed text");
     } finally {
+      await ticket.remove();
+      await os.dispose();
+    }
+  });
+});
+
+test.describe("a canned response's files on a reply", () => {
+  test.use({ storageState: AUTH.admin });
+
+  test("only the ticked files go with the reply, as in osTicket's reply box", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const stamp = Date.now();
+    const title = `[e2e] canned files ${stamp}`;
+    const keep = `keep-${stamp}.txt`;
+    const drop = `drop-${stamp}.txt`;
+    const b64 = (t: string) => Buffer.from(t).toString("base64");
+    const ticket = await createTicket(request, { subject: "[e2e] canned files", message: "Hello.", name: "Ada Lovelace", email: "ada.files@example.com" });
+    let cannedId: number | undefined;
+    try {
+      const made = await command(request, "POST", "/api/v1/canned", {
+        title,
+        response: "Please see the attached.",
+        attachments: [
+          { name: keep, content_type: "text/plain", data: b64(`keep me ${stamp}`) },
+          { name: drop, content_type: "text/plain", data: b64(`drop me ${stamp}`) },
+        ],
+      });
+      expect(made.status).toBe("done");
+      const list = (await (await request.get("/api/v1/canned?page_size=200")).json()) as { items: { id: number; title: string }[] };
+      cannedId = list.items.find((c) => c.title === title)?.id;
+
+      await page.goto(`/tickets/${ticket.id}`);
+      await page.getByLabel("Canned response").selectOption({ label: title });
+      const files = page.getByRole("group", { name: "Files of the canned response" });
+      await expect(files.getByLabel(new RegExp(keep))).toBeChecked();
+      await expect(files.getByLabel(new RegExp(drop))).toBeChecked();
+      await files.getByLabel(new RegExp(drop)).uncheck();
+
+      await page.getByRole("button", { name: "Post Reply" }).last().click();
+      await expect(page.getByText("Reply posted.")).toBeVisible();
+      // The picker's files are gone after posting, and the thread lists only the ticked one.
+      await expect(files).toHaveCount(0);
+      const ref = await osticketTicket(os, ticket.id);
+      expect(ref.html).toContain(keep);
+      expect(ref.html).not.toContain(drop);
+      await expect(page.getByText(keep).first()).toBeVisible();
+      await expect(page.getByText(drop)).toHaveCount(0);
+    } finally {
+      if (cannedId) await command(request, "DELETE", `/api/v1/canned/${cannedId}`).catch(() => undefined);
       await ticket.remove();
       await os.dispose();
     }
