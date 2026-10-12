@@ -9,6 +9,7 @@ import { ACCOUNT_STATUS_LABEL, type UserSort, useAllOrgs, useUsers } from "@/lib
 import { useMe } from "@/lib/queries/me";
 import { DirectoryTabs } from "./directory-tabs";
 import { ColumnsPicker, useCustomColumns } from "./custom-columns";
+import { ExportCsv } from "./export-csv";
 import { Pager } from "./pager";
 import { UserImport } from "./user-import";
 
@@ -99,6 +100,7 @@ export function UserList() {
           </select>
         </label>
         <span className="text-xs text-slate-500">{isFetching ? "Loading…" : `${total} user${total === 1 ? "" : "s"}`}</span>
+        <ExportCsv path="/api/v1/users/export" name="users" fields={custom.fields} filters={{ org_id: orgId, q: q || undefined, sort, descending }} />
         <ColumnsPicker defs={custom.defs} selected={custom.selected} onChange={(names) => go({ cols: names.join(",") || null, page: null })} />
         {me && hasGlobal(me, "user.create") && (
           <Link href="/users/new" className="ml-auto rounded bg-sky-800 px-3 py-1.5 text-sm font-semibold text-white hover:bg-sky-900">

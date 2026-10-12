@@ -9,6 +9,7 @@ import { type OrgSort, useOrgs } from "@/lib/queries/directory";
 import { useMe } from "@/lib/queries/me";
 import { DirectoryTabs } from "./directory-tabs";
 import { ColumnsPicker, useCustomColumns } from "./custom-columns";
+import { ExportCsv } from "./export-csv";
 import { Pager } from "./pager";
 
 const PAGE_SIZE = 25;
@@ -80,6 +81,7 @@ export function OrgList() {
           </button>
         )}
         <span className="text-xs text-slate-500">{isFetching ? "Loading…" : `${total} organization${total === 1 ? "" : "s"}`}</span>
+        <ExportCsv path="/api/v1/orgs/export" name="organizations" fields={custom.fields} filters={{ q: q || undefined, sort, descending }} />
         <ColumnsPicker defs={custom.defs} selected={custom.selected} onChange={(names) => go({ cols: names.join(",") || null, page: null })} />
         {me && hasGlobal(me, "org.create") && (
           <Link href="/orgs/new" className="ml-auto rounded bg-sky-800 px-3 py-1.5 text-sm font-semibold text-white hover:bg-sky-900">

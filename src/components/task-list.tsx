@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ColumnsPicker, useCustomColumns } from "./custom-columns";
+import { ExportCsv } from "./export-csv";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { formatDateTime } from "@/lib/format";
@@ -119,6 +120,7 @@ export function TaskList() {
           </button>
         )}
         <span className="ml-auto text-xs text-slate-500">{isFetching ? "Loading…" : `${total} task${total === 1 ? "" : "s"}`}</span>
+        <ExportCsv path="/api/v1/tasks/export" name="tasks" fields={custom.fields} filters={{ queue, q: q || undefined, sort, descending }} />
         <ColumnsPicker defs={custom.defs} selected={custom.selected} onChange={(names) => go({ cols: names.join(",") || null, page: null })} />
       </form>
 
