@@ -9540,6 +9540,45 @@
         "title": "Series",
         "type": "object"
       },
+      "SettingOption": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "value": {
+            "description": "What to send back in the PATCH (a blank policy is a single space, as osTicket posts it)",
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "value",
+          "label"
+        ],
+        "title": "SettingOption",
+        "type": "object"
+      },
+      "SettingsOptions": {
+        "description": "The choices behind the settings pages' drop-downs, listed by osTicket itself, keyed by the setting's name.",
+        "properties": {
+          "options": {
+            "additionalProperties": {
+              "items": {
+                "$ref": "#/components/schemas/SettingOption"
+              },
+              "type": "array"
+            },
+            "title": "Options",
+            "type": "object"
+          }
+        },
+        "required": [
+          "options"
+        ],
+        "title": "SettingsOptions",
+        "type": "object"
+      },
       "StaffCreate": {
         "properties": {
           "assign_use_primary_role": {
@@ -10847,6 +10886,14 @@
       },
       "TaskCreate": {
         "properties": {
+          "attachments": {
+            "description": "Files to attach (size-capped, see GET /settings/attachments)",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentUpload"
+            },
+            "title": "Attachments",
+            "type": "array"
+          },
           "custom_fields": {
             "anyOf": [
               {
@@ -14034,6 +14081,28 @@
             "title": "Attachments",
             "type": "array"
           },
+          "canned_attachment_ids": {
+            "description": "Files of that canned response to attach to the reply: the `id`s of `files` in GET /tickets/{id}/canned/{canned_id}. osTicket's reply box attaches the picked response's files the same way.",
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 20,
+            "title": "Canned Attachment Ids",
+            "type": "array"
+          },
+          "canned_id": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The canned response this reply was filled from; required with canned_attachment_ids",
+            "title": "Canned Id"
+          },
           "message": {
             "minLength": 1,
             "title": "Message",
@@ -14068,6 +14137,171 @@
           "message"
         ],
         "title": "TicketReply",
+        "type": "object"
+      },
+      "TicketStatusAdminList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TicketStatusDetail"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "TicketStatusAdminList",
+        "type": "object"
+      },
+      "TicketStatusCreate": {
+        "properties": {
+          "allow_reopen": {
+            "default": false,
+            "title": "Allow Reopen",
+            "type": "boolean"
+          },
+          "description": {
+            "default": "",
+            "maxLength": 100,
+            "title": "Description",
+            "type": "string"
+          },
+          "is_enabled": {
+            "default": true,
+            "title": "Is Enabled",
+            "type": "boolean"
+          },
+          "name": {
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "reopen_status_id": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reopen Status Id"
+          },
+          "sort": {
+            "anyOf": [
+              {
+                "maximum": 65535,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Default: after the others",
+            "title": "Sort"
+          },
+          "state": {
+            "enum": [
+              "open",
+              "closed",
+              "archived",
+              "deleted"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "state"
+        ],
+        "title": "TicketStatusCreate",
+        "type": "object"
+      },
+      "TicketStatusDetail": {
+        "description": "A ticket status as the Admin Panel's Ticket Statuses page holds it.",
+        "properties": {
+          "allow_reopen": {
+            "default": false,
+            "description": "A closed status: end users may reopen their ticket",
+            "title": "Allow Reopen",
+            "type": "boolean"
+          },
+          "description": {
+            "default": "",
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "is_default": {
+            "description": "The status new tickets start in (Settings > Tickets)",
+            "title": "Is Default",
+            "type": "boolean"
+          },
+          "is_deletable": {
+            "description": "Not internal and no ticket has it",
+            "title": "Is Deletable",
+            "type": "boolean"
+          },
+          "is_enabled": {
+            "title": "Is Enabled",
+            "type": "boolean"
+          },
+          "is_internal": {
+            "description": "A built-in status or the system default: its name and state are fixed, and it cannot be disabled or deleted",
+            "title": "Is Internal",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "reopen_status_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The open status a reopened ticket gets; none = the system default",
+            "title": "Reopen Status Id"
+          },
+          "sort": {
+            "default": 0,
+            "title": "Sort",
+            "type": "integer"
+          },
+          "state": {
+            "description": "open | closed | archived | deleted; the New Ticket form offers the open ones",
+            "title": "State",
+            "type": "string"
+          },
+          "ticket_count": {
+            "default": 0,
+            "title": "Ticket Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "state",
+          "is_enabled",
+          "is_internal",
+          "is_default",
+          "is_deletable"
+        ],
+        "title": "TicketStatusDetail",
         "type": "object"
       },
       "TicketStatusItem": {
@@ -14131,6 +14365,101 @@
           "state"
         ],
         "title": "TicketStatusSchema",
+        "type": "object"
+      },
+      "TicketStatusUpdate": {
+        "properties": {
+          "allow_reopen": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Allow Reopen"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "is_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Enabled"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "reopen_status_id": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reopen Status Id"
+          },
+          "sort": {
+            "anyOf": [
+              {
+                "maximum": 65535,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sort"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "enum": [
+                  "open",
+                  "closed",
+                  "archived",
+                  "deleted"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State"
+          }
+        },
+        "title": "TicketStatusUpdate",
         "type": "object"
       },
       "TicketTransfer": {
@@ -22264,6 +22593,126 @@
         ]
       }
     },
+    "/api/v1/orgs/export": {
+      "get": {
+        "operationId": "export_organizations_api_v1_orgs_export_get",
+        "parameters": [
+          {
+            "description": "Name contains (as osTicket's Organizations page)",
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Name contains (as osTicket's Organizations page)",
+              "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "name",
+              "enum": [
+                "name",
+                "users",
+                "created",
+                "updated"
+              ],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "descending",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Descending",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Comma-separated columns (default all): name, users, created, updated",
+            "in": "query",
+            "name": "columns",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 300,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated columns (default all): name, users, created, updated",
+              "title": "Columns"
+            }
+          },
+          {
+            "description": "Comma-separated custom-field variable names to include on every row as `custom_fields` (at most 20); see GET /forms/for/{kind} for the names",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 1500,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated custom-field variable names to include on every row as `custom_fields` (at most 20); see GET /forms/for/{kind} for the names",
+              "title": "Fields"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "text/csv": {}
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Export the organization directory as CSV",
+        "tags": [
+          "users"
+        ]
+      }
+    },
     "/api/v1/orgs/{org_id}": {
       "delete": {
         "operationId": "delete_organization_api_v1_orgs__org_id__delete",
@@ -24435,6 +24884,32 @@
         ]
       }
     },
+    "/api/v1/settings/options": {
+      "get": {
+        "operationId": "settings_options_api_v1_settings_options_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsOptions"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "The choices behind the settings pages' drop-downs",
+        "tags": [
+          "settings"
+        ]
+      }
+    },
     "/api/v1/settings/pages": {
       "get": {
         "operationId": "get_pages_settings_api_v1_settings_pages_get",
@@ -25794,6 +26269,227 @@
         ]
       }
     },
+    "/api/v1/tasks/export": {
+      "get": {
+        "description": "The rows ``GET /tasks/`` would list for the same filters (all pages, at most ``EXPORT_MAX_ROWS``), as CSV.",
+        "operationId": "export_tasks_api_v1_tasks_export_get",
+        "parameters": [
+          {
+            "description": "Filter by status ID",
+            "in": "query",
+            "name": "status_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by status ID",
+              "title": "Status Id"
+            }
+          },
+          {
+            "description": "Filter by department ID",
+            "in": "query",
+            "name": "dept_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by department ID",
+              "title": "Dept Id"
+            }
+          },
+          {
+            "description": "Filter by assigned staff",
+            "in": "query",
+            "name": "assignee_staff_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by assigned staff",
+              "title": "Assignee Staff Id"
+            }
+          },
+          {
+            "description": "Filter to tasks linked to a ticket",
+            "in": "query",
+            "name": "ticket_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter to tasks linked to a ticket",
+              "title": "Ticket Id"
+            }
+          },
+          {
+            "description": "Task number or title (contains)",
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Task number or title (contains)",
+              "title": "Q"
+            }
+          },
+          {
+            "description": "One of osTicket's task queues (see GET /tasks/queues)",
+            "in": "query",
+            "name": "queue",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "open",
+                    "overdue",
+                    "assigned",
+                    "closed"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "One of osTicket's task queues (see GET /tasks/queues)",
+              "title": "Queue"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "updated",
+              "enum": [
+                "updated",
+                "created",
+                "due_date",
+                "number",
+                "title",
+                "dept",
+                "ticket",
+                "closed"
+              ],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "descending",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Descending",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Comma-separated columns to write (default all): number, title, status, department, assigned_agent, assigned_team, ticket, overdue, created, due_date, closed",
+            "in": "query",
+            "name": "columns",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 300,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated columns to write (default all): number, title, status, department, assigned_agent, assigned_team, ticket, overdue, created, due_date, closed",
+              "title": "Columns"
+            }
+          },
+          {
+            "description": "Comma-separated custom-field variable names to include on every row as `custom_fields` (at most 20); see GET /forms/for/{kind} for the names",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 1500,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated custom-field variable names to include on every row as `custom_fields` (at most 20); see GET /forms/for/{kind} for the names",
+              "title": "Fields"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "text/csv": {}
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Export the task list as CSV (osTicket's Export on the task list)",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
     "/api/v1/tasks/queues": {
       "get": {
         "description": "Open, Overdue, My Tasks (open and assigned to the agent) and Completed — each counted among the tasks the\nagent's own list shows.",
@@ -26514,6 +27210,76 @@
         ]
       }
     },
+    "/api/v1/tasks/{task_id}/print": {
+      "get": {
+        "operationId": "print_task_api_v1_tasks__task_id__print_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Default: the agent's own paper size in osTicket",
+            "in": "query",
+            "name": "paper_size",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "Letter",
+                    "Legal",
+                    "A4",
+                    "A3"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: the agent's own paper size in osTicket",
+              "title": "Paper Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "application/pdf": {}
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "The task as a PDF (osTicket's Print)",
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
     "/api/v1/tasks/{task_id}/reopen": {
       "post": {
         "operationId": "reopen_task_api_v1_tasks__task_id__reopen_post",
@@ -27226,6 +27992,274 @@
         "tags": [
           "lookups"
         ]
+      },
+      "post": {
+        "operationId": "create_ticket_status_api_v1_ticket_statuses_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketStatusCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Create a ticket status",
+        "tags": [
+          "lookups"
+        ]
+      }
+    },
+    "/api/v1/ticket-statuses/manage": {
+      "get": {
+        "description": "Enabled and disabled statuses with their description, reopen settings, ticket counts and whether each is internal\nor deletable. ``GET /ticket-statuses`` is the agents' list of enabled statuses.",
+        "operationId": "manage_ticket_statuses_api_v1_ticket_statuses_manage_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketStatusAdminList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Every ticket status, as the Admin Panel lists them",
+        "tags": [
+          "lookups"
+        ]
+      }
+    },
+    "/api/v1/ticket-statuses/{status_id}": {
+      "delete": {
+        "operationId": "delete_ticket_status_api_v1_ticket_statuses__status_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "status_id",
+            "required": true,
+            "schema": {
+              "title": "Status Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Delete a ticket status",
+        "tags": [
+          "lookups"
+        ]
+      },
+      "get": {
+        "operationId": "get_ticket_status_api_v1_ticket_statuses__status_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "status_id",
+            "required": true,
+            "schema": {
+              "title": "Status Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketStatusDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Get a ticket status",
+        "tags": [
+          "lookups"
+        ]
+      },
+      "patch": {
+        "operationId": "update_ticket_status_api_v1_ticket_statuses__status_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "status_id",
+            "required": true,
+            "schema": {
+              "title": "Status Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketStatusUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Update a ticket status",
+        "tags": [
+          "lookups"
+        ]
       }
     },
     "/api/v1/tickets/": {
@@ -27594,6 +28628,306 @@
           }
         ],
         "summary": "Create a ticket",
+        "tags": [
+          "tickets"
+        ]
+      }
+    },
+    "/api/v1/tickets/export": {
+      "get": {
+        "description": "The rows ``GET /tickets/`` would list for the same filters (all pages, at most ``EXPORT_MAX_ROWS``), as CSV;\n``?fields=`` adds custom-form columns. Cells that look like formulas are quoted.",
+        "operationId": "export_tickets_api_v1_tickets_export_get",
+        "parameters": [
+          {
+            "description": "Filter by status ID",
+            "in": "query",
+            "name": "status_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by status ID",
+              "title": "Status Id"
+            }
+          },
+          {
+            "description": "Filter by department ID",
+            "in": "query",
+            "name": "dept_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by department ID",
+              "title": "Dept Id"
+            }
+          },
+          {
+            "description": "Filter by assigned staff",
+            "in": "query",
+            "name": "assignee_staff_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by assigned staff",
+              "title": "Assignee Staff Id"
+            }
+          },
+          {
+            "description": "Filter by assigned team",
+            "in": "query",
+            "name": "assignee_team_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by assigned team",
+              "title": "Assignee Team Id"
+            }
+          },
+          {
+            "description": "Filter by help topic ID",
+            "in": "query",
+            "name": "topic_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by help topic ID",
+              "title": "Topic Id"
+            }
+          },
+          {
+            "description": "Filter by SLA plan ID",
+            "in": "query",
+            "name": "sla_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by SLA plan ID",
+              "title": "Sla Id"
+            }
+          },
+          {
+            "description": "Filter to the tickets of one end user (the requester)",
+            "in": "query",
+            "name": "user_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter to the tickets of one end user (the requester)",
+              "title": "User Id"
+            }
+          },
+          {
+            "description": "Filter by answered flag",
+            "in": "query",
+            "name": "is_answered",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by answered flag",
+              "title": "Is Answered"
+            }
+          },
+          {
+            "description": "Ticket number, subject, or the requester's name or email (contains)",
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Ticket number, subject, or the requester's name or email (contains)",
+              "title": "Q"
+            }
+          },
+          {
+            "description": "One of osTicket's default queues (see GET /tickets/queues)",
+            "in": "query",
+            "name": "queue",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "open",
+                    "unanswered",
+                    "answered",
+                    "overdue",
+                    "mine",
+                    "assigned_me",
+                    "assigned_teams",
+                    "closed"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "One of osTicket's default queues (see GET /tickets/queues)",
+              "title": "Queue"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "updated",
+              "enum": [
+                "updated",
+                "last_activity",
+                "created",
+                "due_date",
+                "number",
+                "subject",
+                "status",
+                "dept",
+                "priority",
+                "assignee",
+                "requester"
+              ],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "descending",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Descending",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Comma-separated columns to write (default all): number, subject, from, status, priority, department, topic, sla, source, assigned_agent, assigned_team, answered, overdue, created, last_activity, due_date, closed",
+            "in": "query",
+            "name": "columns",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 300,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated columns to write (default all): number, subject, from, status, priority, department, topic, sla, source, assigned_agent, assigned_team, answered, overdue, created, last_activity, due_date, closed",
+              "title": "Columns"
+            }
+          },
+          {
+            "description": "Comma-separated custom-field variable names to include on every row as `custom_fields` (at most 20); see GET /forms/for/{kind} for the names",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 1500,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated custom-field variable names to include on every row as `custom_fields` (at most 20); see GET /forms/for/{kind} for the names",
+              "title": "Fields"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "text/csv": {}
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Export the ticket list as CSV (osTicket's Export on a queue)",
         "tags": [
           "tickets"
         ]
@@ -28907,6 +30241,100 @@
         ]
       }
     },
+    "/api/v1/tickets/{ticket_id}/print": {
+      "get": {
+        "operationId": "print_ticket_api_v1_tickets__ticket_id__print_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticket_id",
+            "required": true,
+            "schema": {
+              "title": "Ticket Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Default: the agent's own paper size in osTicket",
+            "in": "query",
+            "name": "paper_size",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "Letter",
+                    "Legal",
+                    "A4",
+                    "A3"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: the agent's own paper size in osTicket",
+              "title": "Paper Size"
+            }
+          },
+          {
+            "description": "Include the internal notes",
+            "in": "query",
+            "name": "notes",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Include the internal notes",
+              "title": "Notes",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Include the event history",
+            "in": "query",
+            "name": "events",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Include the event history",
+              "title": "Events",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "application/pdf": {}
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "The ticket as a PDF (osTicket's Print)",
+        "tags": [
+          "tickets"
+        ]
+      }
+    },
     "/api/v1/tickets/{ticket_id}/refer": {
       "post": {
         "operationId": "refer_ticket_api_v1_tickets__ticket_id__refer_post",
@@ -29793,6 +31221,76 @@
         ]
       }
     },
+    "/api/v1/tickets/{ticket_id}/zip": {
+      "get": {
+        "operationId": "zip_ticket_api_v1_tickets__ticket_id__zip_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticket_id",
+            "required": true,
+            "schema": {
+              "title": "Ticket Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Include the internal notes in the PDF",
+            "in": "query",
+            "name": "notes",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Include the internal notes in the PDF",
+              "title": "Notes",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Add the ticket's tasks (only those the agent may open)",
+            "in": "query",
+            "name": "tasks",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Add the ticket's tasks (only those the agent may open)",
+              "title": "Tasks",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "application/zip": {}
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "The ticket's PDF and every file attached to it, as a ZIP (osTicket's Export to ZIP)",
+        "tags": [
+          "tickets"
+        ]
+      }
+    },
     "/api/v1/topics": {
       "get": {
         "description": "Help topics. Administrators get the Admin Panel list (every topic, raw names). An agent gets what osTicket's\nticket form offers them: active topics, named \"Parent / Child\", narrowed by department.",
@@ -30297,6 +31795,145 @@
           }
         ],
         "summary": "Create user",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/export": {
+      "get": {
+        "operationId": "export_users_api_v1_users_export_get",
+        "parameters": [
+          {
+            "description": "Filter by organization ID",
+            "in": "query",
+            "name": "org_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by organization ID",
+              "title": "Org Id"
+            }
+          },
+          {
+            "description": "Name, any email address, organization name or phone contains",
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Name, any email address, organization name or phone contains",
+              "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "name",
+              "enum": [
+                "name",
+                "email",
+                "status",
+                "created",
+                "updated"
+              ],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "descending",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Descending",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Comma-separated columns (default all): name, email, organization, status, tickets, created, updated",
+            "in": "query",
+            "name": "columns",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 300,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated columns (default all): name, email, organization, status, tickets, created, updated",
+              "title": "Columns"
+            }
+          },
+          {
+            "description": "Comma-separated custom-field variable names to include on every row as `custom_fields` (at most 20); see GET /forms/for/{kind} for the names",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 1500,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated custom-field variable names to include on every row as `custom_fields` (at most 20); see GET /forms/for/{kind} for the names",
+              "title": "Fields"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "text/csv": {}
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Export the user directory as CSV",
         "tags": [
           "users"
         ]

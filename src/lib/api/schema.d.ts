@@ -776,6 +776,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/orgs/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export the organization directory as CSV */
+        get: operations["export_organizations_api_v1_orgs_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/orgs/{org_id}": {
         parameters: {
             query?: never;
@@ -1141,6 +1158,23 @@ export interface paths {
         patch: operations["update_kb_settings_api_v1_settings_kb_patch"];
         trace?: never;
     };
+    "/api/v1/settings/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The choices behind the settings pages' drop-downs */
+        get: operations["settings_options_api_v1_settings_options_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/settings/pages": {
         parameters: {
             query?: never;
@@ -1347,6 +1381,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tasks/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export the task list as CSV (osTicket's Export on the task list)
+         * @description The rows ``GET /tasks/`` would list for the same filters (all pages, at most ``EXPORT_MAX_ROWS``), as CSV.
+         */
+        get: operations["export_tasks_api_v1_tasks_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tasks/queues": {
         parameters: {
             query?: never;
@@ -1507,6 +1561,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tasks/{task_id}/print": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The task as a PDF (osTicket's Print) */
+        get: operations["print_task_api_v1_tasks__task_id__print_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tasks/{task_id}/reopen": {
         parameters: {
             query?: never;
@@ -1642,11 +1713,52 @@ export interface paths {
          */
         get: operations["list_ticket_statuses_api_v1_ticket_statuses_get"];
         put?: never;
+        /** Create a ticket status */
+        post: operations["create_ticket_status_api_v1_ticket_statuses_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ticket-statuses/manage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Every ticket status, as the Admin Panel lists them
+         * @description Enabled and disabled statuses with their description, reopen settings, ticket counts and whether each is internal
+         *     or deletable. ``GET /ticket-statuses`` is the agents' list of enabled statuses.
+         */
+        get: operations["manage_ticket_statuses_api_v1_ticket_statuses_manage_get"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ticket-statuses/{status_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a ticket status */
+        get: operations["get_ticket_status_api_v1_ticket_statuses__status_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete a ticket status */
+        delete: operations["delete_ticket_status_api_v1_ticket_statuses__status_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update a ticket status */
+        patch: operations["update_ticket_status_api_v1_ticket_statuses__status_id__patch"];
         trace?: never;
     };
     "/api/v1/tickets/": {
@@ -1668,6 +1780,27 @@ export interface paths {
         put?: never;
         /** Create a ticket */
         post: operations["create_ticket_api_v1_tickets__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export the ticket list as CSV (osTicket's Export on a queue)
+         * @description The rows ``GET /tickets/`` would list for the same filters (all pages, at most ``EXPORT_MAX_ROWS``), as CSV;
+         *     ``?fields=`` adds custom-form columns. Cells that look like formulas are quoted.
+         */
+        get: operations["export_tickets_api_v1_tickets_export_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1958,6 +2091,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tickets/{ticket_id}/print": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The ticket as a PDF (osTicket's Print) */
+        get: operations["print_ticket_api_v1_tickets__ticket_id__print_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tickets/{ticket_id}/refer": {
         parameters: {
             query?: never;
@@ -2179,6 +2329,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tickets/{ticket_id}/zip": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The ticket's PDF and every file attached to it, as a ZIP (osTicket's Export to ZIP) */
+        get: operations["zip_ticket_api_v1_tickets__ticket_id__zip_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/topics": {
         parameters: {
             query?: never;
@@ -2232,6 +2399,23 @@ export interface paths {
         put?: never;
         /** Create user */
         post: operations["create_user_api_v1_users_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export the user directory as CSV */
+        get: operations["export_users_api_v1_users_export_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -6128,6 +6312,26 @@ export interface components {
              */
             event: string;
         };
+        /** SettingOption */
+        SettingOption: {
+            /** Label */
+            label: string;
+            /**
+             * Value
+             * @description What to send back in the PATCH (a blank policy is a single space, as osTicket posts it)
+             */
+            value: string;
+        };
+        /**
+         * SettingsOptions
+         * @description The choices behind the settings pages' drop-downs, listed by osTicket itself, keyed by the setting's name.
+         */
+        SettingsOptions: {
+            /** Options */
+            options: {
+                [key: string]: components["schemas"]["SettingOption"][];
+            };
+        };
         /** StaffCreate */
         StaffCreate: {
             /**
@@ -6639,6 +6843,11 @@ export interface components {
         };
         /** TaskCreate */
         TaskCreate: {
+            /**
+             * Attachments
+             * @description Files to attach (size-capped, see GET /settings/attachments)
+             */
+            attachments?: components["schemas"]["AttachmentUpload"][];
             /**
              * Custom Fields
              * @description Answers to custom task-form fields, by variable name.
@@ -7848,6 +8057,16 @@ export interface components {
              * @description Files to attach (size-capped, see GET /settings/attachments)
              */
             attachments?: components["schemas"]["AttachmentUpload"][];
+            /**
+             * Canned Attachment Ids
+             * @description Files of that canned response to attach to the reply: the `id`s of `files` in GET /tickets/{id}/canned/{canned_id}. osTicket's reply box attaches the picked response's files the same way.
+             */
+            canned_attachment_ids?: number[];
+            /**
+             * Canned Id
+             * @description The canned response this reply was filled from; required with canned_attachment_ids
+             */
+            canned_id?: number | null;
             /** Message */
             message: string;
             /**
@@ -7862,6 +8081,101 @@ export interface components {
              * @description Also set the ticket's status (osTicket's Ticket Status select); closing needs ticket.close
              */
             status_id?: number | null;
+        };
+        /** TicketStatusAdminList */
+        TicketStatusAdminList: {
+            /** Items */
+            items: components["schemas"]["TicketStatusDetail"][];
+        };
+        /** TicketStatusCreate */
+        TicketStatusCreate: {
+            /**
+             * Allow Reopen
+             * @default false
+             */
+            allow_reopen: boolean;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /**
+             * Is Enabled
+             * @default true
+             */
+            is_enabled: boolean;
+            /** Name */
+            name: string;
+            /** Reopen Status Id */
+            reopen_status_id?: number | null;
+            /**
+             * Sort
+             * @description Default: after the others
+             */
+            sort?: number | null;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "open" | "closed" | "archived" | "deleted";
+        };
+        /**
+         * TicketStatusDetail
+         * @description A ticket status as the Admin Panel's Ticket Statuses page holds it.
+         */
+        TicketStatusDetail: {
+            /**
+             * Allow Reopen
+             * @description A closed status: end users may reopen their ticket
+             * @default false
+             */
+            allow_reopen: boolean;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** Id */
+            id: number;
+            /**
+             * Is Default
+             * @description The status new tickets start in (Settings > Tickets)
+             */
+            is_default: boolean;
+            /**
+             * Is Deletable
+             * @description Not internal and no ticket has it
+             */
+            is_deletable: boolean;
+            /** Is Enabled */
+            is_enabled: boolean;
+            /**
+             * Is Internal
+             * @description A built-in status or the system default: its name and state are fixed, and it cannot be disabled or deleted
+             */
+            is_internal: boolean;
+            /** Name */
+            name: string;
+            /**
+             * Reopen Status Id
+             * @description The open status a reopened ticket gets; none = the system default
+             */
+            reopen_status_id?: number | null;
+            /**
+             * Sort
+             * @default 0
+             */
+            sort: number;
+            /**
+             * State
+             * @description open | closed | archived | deleted; the New Ticket form offers the open ones
+             */
+            state: string;
+            /**
+             * Ticket Count
+             * @default 0
+             */
+            ticket_count: number;
         };
         /** TicketStatusItem */
         TicketStatusItem: {
@@ -7888,6 +8202,23 @@ export interface components {
             name: string;
             /** State */
             state: string;
+        };
+        /** TicketStatusUpdate */
+        TicketStatusUpdate: {
+            /** Allow Reopen */
+            allow_reopen?: boolean | null;
+            /** Description */
+            description?: string | null;
+            /** Is Enabled */
+            is_enabled?: boolean | null;
+            /** Name */
+            name?: string | null;
+            /** Reopen Status Id */
+            reopen_status_id?: number | null;
+            /** Sort */
+            sort?: number | null;
+            /** State */
+            state?: ("open" | "closed" | "archived" | "deleted") | null;
         };
         /** TicketTransfer */
         TicketTransfer: {
@@ -11711,6 +12042,45 @@ export interface operations {
             };
         };
     };
+    export_organizations_api_v1_orgs_export_get: {
+        parameters: {
+            query?: {
+                /** @description Name contains (as osTicket's Organizations page) */
+                q?: string | null;
+                sort?: "name" | "users" | "created" | "updated";
+                descending?: boolean;
+                /** @description Comma-separated columns (default all): name, users, created, updated */
+                columns?: string | null;
+                /** @description Comma-separated custom-field variable names to include on every row as `custom_fields` (at most 20); see GET /forms/for/{kind} for the names */
+                fields?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                    "text/csv": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_organization_api_v1_orgs__org_id__get: {
         parameters: {
             query?: never;
@@ -12941,6 +13311,26 @@ export interface operations {
             };
         };
     };
+    settings_options_api_v1_settings_options_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingsOptions"];
+                };
+            };
+        };
+    };
     get_pages_settings_api_v1_settings_pages_get: {
         parameters: {
             query?: never;
@@ -13655,6 +14045,55 @@ export interface operations {
             };
         };
     };
+    export_tasks_api_v1_tasks_export_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by status ID */
+                status_id?: number | null;
+                /** @description Filter by department ID */
+                dept_id?: number | null;
+                /** @description Filter by assigned staff */
+                assignee_staff_id?: number | null;
+                /** @description Filter to tasks linked to a ticket */
+                ticket_id?: number | null;
+                /** @description Task number or title (contains) */
+                q?: string | null;
+                /** @description One of osTicket's task queues (see GET /tasks/queues) */
+                queue?: ("open" | "overdue" | "assigned" | "closed") | null;
+                sort?: "updated" | "created" | "due_date" | "number" | "title" | "dept" | "ticket" | "closed";
+                descending?: boolean;
+                /** @description Comma-separated columns to write (default all): number, title, status, department, assigned_agent, assigned_team, ticket, overdue, created, due_date, closed */
+                columns?: string | null;
+                /** @description Comma-separated custom-field variable names to include on every row as `custom_fields` (at most 20); see GET /forms/for/{kind} for the names */
+                fields?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                    "text/csv": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     task_queues_api_v1_tasks_queues_get: {
         parameters: {
             query?: never;
@@ -14056,6 +14495,41 @@ export interface operations {
             };
         };
     };
+    print_task_api_v1_tasks__task_id__print_get: {
+        parameters: {
+            query?: {
+                /** @description Default: the agent's own paper size in osTicket */
+                paper_size?: ("Letter" | "Legal" | "A4" | "A3") | null;
+            };
+            header?: never;
+            path: {
+                task_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                    "application/pdf": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     reopen_task_api_v1_tasks__task_id__reopen_post: {
         parameters: {
             query?: never;
@@ -14431,6 +14905,162 @@ export interface operations {
             };
         };
     };
+    create_ticket_status_api_v1_ticket_statuses_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TicketStatusCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    manage_ticket_statuses_api_v1_ticket_statuses_manage_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketStatusAdminList"];
+                };
+            };
+        };
+    };
+    get_ticket_status_api_v1_ticket_statuses__status_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                status_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketStatusDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_ticket_status_api_v1_ticket_statuses__status_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                status_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_ticket_status_api_v1_ticket_statuses__status_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                status_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TicketStatusUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_tickets_api_v1_tickets__get: {
         parameters: {
             query?: {
@@ -14511,6 +15141,63 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_tickets_api_v1_tickets_export_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by status ID */
+                status_id?: number | null;
+                /** @description Filter by department ID */
+                dept_id?: number | null;
+                /** @description Filter by assigned staff */
+                assignee_staff_id?: number | null;
+                /** @description Filter by assigned team */
+                assignee_team_id?: number | null;
+                /** @description Filter by help topic ID */
+                topic_id?: number | null;
+                /** @description Filter by SLA plan ID */
+                sla_id?: number | null;
+                /** @description Filter to the tickets of one end user (the requester) */
+                user_id?: number | null;
+                /** @description Filter by answered flag */
+                is_answered?: boolean | null;
+                /** @description Ticket number, subject, or the requester's name or email (contains) */
+                q?: string | null;
+                /** @description One of osTicket's default queues (see GET /tickets/queues) */
+                queue?: ("open" | "unanswered" | "answered" | "overdue" | "mine" | "assigned_me" | "assigned_teams" | "closed") | null;
+                sort?: "updated" | "last_activity" | "created" | "due_date" | "number" | "subject" | "status" | "dept" | "priority" | "assignee" | "requester";
+                descending?: boolean;
+                /** @description Comma-separated columns to write (default all): number, subject, from, status, priority, department, topic, sla, source, assigned_agent, assigned_team, answered, overdue, created, last_activity, due_date, closed */
+                columns?: string | null;
+                /** @description Comma-separated custom-field variable names to include on every row as `custom_fields` (at most 20); see GET /forms/for/{kind} for the names */
+                fields?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                    "text/csv": unknown;
                 };
             };
             /** @description Validation Error */
@@ -15216,6 +15903,45 @@ export interface operations {
             };
         };
     };
+    print_ticket_api_v1_tickets__ticket_id__print_get: {
+        parameters: {
+            query?: {
+                /** @description Default: the agent's own paper size in osTicket */
+                paper_size?: ("Letter" | "Legal" | "A4" | "A3") | null;
+                /** @description Include the internal notes */
+                notes?: boolean;
+                /** @description Include the event history */
+                events?: boolean;
+            };
+            header?: never;
+            path: {
+                ticket_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                    "application/pdf": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     refer_ticket_api_v1_tickets__ticket_id__refer_post: {
         parameters: {
             query?: never;
@@ -15672,6 +16398,43 @@ export interface operations {
             };
         };
     };
+    zip_ticket_api_v1_tickets__ticket_id__zip_get: {
+        parameters: {
+            query?: {
+                /** @description Include the internal notes in the PDF */
+                notes?: boolean;
+                /** @description Add the ticket's tasks (only those the agent may open) */
+                tasks?: boolean;
+            };
+            header?: never;
+            path: {
+                ticket_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                    "application/zip": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_topics_api_v1_topics_get: {
         parameters: {
             query?: {
@@ -15902,6 +16665,47 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_users_api_v1_users_export_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by organization ID */
+                org_id?: number | null;
+                /** @description Name, any email address, organization name or phone contains */
+                q?: string | null;
+                sort?: "name" | "email" | "status" | "created" | "updated";
+                descending?: boolean;
+                /** @description Comma-separated columns (default all): name, email, organization, status, tickets, created, updated */
+                columns?: string | null;
+                /** @description Comma-separated custom-field variable names to include on every row as `custom_fields` (at most 20); see GET /forms/for/{kind} for the names */
+                fields?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                    "text/csv": unknown;
                 };
             };
             /** @description Validation Error */

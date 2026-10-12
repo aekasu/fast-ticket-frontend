@@ -6,6 +6,34 @@ and added the Admin Panel pages; adopted in the commits after `chore(api): pull 
 What is left on the backend side is in `notes/BACKEND_REQUESTS.md` (short: company profile, email diagnostic, enumerated
 setting options, mailbox accounts).
 
+## Do first: adopt the backend's 2026-10-08 changes
+
+The schema snapshot and types are already pulled (138 paths). Read `../fast-ticket/notes/CHANGES_FOR_FRONTEND.md` (entries
+dated 2026-10-07 `settings drop-down choices` and 2026-10-08), then, in this order, as atomic commits with an e2e test
+compared against osTicket's own page each:
+
+1. **Settings selects:** `GET /settings/options` (admin) gives `{options: {key: [{value, label}]}}` for
+   `agent_name_format`, `client_name_format`, `agent_avatar`, `client_avatar`, `agent_passwd_policy`,
+   `client_passwd_policy` (a blank policy has the value `" "`, one space), `client_registration`, `log_level`,
+   `ticket_lock`, `acl_backend`, `default_ticket_queue`. Turn those inputs in `admin-settings.tsx` into selects. The default
+   priority/status/department/SLA/topic ids come from the existing lookups.
+2. **Canned files on a reply:** `POST /tickets/{id}/reply` takes `canned_id` and `canned_attachment_ids` (ids of `files` in
+   `GET /tickets/{id}/canned/{canned_id}`); show the files with a tick each in the reply box and send only the ticked ids.
+   Replies only.
+3. **Print and ZIP:** `GET /tickets/{id}/print?paper_size=&notes=&events=`, `GET /tasks/{id}/print?paper_size=`,
+   `GET /tickets/{id}/zip?notes=&tasks=`: files, fetched through the same-origin proxy and saved as a blob.
+4. **CSV export:** `GET /tickets|tasks|users|orgs/export` with the list's current filters, `?columns=`, `?fields=`
+   (the Columns menu's choice); at most 10000 rows.
+5. **Ticket statuses admin page:** `GET /ticket-statuses/manage`, `POST /ticket-statuses`, `PATCH` and `DELETE
+   /ticket-statuses/{id}`; use `is_internal`, `is_deletable` and `ticket_count` to disable controls; osTicket's refusals are
+   shown as worded.
+6. **Files on a new task:** `attachments` on `POST /tasks/` (the picker from `attachment-picker.tsx`).
+7. **Fields with no answer:** `custom_fields` now lists every enabled field with `value: null`; check the views and the
+   edit forms render those, and drop any workaround.
+
+Afterwards delete the met entries from `notes/BACKEND_REQUESTS.md` (Print, select-like settings values, canned files on
+a reply, the field-added-later leftover) and update this file.
+
 ## State
 
 Every screen of osTicket's staff panel exists, each compared with osTicket's own page by the end-to-end suite:
