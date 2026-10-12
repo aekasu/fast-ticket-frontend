@@ -5414,6 +5414,24 @@
         "title": "FilterUpdate",
         "type": "object"
       },
+      "FormChoice": {
+        "properties": {
+          "form_id": {
+            "title": "Form Id",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "form_id",
+          "title"
+        ],
+        "title": "FormChoice",
+        "type": "object"
+      },
       "FormCreate": {
         "properties": {
           "instructions": {
@@ -6611,6 +6629,87 @@
           "body"
         ],
         "title": "MessageUpdate",
+        "type": "object"
+      },
+      "ObjectForm": {
+        "properties": {
+          "entry_id": {
+            "title": "Entry Id",
+            "type": "integer"
+          },
+          "form_id": {
+            "title": "Form Id",
+            "type": "integer"
+          },
+          "kind": {
+            "description": "The object's own form cannot be removed or reordered away; extra forms can",
+            "enum": [
+              "built_in",
+              "extra"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "sort": {
+            "title": "Sort",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "entry_id",
+          "form_id",
+          "title",
+          "kind",
+          "sort"
+        ],
+        "title": "ObjectForm",
+        "type": "object"
+      },
+      "ObjectForms": {
+        "properties": {
+          "available": {
+            "description": "Extra forms that can be added (those not already on the object)",
+            "items": {
+              "$ref": "#/components/schemas/FormChoice"
+            },
+            "title": "Available",
+            "type": "array"
+          },
+          "forms": {
+            "items": {
+              "$ref": "#/components/schemas/ObjectForm"
+            },
+            "title": "Forms",
+            "type": "array"
+          }
+        },
+        "required": [
+          "forms",
+          "available"
+        ],
+        "title": "ObjectForms",
+        "type": "object"
+      },
+      "ObjectFormsUpdate": {
+        "properties": {
+          "form_ids": {
+            "description": "Every form the object should carry, in order: its built-in form(s) as listed, then the extra ones. A form left out is removed together with its answers.",
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 50,
+            "title": "Form Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "form_ids"
+        ],
+        "title": "ObjectFormsUpdate",
         "type": "object"
       },
       "OrganizationCreate": {
@@ -22892,6 +22991,124 @@
         ]
       }
     },
+    "/api/v1/orgs/{org_id}/forms": {
+      "get": {
+        "operationId": "organization_forms_api_v1_orgs__org_id__forms_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "title": "Org Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectForms"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "The forms on an organization and the extra forms that can be added",
+        "tags": [
+          "users"
+        ]
+      },
+      "put": {
+        "operationId": "update_organization_forms_api_v1_orgs__org_id__forms_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "org_id",
+            "required": true,
+            "schema": {
+              "title": "Org Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ObjectFormsUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Set the forms an organization carries and their order",
+        "tags": [
+          "users"
+        ]
+      }
+    },
     "/api/v1/pages": {
       "get": {
         "operationId": "list_pages_api_v1_pages_get",
@@ -30022,6 +30239,125 @@
         ]
       }
     },
+    "/api/v1/tickets/{ticket_id}/forms": {
+      "get": {
+        "operationId": "ticket_forms_api_v1_tickets__ticket_id__forms_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticket_id",
+            "required": true,
+            "schema": {
+              "title": "Ticket Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectForms"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "The forms on a ticket, and the extra forms that can be added (osTicket's Manage Forms)",
+        "tags": [
+          "tickets"
+        ]
+      },
+      "put": {
+        "description": "The whole ordered list: the ticket's built-in form(s) must stay; an extra form left out is removed together\nwith its answers; an extra form not yet there is added empty.",
+        "operationId": "update_ticket_forms_api_v1_tickets__ticket_id__forms_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticket_id",
+            "required": true,
+            "schema": {
+              "title": "Ticket Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ObjectFormsUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Set the forms a ticket carries and their order",
+        "tags": [
+          "tickets"
+        ]
+      }
+    },
     "/api/v1/tickets/{ticket_id}/link": {
       "post": {
         "operationId": "link_tickets_api_v1_tickets__ticket_id__link_post",
@@ -32448,6 +32784,124 @@
           }
         ],
         "summary": "Email the user a password-reset link",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/{user_id}/forms": {
+      "get": {
+        "operationId": "user_forms_api_v1_users__user_id__forms_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "title": "User Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectForms"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "The forms on a user and the extra forms that can be added",
+        "tags": [
+          "users"
+        ]
+      },
+      "put": {
+        "operationId": "update_user_forms_api_v1_users__user_id__forms_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "title": "User Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ObjectFormsUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Set the forms a user carries and their order",
         "tags": [
           "users"
         ]

@@ -21,10 +21,6 @@ pull the schema: statuses, link/unlink, profile, ...`). What is left:
 ## Ticket pages
 
 - **The default queue's "Closed today / this week" sub-queues and custom queues** are not exposed (`KNOWN_LIMITS.md`).
-- **`GET /tickets/{id}/canned/{canned_id}?plain=true` returns `files: []`** for a response that has files; the same
-  call without `plain` lists them (seen 2026-10-12, canned response with two attachments). The reply box asks for both
-  and takes the files from the HTML form. Ask: `files` regardless of `plain`.
-
 ## For reference (not requests)
 
 - osTicket calls an unpublished FAQ "Internal"; the UI uses its word. osTicket's directory lists a user's ticket count

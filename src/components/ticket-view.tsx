@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { ApiError } from "@/lib/api/errors";
 import { formatDateTime } from "@/lib/format";
-import { useTicket, useTicketOwner } from "@/lib/queries/tickets";
+import { can, useMe } from "@/lib/queries/me";
+import { ticketKeys, useTicket, useTicketOwner } from "@/lib/queries/tickets";
 import { TicketReplyBox, TicketToolbar } from "./ticket-actions";
 import { FileExports } from "./file-exports";
+import { ManageForms } from "./manage-forms";
 import { TicketPeopleTools } from "./ticket-people";
 import { TicketRelated } from "./ticket-related";
 import { CustomFieldsView } from "./custom-fields";
@@ -15,6 +17,7 @@ import { Thread } from "./thread";
 export function TicketView({ id }: { id: number }) {
   const { data: ticket, error, isLoading } = useTicket(id);
   const { data: owner } = useTicketOwner(ticket?.user_id);
+  const { data: me } = useMe();
 
   if (isLoading) return <p className="text-sm text-slate-500">Loading…</p>;
   if (error instanceof ApiError && error.status === 404) {
@@ -52,6 +55,11 @@ export function TicketView({ id }: { id: number }) {
 
       <TicketToolbar ticket={ticket} />
       <TicketPeopleTools ticket={ticket} />
+      {can(me, ticket.dept_id, "ticket.edit") && (
+        <div className="mb-3 flex flex-wrap items-start gap-2">
+          <ManageForms base={`/api/v1/tickets/${ticket.ticket_id}`} invalidate={[ticketKeys.all[0]]} />
+        </div>
+      )}
       <FileExports kind="ticket" id={ticket.ticket_id} number={ticket.number} />
       <TicketRelated ticketId={ticket.ticket_id} />
 

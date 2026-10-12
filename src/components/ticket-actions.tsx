@@ -216,16 +216,11 @@ export function TicketReplyBox({ ticket }: { ticket: Ticket }) {
     setCannedPick(null);
     // osTicket fills in the ticket's variables itself; the plain form is what the reply box holds.
     const path = { ticket_id: ticket.ticket_id, canned_id: id };
-    // `?plain=true` comes back with `files: []` (notes/BACKEND_REQUESTS.md), so the files are read from the HTML form.
-    const [plain, html] = await Promise.all([
-      api.GET("/api/v1/tickets/{ticket_id}/canned/{canned_id}", { params: { path, query: { plain: true } } }),
-      api.GET("/api/v1/tickets/{ticket_id}/canned/{canned_id}", { params: { path } }),
-    ]);
-    const { data, error } = plain;
+    const { data, error } = await api.GET("/api/v1/tickets/{ticket_id}/canned/{canned_id}", { params: { path, query: { plain: true } } });
     if (!data) return setCannedNote(error ? "Could not load the canned response." : null);
     const text = data.response ?? "";
     setMessage((current) => (append && current.trim() ? `${current.trimEnd()}\n\n${text}` : text));
-    const files = data.files?.length ? data.files : (html.data?.files ?? []);
+    const files = data.files ?? [];
     if (files.length) setCannedPick({ id, files, ticked: new Set(files.map((f) => f.id)) });
   }
   // Notes follow the agent's access to the ticket; the server decides, so the tab is always offered.

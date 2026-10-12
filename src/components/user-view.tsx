@@ -8,6 +8,7 @@ import { directoryKeys, useUser } from "@/lib/queries/directory";
 import { useMe } from "@/lib/queries/me";
 import { useTicketList } from "@/lib/queries/tickets";
 import { CustomFieldsView } from "./custom-fields";
+import { ManageForms } from "./manage-forms";
 import { DeleteButton } from "./delete-button";
 import { Info } from "./info-table";
 import { UserAccount, accountStatus } from "./user-account";
@@ -90,6 +91,7 @@ export function UserView({ id }: { id: number }) {
             Edit
           </Link>
         )}
+        {me && hasGlobal(me, "user.edit") && <ManageForms base={`/api/v1/users/${user.id}`} invalidate={[directoryKeys.users[0]]} />}
         {me && hasGlobal(me, "user.delete") && (
           <DeleteButton noun="user" path={`/api/v1/users/${user.id}`} redirectTo="/users" invalidate={directoryKeys.users} />
         )}

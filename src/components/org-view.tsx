@@ -8,6 +8,7 @@ import { directoryKeys, useOrg, useUsers } from "@/lib/queries/directory";
 import { useAgentDirectory, useTeamsList } from "@/lib/queries/admin-lookups";
 import { useMe } from "@/lib/queries/me";
 import { CustomFieldsView } from "./custom-fields";
+import { ManageForms } from "./manage-forms";
 import { DeleteButton } from "./delete-button";
 import { SHARING } from "./org-form";
 import { Info } from "./info-table";
@@ -97,6 +98,7 @@ export function OrgView({ id }: { id: number }) {
             Edit
           </Link>
         )}
+        {me && hasGlobal(me, "org.edit") && <ManageForms base={`/api/v1/orgs/${org.id}`} invalidate={[directoryKeys.orgs[0]]} />}
         {me && hasGlobal(me, "org.delete") && (
           <DeleteButton noun="organization" path={`/api/v1/orgs/${org.id}`} redirectTo="/orgs" invalidate={directoryKeys.orgs} />
         )}

@@ -1,15 +1,15 @@
 # Handoff — the frontend is closed out
 
-Last updated 2026-10-12. A fresh session starts here (see `CLAUDE.md` → "Starting a session"). The frontend has adopted
-everything in `../fast-ticket/notes/CHANGES_FOR_FRONTEND.md` as of 2026-10-08 (the settings drop-down choices, canned
+Last updated 2026-10-12 (later). A fresh session starts here (see `CLAUDE.md` → "Starting a session"). The frontend has adopted
+everything in `../fast-ticket/notes/CHANGES_FOR_FRONTEND.md` as of 2026-10-12 (the settings drop-down choices, canned
 files on a reply, print and ZIP, CSV export, the ticket statuses admin page, files on a new task and fields with no
 answer). What is left on the backend side is in `notes/BACKEND_REQUESTS.md` (short: company profile, email diagnostic,
-mailbox accounts, and `?plain=true` dropping a canned response's `files`).
+mailbox accounts).
 
 ## Do first
 
 Nothing is pending from the backend's change log. Read `../fast-ticket/notes/CHANGES_FOR_FRONTEND.md` for entries
-newer than 2026-10-08, pull the schema (`npm run api:pull`, `npm run api:types`) if the backend changed, and otherwise
+newer than 2026-10-12, pull the schema (`npm run api:pull`, `npm run api:types`) if the backend changed, and otherwise
 pick from "What is left" below.
 
 ## State
@@ -25,7 +25,8 @@ Every screen of osTicket's staff panel exists, each compared with osTicket's own
   (osTicket's whole staff form: existing or new requester, Cc, source, status, SLA, due date, assign, response with signature,
   note, notice, attachments), reply and note with attachments, a signature choice and a ticket status, canned responses filled in by the API
   (their files ticked in the reply box and sent as `canned_attachment_ids`), Print as PDF and Export to ZIP (`file-exports.tsx`,
-  saved as a blob by `lib/download.ts`),
+  saved as a blob by `lib/download.ts`), Manage Forms (`manage-forms.tsx`: add, order and remove extra forms; on the ticket, user
+  and organization pages),
   Edit, Reply, Internal Note (with canned responses), Claim, Assign (agent or team), Release, Transfer, Close, Reopen,
   Mass actions (assign, transfer, close, reopen, delete on ticked rows), an "N new tickets" bar from the live stream, Mark Answered/Unanswered, Link/Unlink/Un-merge with a Related Tickets panel, Change Owner, Collaborators, Merge, Refer (with the referral list and remove), Delete, Add Task, edit and resend thread entries,
   custom form fields.
@@ -101,9 +102,10 @@ its `isoverdue` flag from cron). Also, a seed ticket ("[seed] Seed ticket 26") i
 test only checks the empty state when nothing is assigned.
 
 **Needs the backend** — `notes/BACKEND_REQUESTS.md`: company profile and logos, email diagnostic, mailbox/SMTP accounts,
-and `files` on `GET /tickets/{id}/canned/{id}?plain=true` (the reply box reads them from the HTML form meanwhile).
+(the canned `files` with `?plain=true` fix landed 2026-10-12 and is adopted).
 
-**Small and optional on the frontend side:** a business-hours schedule's holiday links (accepted by the API, not offered in
+**Small and optional on the frontend side:** Manage Forms is tested on a ticket only (the user and organization pages use the
+same component),  a business-hours schedule's holiday links (accepted by the API, not offered in
 the form), editing a schedule entry in place (the API replaces it whole; the UI removes and adds), a list's items in a manual
 sort order (the sort number is a plain field), a user in "Locked (Pending Activation)" and an Overdue task are not covered
 by a test, mass actions exist for tickets only, osTicket's advanced search dialog, the password-change flow has no test (it

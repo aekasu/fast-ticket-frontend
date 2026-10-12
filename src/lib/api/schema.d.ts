@@ -812,6 +812,24 @@ export interface paths {
         patch: operations["update_organization_api_v1_orgs__org_id__patch"];
         trace?: never;
     };
+    "/api/v1/orgs/{org_id}/forms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The forms on an organization and the extra forms that can be added */
+        get: operations["organization_forms_api_v1_orgs__org_id__forms_get"];
+        /** Set the forms an organization carries and their order */
+        put: operations["update_organization_forms_api_v1_orgs__org_id__forms_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/pages": {
         parameters: {
             query?: never;
@@ -2040,6 +2058,28 @@ export interface paths {
         patch: operations["update_collaborator_api_v1_tickets__ticket_id__collaborators__user_id__patch"];
         trace?: never;
     };
+    "/api/v1/tickets/{ticket_id}/forms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The forms on a ticket, and the extra forms that can be added (osTicket's Manage Forms) */
+        get: operations["ticket_forms_api_v1_tickets__ticket_id__forms_get"];
+        /**
+         * Set the forms a ticket carries and their order
+         * @description The whole ordered list: the ticket's built-in form(s) must stay; an extra form left out is removed together
+         *     with its answers; an extra form not yet there is added empty.
+         */
+        put: operations["update_ticket_forms_api_v1_tickets__ticket_id__forms_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tickets/{ticket_id}/link": {
         parameters: {
             query?: never;
@@ -2508,6 +2548,24 @@ export interface paths {
         put?: never;
         /** Email the user a password-reset link */
         post: operations["send_password_reset_api_v1_users__user_id__account_password_reset_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/{user_id}/forms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The forms on a user and the extra forms that can be added */
+        get: operations["user_forms_api_v1_users__user_id__forms_get"];
+        /** Set the forms a user carries and their order */
+        put: operations["update_user_forms_api_v1_users__user_id__forms_put"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -4609,6 +4667,13 @@ export interface components {
             /** Target */
             target?: ("Any" | "Web" | "Email" | "API") | null;
         };
+        /** FormChoice */
+        FormChoice: {
+            /** Form Id */
+            form_id: number;
+            /** Title */
+            title: string;
+        };
         /** FormCreate */
         FormCreate: {
             /**
@@ -5135,6 +5200,41 @@ export interface components {
             body: string;
             /** Subject */
             subject: string;
+        };
+        /** ObjectForm */
+        ObjectForm: {
+            /** Entry Id */
+            entry_id: number;
+            /** Form Id */
+            form_id: number;
+            /**
+             * Kind
+             * @description The object's own form cannot be removed or reordered away; extra forms can
+             * @enum {string}
+             */
+            kind: "built_in" | "extra";
+            /** Sort */
+            sort: number;
+            /** Title */
+            title: string;
+        };
+        /** ObjectForms */
+        ObjectForms: {
+            /**
+             * Available
+             * @description Extra forms that can be added (those not already on the object)
+             */
+            available: components["schemas"]["FormChoice"][];
+            /** Forms */
+            forms: components["schemas"]["ObjectForm"][];
+        };
+        /** ObjectFormsUpdate */
+        ObjectFormsUpdate: {
+            /**
+             * Form Ids
+             * @description Every form the object should carry, in order: its built-in form(s) as listed, then the extra ones. A form left out is removed together with its answers.
+             */
+            form_ids: number[];
         };
         /** OrganizationCreate */
         OrganizationCreate: {
@@ -12182,6 +12282,74 @@ export interface operations {
             };
         };
     };
+    organization_forms_api_v1_orgs__org_id__forms_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ObjectForms"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_organization_forms_api_v1_orgs__org_id__forms_put: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                org_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ObjectFormsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_pages_api_v1_pages_get: {
         parameters: {
             query?: {
@@ -15792,6 +15960,74 @@ export interface operations {
             };
         };
     };
+    ticket_forms_api_v1_tickets__ticket_id__forms_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticket_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ObjectForms"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_ticket_forms_api_v1_tickets__ticket_id__forms_put: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                ticket_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ObjectFormsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     link_tickets_api_v1_tickets__ticket_id__link_post: {
         parameters: {
             query?: never;
@@ -16974,6 +17210,74 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    user_forms_api_v1_users__user_id__forms_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ObjectForms"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_user_forms_api_v1_users__user_id__forms_put: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ObjectFormsUpdate"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             202: {
