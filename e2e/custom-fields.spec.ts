@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { addFormField, command, createTask, removeFormField, settled } from "./api";
+import { addFormField, command, createTask, createTicket, removeFormField, settled } from "./api";
 import { AUTH } from "./global-setup";
 import { osticketAdmin, osticketPageText, osticketRaw } from "./osticket";
 
@@ -82,6 +82,40 @@ test.describe("custom fields on tickets", () => {
         if (t.user_id) await request.fetch(`/api/v1/users/${t.user_id}`, { method: "DELETE", headers: { "Idempotency-Key": `cf-deluser-${stamp}` } });
       }
       for (const id of fieldIds) await removeFormField(request, TICKET_FORM, id);
+      await os.dispose();
+    }
+  });
+
+  test("a field added after the ticket existed is listed without an answer, and can be answered", async ({ page, request }) => {
+    const os = await osticketAdmin();
+    const stamp = Date.now();
+    const label = `E2E CF Late ${stamp}`;
+    let fieldId: number | undefined;
+    const ticket = await createTicket(request, { subject: `[e2e] late field ${stamp}`, message: "Made before the field.", name: "Late Field", email: `late.${stamp}@example.com` });
+    try {
+      fieldId = await addFormField(request, TICKET_FORM, { label, type: "text", name: `e2e_cf_late_${stamp}` });
+
+      // The API lists the field with no value, as osTicket's page does.
+      const detail = (await (await request.get(`/api/v1/tickets/${ticket.id}`)).json()) as { custom_fields: { label: string; value: string | null }[] };
+      const listed = detail.custom_fields.find((f) => f.label === label);
+      expect(listed, "the new field is listed").toBeDefined();
+      expect(listed?.value).toBeNull();
+
+      await page.goto(`/tickets/${ticket.id}`);
+      const fields = page.getByRole("region", { name: "Custom fields" });
+      const row = fields.locator("th", { hasText: new RegExp(`^${label}:$`) }).locator("xpath=following-sibling::td[1]");
+      await expect(row).toHaveText("");
+
+      await page.getByRole("link", { name: "Edit", exact: true }).click();
+      await expect(page.getByLabel(label)).toHaveValue("");
+      await page.getByLabel(label).fill("answered late");
+      await page.getByRole("button", { name: "Save" }).click();
+      await expect(page).toHaveURL(new RegExp(`/tickets/${ticket.id}$`));
+      await expect(row).toHaveText("answered late");
+      expect(await osticketPageText(os, `tickets.php?id=${ticket.id}`)).toContain("answered late");
+    } finally {
+      await ticket.remove();
+      if (fieldId) await removeFormField(request, TICKET_FORM, fieldId);
       await os.dispose();
     }
   });
