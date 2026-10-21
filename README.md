@@ -44,16 +44,7 @@ Production: `npm run build && npm start`. The session cookie is `Secure`, so ser
 DEV_ALLOWED_ORIGINS=192.168.1.20,laptop.local
 ```
 
-On Windows with WSL2 in mirrored networking, the Hyper-V firewall also blocks inbound connections to WSL until a rule
-allows the port. In an elevated PowerShell (allows 3100 from the LAN only; adjust the address range):
-
-```powershell
-New-NetFirewallHyperVRule -Name "fast-ticket-frontend-3100" -DisplayName "WSL fast-ticket frontend" `
-  -Direction Inbound -VMCreatorId '{40E0AC32-46A5-438A-A0B2-2B479E8F2E90}' -Protocol TCP -LocalPorts 3100 `
-  -Action Allow -RemoteAddresses 192.168.1.0/24
-```
-
-Only the frontend's port is needed; the app proxies the API itself.
+Only the frontend's port needs to be reachable; the app proxies the API itself.
 
 ## Architecture
 
