@@ -18,7 +18,8 @@ Anything the API cannot do is shown as absent, not faked. Gaps are listed in `no
 ## Setup
 
 The backend must be running: the API on http://localhost:8000 and osTicket (the reference for comparison) on
-http://localhost:8080. It lives in the sibling `fast-ticket` repository, expected at `../fast-ticket`.
+http://localhost:8080. It lives in the sibling repository
+[aekasu/fast-ticket](https://github.com/aekasu/fast-ticket), expected at `../fast-ticket`.
 
 ```bash
 cp .env.example .env.local     # FASTAPI_URL defaults to http://localhost:8000
